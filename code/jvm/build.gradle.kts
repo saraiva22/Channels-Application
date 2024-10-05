@@ -26,6 +26,18 @@ dependencies {
 
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	implementation("org.jdbi:jdbi3-core:3.37.1")
+	implementation("org.jdbi:jdbi3-kotlin:3.37.1")
+	implementation("org.jdbi:jdbi3-postgres:3.37.1")
+	implementation("org.postgresql:postgresql:42.5.4")
+}
+
+tasks.test {
+	useJUnitPlatform()
+	if (System.getenv("DB_URL") == null) {
+		environment("DB_URL", "jdbc:postgresql://localhost:5432/db?user=postgres&password=postgres")
+	}
 }
 
 kotlin {

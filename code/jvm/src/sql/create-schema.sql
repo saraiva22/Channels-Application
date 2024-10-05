@@ -17,7 +17,7 @@ create table dbo.Tokens(
 create table dbo.Invitation_Register(
     id serial not null primary key,
     user_id int references dbo.Users(id),
-    cod_hash VARCHAR(64) unique not null,\
+    cod_hash VARCHAR(64) unique not null,
     expired BOOLEAN not null
 );
 
