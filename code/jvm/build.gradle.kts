@@ -5,7 +5,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.6"
 }
 
-group = "pt.isel.daw"
+group = "pt.isel.daw.channels"
 version = "0.0.1-SNAPSHOT"
 
 java {
