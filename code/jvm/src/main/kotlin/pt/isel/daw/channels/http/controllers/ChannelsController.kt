@@ -1,5 +1,6 @@
 package pt.isel.daw.channels.http.controllers
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -23,11 +24,22 @@ class ChannelsController(
     ): ResponseEntity<*> {
         val channel = ChannelModel(input.name, input.owner, input.rules, input.type)
         return when (val res = channelsService.createChannel(channel)) {
-            is Success -> ResponseEntity.status(201).build<Unit>()
+            is Success -> ResponseEntity
+                .status(201)
+                .header(
+                    "Location",
+                    // improve in order to get the channel
+                    res.value.toString()
+                )
+                .build<Unit>()
 
             is Failure -> when (res.value) {
                 ChannelCreationError.ChannelAlreadyExists -> Problem.response(400, Problem.channelAlreadyExists)
             }
         }
+    }
+
+    companion object {
+        val logger = LoggerFactory.getLogger(ChannelsController::class.java)
     }
 }

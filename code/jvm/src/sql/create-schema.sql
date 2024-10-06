@@ -32,9 +32,9 @@ create table dbo.Public_Channels(
     channel_id serial unique references dbo.Channels(id)
 );
 
-create table dbo.Join_Public_Channels(
+create table dbo.Join_Channels(
     user_id int references dbo.Users(id),
-    public_ch_id serial references dbo.Public_Channels(channel_id)
+    ch_id serial references dbo.Channels(id)
 );
 
 create table dbo.Private_Channels(

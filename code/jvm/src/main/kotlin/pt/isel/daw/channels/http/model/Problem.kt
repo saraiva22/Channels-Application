@@ -18,9 +18,14 @@ class Problem(
 
         val channelAlreadyExists = Problem(
             URI(
-                "https://github.com/isel-leic-daw/s2223i-51d-51n-public/tree/main/code/tic-tac-tow-service/" +
-                        "docs/problems/user-already-exists",
+                "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/channel-already-exists.md",
             ),
+        )
+
+        val invalidChannelType = Problem(
+            URI(
+                "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/invalid-channel-type.md"
+            )
         )
     }
 }
