@@ -1,0 +1,1 @@
+The channel type is invalid. Please choose "Public" or "Private" type for your channel.
