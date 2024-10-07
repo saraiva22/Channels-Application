@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.http.Uris
-import pt.isel.daw.channels.http.model.ChannelCreateInputModel
+import pt.isel.daw.channels.http.model.channel.ChannelCreateInputModel
 import pt.isel.daw.channels.http.model.Problem
-import pt.isel.daw.channels.services.ChannelCreationError
-import pt.isel.daw.channels.services.ChannelsService
+import pt.isel.daw.channels.services.channel.ChannelCreationError
+import pt.isel.daw.channels.services.channel.ChannelsService
 import pt.isel.daw.channels.utils.Failure
 import pt.isel.daw.channels.utils.Success
 

@@ -1,4 +1,4 @@
-package pt.isel.daw.channels.services
+package pt.isel.daw.channels.services.channel
 
 import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.channels.ChannelModel

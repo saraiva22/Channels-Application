@@ -16,6 +16,18 @@ class Problem(
             .header("Content-Type", MEDIA_TYPE)
             .body<Any>(problem)
 
+
+        val userAlreadyExists = Problem(
+            URI(
+                "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/user-already-exists",
+            ),
+        )
+
+        val emailAlreadyExists = Problem(
+            URI(
+                "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/email-already-exists",
+            ),
+        )
         val channelAlreadyExists = Problem(
             URI(
                 "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/channel-already-exists.md",
@@ -26,6 +38,18 @@ class Problem(
             URI(
                 "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/invalid-channel-type.md"
             )
+        )
+
+        val insecurePassword = Problem(
+            URI(
+                "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/insecure-password",
+            ),
+        )
+
+        val userOrPasswordAreInvalid = Problem(
+            URI(
+                "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/user-or-password-are-invalid",
+            ),
         )
     }
 }
