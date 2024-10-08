@@ -3,6 +3,11 @@ INSERT INTO dbo.users(username, email, password_validation) VALUES
     ('bob', 'bob@gmail.com', '$2a$10$HiAG1gbNntnVCVJlXU.k7OMnkVaO22hIIQLrQBGxesoosntZ4TWW.'),
     ('carol', 'carol@gmail.com', '$2a$10$g46B9qqo3spqc4sMoGDFwuf/cwrjR99od.EDL9C6WD1xfE./.6YSu');
 
+INSERT INTO dbo.channels(name, owner_id) VALUES
+    ('Channel 1', 1),
+    ('Channel 2', 2),
+    ('Channel 3', 3);
+
 insert into dbo.join_channels(user_id, ch_id) values
     (3, 3),
     (2, 3),
