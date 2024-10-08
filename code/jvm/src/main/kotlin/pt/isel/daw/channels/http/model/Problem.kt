@@ -51,5 +51,11 @@ class Problem(
                 "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/user-or-password-are-invalid",
             ),
         )
+
+        val userNotFound = Problem(
+            URI(
+                "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/user-not-found",
+            ),
+        )
     }
 }

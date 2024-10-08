@@ -1,4 +1,4 @@
-package pt.isel.daw.channels.domain.user
+package pt.isel.daw.channels.domain.token
 
 import java.security.MessageDigest
 import java.util.Base64

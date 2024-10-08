@@ -1,20 +1,5 @@
 package pt.isel.daw.channels.repository
 
-import org.jdbi.v3.core.Handle
-import org.jdbi.v3.core.Jdbi
-import org.postgresql.ds.PGSimpleDataSource
-import pt.isel.daw.channels.Environment
-import pt.isel.daw.channels.domain.channels.ChannelModel
-import pt.isel.daw.channels.domain.channels.Type
-import pt.isel.daw.channels.domain.user.PasswordValidationInfo
-import pt.isel.daw.channels.domain.user.User
-import pt.isel.daw.channels.repository.Utils.configureWithAppRequirements
-import pt.isel.daw.channels.repository.jdbi.JdbiChannelsRepository
-import kotlin.math.abs
-import kotlin.random.Random
-import kotlin.test.Test
-import kotlin.test.assertNotNull
-
 class JdbiChannelsRepositoryTests {
     /*
     @Test

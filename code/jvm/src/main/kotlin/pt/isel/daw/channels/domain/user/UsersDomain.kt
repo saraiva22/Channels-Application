@@ -4,6 +4,9 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
+import pt.isel.daw.channels.domain.token.Token
+import pt.isel.daw.channels.domain.token.TokenEncoder
+import pt.isel.daw.channels.domain.token.TokenValidationInfo
 import java.security.SecureRandom
 import java.util.*
 
