@@ -24,8 +24,7 @@ create table dbo.Invitation_Register(
 create table dbo.Channels(
     id serial not null unique primary key,
     name VARCHAR(64) unique not null,
-    owner_id int references dbo.Users(id),
-    rules VARCHAR(64) not null
+    owner_id int references dbo.Users(id)
 );
 
 create table dbo.Public_Channels(
@@ -43,15 +42,15 @@ create table dbo.Private_Channels(
 
 create table dbo.Invitation_Channels(
     id serial not null unique primary key,
-    owner_id int references dbo.Users(id),
-    privacy int not null,
+    cod_hash VARCHAR(64) unique not null,
     expired BOOLEAN not null
 );
 
 create table dbo.Invite_Private_Channels(
     user_id int references dbo.Users(id),
     private_ch serial references dbo.Private_Channels(channel_id),
-    invite_id serial references dbo.Invitation_Channels(id)
+    invite_id serial references dbo.Invitation_Channels(id),
+    privacy int not null
 );
 
 create table dbo.Messages(
@@ -61,3 +60,29 @@ create table dbo.Messages(
     text VARCHAR(64) not null,
     timestamp bigint not null
 );
+
+create or replace function insert_invite_private_channels()
+returns trigger as $$
+declare
+    new_invite_id int;
+    channel_owner_id int;
+begin
+    select owner_id into channel_owner_id
+    from dbo.Channels
+    where id = NEW.channel_id;
+
+    insert into dbo.Invitation_Channels (cod_hash, expired)
+    values (md5(random()::text), true)
+    returning id into new_invite_id;
+
+    insert into dbo.Invite_Private_Channels (user_id, private_ch, invite_id, privacy)
+    values (channel_owner_id, new.channel_id, new_invite_id, 1);
+
+    return new;
+end;
+$$ language plpgsql;
+
+create trigger trg_insert_invite_private_channels
+    after insert on dbo.Private_Channels
+    for each row
+execute function insert_invite_private_channels();

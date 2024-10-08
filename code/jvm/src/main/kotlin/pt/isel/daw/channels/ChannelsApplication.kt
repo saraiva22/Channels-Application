@@ -19,8 +19,7 @@ class ChannelsApplication {
 	fun jdbi(): Jdbi = Jdbi.create(
 		PGSimpleDataSource().apply {
 			//setURL(Environment.getDbUrl())
-			setURL("jdbc:postgresql://localhost/DAW?user=postgres&password=12345")
-
+			setURL("jdbc:postgresql://localhost/?user=postgres&password=daw")
 		}
 	).configureWithAppRequirements()
 

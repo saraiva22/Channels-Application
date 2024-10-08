@@ -13,12 +13,11 @@ class JdbiChannelsRepository(
     override fun createChannel(channel: ChannelModel): Int {
         val channelId = handle.createUpdate(
             """
-                insert into dbo.Channels(name, owner_id, rules) values (:name, :owner_id, :rules)
+                insert into dbo.Channels(name, owner_id) values (:name, :owner_id)
             """
         )
             .bind("name", channel.name)
             .bind("owner_id", channel.owner)
-            .bind("rules", channel.rules)
             .executeAndReturnGeneratedKeys()
             .mapTo<Int>()
             .one()
@@ -46,6 +45,20 @@ class JdbiChannelsRepository(
             .mapTo<Int>()
             .single() == 1
 
+    override fun getChannelById(channelId: Int): Channel? =
+        handle.createQuery(
+            """
+                select channels.id,channels.name, channels.owner_id as owner, array_agg(members_table.user_id) as members
+                from dbo.Channels as channels 
+                left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id 
+                where channels.id = :id 
+                group by channels.id, channels.name, channels.owner_id, channels.rules
+            """
+        )
+            .bind("id", channelId)
+            .mapTo<Channel>()
+            .singleOrNull()
+
     override fun joinChannel(userId: Int): Boolean {
         TODO("Not yet implemented")
     }
@@ -54,9 +67,19 @@ class JdbiChannelsRepository(
         TODO("Not yet implemented")
     }
 
-    override fun getPublicChannels(): List<Channel> {
-        TODO("Not yet implemented")
-    }
+    override fun getPublicChannels(): List<Channel> =
+        handle.createQuery(
+            """
+                select channels.id, channels.name, channels.owner_id as owner,
+                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
+                from dbo.Channels as channels
+                left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id
+                join dbo.Public_Channels as public on channels.id = public.channel_id
+                group by channels.id, channels.name, channels.owner_id
+            """
+        )
+            .mapTo<Channel>()
+            .list()
 
     override fun leaveChannel(channel: Channel, userId: Int): Boolean {
         TODO("Not yet implemented")

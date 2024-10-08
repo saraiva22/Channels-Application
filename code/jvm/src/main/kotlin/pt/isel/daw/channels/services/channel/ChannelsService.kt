@@ -1,18 +1,12 @@
 package pt.isel.daw.channels.services.channel
 
 import org.springframework.stereotype.Component
+import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.repository.TransactionManager
-import pt.isel.daw.channels.utils.Either
 import pt.isel.daw.channels.utils.failure
 import pt.isel.daw.channels.utils.success
-
-sealed class ChannelCreationError {
-    data object ChannelAlreadyExists: ChannelCreationError()
-}
-
-typealias ChannelCreationResult = Either<ChannelCreationError, Int>
 
 @Component
 class ChannelsService(
@@ -28,6 +22,23 @@ class ChannelsService(
                 val id = channelsRepository.createChannel(channelModel)
                 success(id)
             }
+        }
+    }
+
+    fun getChannelById(id: Int): GetChannelResult {
+        return transactionManager.run {
+            val channel = it.channelsRepository.getChannelById(id)
+            if (channel == null) {
+                failure(GetChannelError.ChannelDoesNotExists)
+            } else {
+                success(channel)
+            }
+        }
+    }
+
+    fun getPublicChannels(): List<Channel> {
+        return transactionManager.run {
+            it.channelsRepository.getPublicChannels()
         }
     }
 }

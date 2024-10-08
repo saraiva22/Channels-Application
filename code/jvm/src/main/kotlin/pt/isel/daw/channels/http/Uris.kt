@@ -27,7 +27,11 @@ object Uris {
 
     object Channels{
         const val CREATE = "$PREFIX/channels"
-        const val JOIN = "$PREFIX/channels/{id}"
+        const val JOIN = "$PREFIX/channels/join/{id}"
         const val UPDATE = "$PREFIX/channels/update/{id}"
+        const val GET_BY_ID = "$PREFIX/channels/{id}"
+        const val GET_PUBLIC_CHANNELS = "$PREFIX/channels/public"
+
+        fun byId(id: Int): URI = UriTemplate(GET_BY_ID).expand(id)
     }
 }

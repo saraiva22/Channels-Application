@@ -9,6 +9,8 @@ interface ChannelsRepository {
 
     fun isChannelStored(channelName: String): Boolean
 
+    fun getChannelById(channelId: Int): Channel?
+
     fun joinChannel(userId: Int): Boolean
 
     fun getChannels(userId: Int): List<Channel>

@@ -4,6 +4,10 @@ data class Channel (
     val id: Int,
     val name: String,
     val owner: Int,
-    val rules: String,
     val members: List<Int>
-)
+) {
+    init {
+        require(id > 0)
+        require(owner > 0)
+    }
+}
