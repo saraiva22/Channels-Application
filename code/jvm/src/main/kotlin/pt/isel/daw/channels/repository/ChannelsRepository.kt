@@ -7,15 +7,19 @@ interface ChannelsRepository {
 
     fun createChannel(channel: ChannelModel): Int
 
-    fun isChannelStored(channelName: String): Boolean
+    fun isChannelStoredByName(channelName: String): Boolean
 
     fun getChannelById(channelId: Int): Channel?
+
+    fun getChannelByName(channelName: String): Channel?
 
     fun joinChannel(userId: Int): Boolean
 
     fun getChannels(userId: Int): List<Channel>
 
     fun getPublicChannels(): List<Channel>
+
+    fun isChannelPublic(channel: Channel): Boolean
 
     fun leaveChannel(channel: Channel, userId: Int): Boolean
 }

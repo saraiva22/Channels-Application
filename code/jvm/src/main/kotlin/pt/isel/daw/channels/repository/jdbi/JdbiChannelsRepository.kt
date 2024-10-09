@@ -39,7 +39,7 @@ class JdbiChannelsRepository(
         return channelId
     }
 
-    override fun isChannelStored(channelName: String): Boolean =
+    override fun isChannelStoredByName(channelName: String): Boolean =
         handle.createQuery("select count(*) from dbo.Channels where name = :name")
             .bind("name", channelName)
             .mapTo<Int>()
@@ -48,14 +48,30 @@ class JdbiChannelsRepository(
     override fun getChannelById(channelId: Int): Channel? =
         handle.createQuery(
             """
-                select channels.id,channels.name, channels.owner_id as owner, array_agg(members_table.user_id) as members
+                select channels.id, channels.name, channels.owner_id as owner, 
+                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
                 from dbo.Channels as channels 
                 left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id 
                 where channels.id = :id 
-                group by channels.id, channels.name, channels.owner_id, channels.rules
+                group by channels.id, channels.name, channels.owner_id
             """
         )
             .bind("id", channelId)
+            .mapTo<Channel>()
+            .singleOrNull()
+
+    override fun getChannelByName(channelName: String): Channel? =
+        handle.createQuery(
+            """
+                select channels.id, channels.name, channels.owner_id as owner, 
+                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
+                from dbo.Channels as channels 
+                left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id 
+                where channels.name = :name 
+                group by channels.id, channels.name, channels.owner_id
+            """
+        )
+            .bind("name", channelName)
             .mapTo<Channel>()
             .singleOrNull()
 
@@ -80,6 +96,11 @@ class JdbiChannelsRepository(
         )
             .mapTo<Channel>()
             .list()
+
+    override fun isChannelPublic(channel: Channel): Boolean {
+        val publicChannels = getPublicChannels()
+        return publicChannels.contains(channel)
+    }
 
     override fun leaveChannel(channel: Channel, userId: Int): Boolean {
         TODO("Not yet implemented")

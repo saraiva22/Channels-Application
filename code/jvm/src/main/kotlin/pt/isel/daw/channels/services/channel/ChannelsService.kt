@@ -16,7 +16,7 @@ class ChannelsService(
     fun createChannel(channelModel: ChannelModel): ChannelCreationResult {
         return transactionManager.run {
             val channelsRepository = it.channelsRepository
-            if (channelsRepository.isChannelStored(channelModel.name)) {
+            if (channelsRepository.isChannelStoredByName(channelModel.name)) {
                 failure(ChannelCreationError.ChannelAlreadyExists)
             } else {
                 val id = channelsRepository.createChannel(channelModel)
