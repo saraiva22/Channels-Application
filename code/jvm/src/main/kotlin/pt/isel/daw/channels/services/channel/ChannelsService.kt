@@ -29,7 +29,18 @@ class ChannelsService(
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(id)
             if (channel == null) {
-                failure(GetChannelError.ChannelDoesNotExists)
+                failure(GetChannelError.ChannelDoesNotExist)
+            } else {
+                success(channel)
+            }
+        }
+    }
+
+    fun getChannelByName(channelName: String): GetChannelResult {
+        return transactionManager.run {
+            val channel = it.channelsRepository.getChannelByName(channelName)
+            if (channel == null) {
+                failure(GetChannelError.ChannelDoesNotExist)
             } else {
                 success(channel)
             }

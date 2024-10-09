@@ -97,6 +97,7 @@ class JdbiChannelsRepository(
             .mapTo<Channel>()
             .list()
 
+    // domain function
     override fun isChannelPublic(channel: Channel): Boolean {
         val publicChannels = getPublicChannels()
         return publicChannels.contains(channel)
