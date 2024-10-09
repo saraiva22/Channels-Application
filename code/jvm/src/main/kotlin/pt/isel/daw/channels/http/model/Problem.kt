@@ -9,8 +9,8 @@ import java.net.URI
 class Problem(
     val typeUri: URI,
     val title: String,
-    val detail: String,
     val status: Int,
+    val detail: String,
     val instance: URI? = null
 ) {
     fun toResponse() = ResponseEntity
@@ -24,7 +24,7 @@ class Problem(
 
 
         //Default
-        private val internalServerError = URI("${BASE_URL}internal-server-error")
+        val internalServerError = URI("${BASE_URL}internal-server-error")
 
         // User
         private val usernameAlreadyExists = URI("${BASE_URL}username-already-exists")
@@ -38,6 +38,7 @@ class Problem(
         //Token
         private val invalidToken = URI("${BASE_URL}user-not-found")
         private val tokenNotRevoked = URI("${BASE_URL}token-not-revoked")
+        val unauthorized = URI("${BASE_URL}unauthorized")
 
 
         // Channel
@@ -142,6 +143,14 @@ class Problem(
             title = "User or password are invalid",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "User or password are invalid",
+            instance = instance
+        ).toResponse()
+
+        fun unauthorized(instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = unauthorized,
+            title = "Unauthorized",
+            status = HttpStatus.UNAUTHORIZED.value(),
+            detail = "The request has not been applied because it lacks valid authentication credentials for the target resource.",
             instance = instance
         ).toResponse()
 

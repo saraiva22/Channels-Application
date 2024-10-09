@@ -6,9 +6,15 @@ import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import pt.isel.daw.channels.domain.token.Sha256TokenEncoder
 import pt.isel.daw.channels.domain.user.UsersDomainConfig
+import pt.isel.daw.channels.http.pipeline.AuthenticatedUserArgumentResolver
+import pt.isel.daw.channels.http.pipeline.AuthenticationInterceptor
 import pt.isel.daw.channels.repository.configureWithAppRequirements
 import kotlin.time.Duration.Companion.hours
 
@@ -39,6 +45,21 @@ class ChannelsApplication {
 		maxTokensPerUser = 3,
 	)
 }
+
+@Configuration
+class PipelineConfig(
+	val authenticationInterceptor: AuthenticationInterceptor,
+	val authenticatedUserArgumentResolver: AuthenticatedUserArgumentResolver,
+) : WebMvcConfigurer {
+	override fun addInterceptors(registry: InterceptorRegistry) {
+		registry.addInterceptor(authenticationInterceptor)
+	}
+
+	override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+		resolvers.add(authenticatedUserArgumentResolver)
+	}
+}
+
 
 fun main(args: Array<String>) {
 	runApplication<ChannelsApplication>(*args)

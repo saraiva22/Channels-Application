@@ -94,7 +94,7 @@ class JdbiUsersRepository(
     override fun getTokenByTokenValidationInfo(tokenValidationInfo: TokenValidationInfo): Pair<User, Token>? =
         handle.createQuery(
             """
-                select id, username, password_validation, token_validation, created_at, last_used_at
+                select id, username, email, password_validation, token_validation, created_at, last_used_at
                 from dbo.Users as users 
                 inner join dbo.Tokens as tokens 
                 on users.id = tokens.user_id
@@ -130,7 +130,7 @@ class JdbiUsersRepository(
     ) {
         val userAndToken: Pair<User, Token>
             get() = Pair(
-                User(id, username, email, passwordValidation),
+                User(id, email, username, passwordValidation),
                 Token(
                     tokenValidation,
                     id,

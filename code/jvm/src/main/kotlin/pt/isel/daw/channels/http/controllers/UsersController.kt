@@ -16,6 +16,7 @@ import pt.isel.daw.channels.services.user.UserSearchError
 import pt.isel.daw.channels.services.user.UsersService
 import pt.isel.daw.channels.utils.Failure
 import pt.isel.daw.channels.utils.Success
+import pt.isel.daw.channels.utils.failure
 
 @RestController
 class UsersController(private val userService: UsersService) {
@@ -69,7 +70,7 @@ class UsersController(private val userService: UsersService) {
     fun getById(
         @PathVariable id: Int,
     ): ResponseEntity<*> {
-        val instance = Uris.Users.home()
+        val instance = Uris.Users.byId(id)
         val user = userService.getUserById(id)
         return when (user) {
             is Success ->

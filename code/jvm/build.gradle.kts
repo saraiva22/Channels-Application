@@ -48,7 +48,7 @@ dependencies {
 tasks.test {
 	useJUnitPlatform()
 	if (System.getenv("DB_URL") == null) {
-		environment("DB_URL", "jdbc:postgresql://localhost:5432/db?user=postgres&password=postgres")
+		environment("DB_URL", "jdbc:postgresql://localhost:5432/DAW?user=postgres&password=12345")
 	}
 }
 
