@@ -25,6 +25,7 @@ class ChannelsController(
         @RequestBody input: ChannelCreateInputModel,
         //authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
+        val instance = Uris.Channels.register()
         val channel = ChannelModel(input.name, input.owner, input.type)
         return when (val res = channelsService.createChannel(channel)) {
             is Success -> ResponseEntity
@@ -36,7 +37,7 @@ class ChannelsController(
                 .build<Unit>()
 
             is Failure -> when (res.value) {
-                ChannelCreationError.ChannelAlreadyExists -> Problem.response(400, Problem.channelAlreadyExists)
+                ChannelCreationError.ChannelAlreadyExists -> Problem.channelAlreadyExists(instance)
             }
         }
     }

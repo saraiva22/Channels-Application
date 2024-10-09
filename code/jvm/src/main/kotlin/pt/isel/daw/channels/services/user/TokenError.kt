@@ -8,15 +8,16 @@ data class TokenExternalInfo(
     val tokenExpiration: Instant
 )
 
-sealed class TokenCreationError{
-    data object UserOrPasswordAreInvalid: TokenCreationError()
+sealed class TokenCreationError {
+    data object UserOrPasswordAreInvalid : TokenCreationError()
+    data object InvalidToken : TokenCreationError()
 }
 
 typealias TokenCreationResult = Either<TokenCreationError, TokenExternalInfo>
 
 
-sealed class TokenRevocationError{
-    data object TokenIsInvalid: TokenRevocationError()
+sealed class TokenRevocationError {
+    data object TokenIsInvalid : TokenRevocationError()
 }
 
 typealias TokenRevocationResult = Either<TokenRevocationError, Boolean>

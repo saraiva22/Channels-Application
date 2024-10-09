@@ -23,6 +23,7 @@ class UsersController(private val userService: UsersService) {
     fun create(
         @RequestBody input: UserCreateInputModel
     ): ResponseEntity<*> {
+        val instance = Uris.Users.register()
         val user = userService.createUser(input.username, input.email, input.password)
         return when (user) {
             is Success -> ResponseEntity.status(201)
@@ -32,9 +33,9 @@ class UsersController(private val userService: UsersService) {
                 ).build<Unit>()
 
             is Failure -> when (user.value) {
-                UserCreationError.InsecurePassword -> Problem.response(400, Problem.insecurePassword)
-                UserCreationError.UserNameAlreadyExists -> Problem.response(400, Problem.userAlreadyExists)
-                UserCreationError.EmailAlreadyExists -> Problem.response(400, Problem.emailAlreadyExists)
+                UserCreationError.InsecurePassword -> Problem.insecurePassword(instance)
+                UserCreationError.UserNameAlreadyExists -> Problem.usernameAlreadyExists(input.username, instance)
+                UserCreationError.EmailAlreadyExists -> Problem.emailAlreadyExists(input.email, instance)
             }
         }
     }
@@ -43,6 +44,7 @@ class UsersController(private val userService: UsersService) {
     fun token(
         @RequestBody input: UserCreateTokenInputModel,
     ): ResponseEntity<*> {
+        val instance = Uris.Users.login()
         val token = userService.createToken(input.username, input.password)
         return when (token) {
             is Success ->
@@ -50,8 +52,8 @@ class UsersController(private val userService: UsersService) {
                     .body(UserTokenCreateOutputModel(token.value.tokenValue))
 
             is Failure -> when (token.value) {
-                TokenCreationError.UserOrPasswordAreInvalid ->
-                    Problem.response(400, Problem.userOrPasswordAreInvalid)
+                TokenCreationError.UserOrPasswordAreInvalid -> Problem.userOrPasswordAreInvalid(instance)
+                TokenCreationError.InvalidToken -> Problem.invalidToken(instance)
             }
         }
     }
@@ -67,6 +69,7 @@ class UsersController(private val userService: UsersService) {
     fun getById(
         @PathVariable id: Int,
     ): ResponseEntity<*> {
+        val instance = Uris.Users.home()
         val user = userService.getUserById(id)
         return when (user) {
             is Success ->
@@ -74,12 +77,11 @@ class UsersController(private val userService: UsersService) {
                     .body(UserHomeOutputModel(user.value.id, user.value.username))
 
             is Failure -> when (user.value) {
-                UserSearchError.UserNotFound -> Problem.response(404, Problem.userNotFound)
+                UserSearchError.UserNotFound -> Problem.userNotFound(id, instance)
             }
 
         }
     }
-
 
 
     @GetMapping(Uris.Users.HOME)

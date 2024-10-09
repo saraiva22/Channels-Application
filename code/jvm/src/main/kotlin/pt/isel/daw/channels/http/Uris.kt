@@ -25,7 +25,7 @@ object Uris {
         fun register(): URI = URI(CREATE)
     }
 
-    object Channels{
+    object Channels {
         const val CREATE = "$PREFIX/channels"
         const val JOIN = "$PREFIX/channels/join/{id}"
         const val UPDATE = "$PREFIX/channels/update/{id}"
@@ -33,5 +33,6 @@ object Uris {
         const val GET_PUBLIC_CHANNELS = "$PREFIX/channels/public"
 
         fun byId(id: Int): URI = UriTemplate(GET_BY_ID).expand(id)
+        fun register(): URI = URI(CREATE)
     }
 }
