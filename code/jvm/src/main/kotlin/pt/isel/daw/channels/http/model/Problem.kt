@@ -42,7 +42,7 @@ class Problem(
 
 
         // Channel
-        private val channelNotFound = URI("${BASE_URL}channel-not-found")
+        val channelNotFound = URI("${BASE_URL}channel-not-found")
         private val channelAlreadyExists = URI("${BASE_URL}channel-already-exists")
         val invalidChannelType = URI("${BASE_URL}invalid-channel-type")
 

@@ -2,6 +2,7 @@ package pt.isel.daw.channels.repository.jdbi
 
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
+import org.slf4j.LoggerFactory
 import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Type
@@ -74,6 +75,22 @@ class JdbiChannelsRepository(
             .bind("name", channelName)
             .mapTo<Channel>()
             .singleOrNull()
+
+    override fun getUserChannels(userId: Int): List<Channel> =
+        handle.createQuery(
+            """
+                select channels.id, channels.name, channels.owner_id as owner, 
+                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
+                from dbo.Users as users 
+                left join dbo.Channels as channels on users.id = channels.owner_id 
+                left join dbo.Join_Channels as members_table on users.id = members_table.user_id
+                where users.id = :id
+                group by channels.id, channels.name, channels.owner_id
+            """
+        )
+            .bind("id", userId)
+            .mapTo<Channel>()
+            .list()
 
     override fun joinChannel(userId: Int): Boolean {
         TODO("Not yet implemented")

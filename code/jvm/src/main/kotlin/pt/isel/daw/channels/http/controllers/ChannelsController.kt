@@ -3,16 +3,20 @@ package pt.isel.daw.channels.http.controllers
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.http.Uris
 import pt.isel.daw.channels.http.model.channel.ChannelCreateInputModel
 import pt.isel.daw.channels.http.model.Problem
+import pt.isel.daw.channels.http.model.channel.ChannelOutputModel
 import pt.isel.daw.channels.http.model.channel.ChannelsListOutputModel
 import pt.isel.daw.channels.services.channel.ChannelCreationError
 import pt.isel.daw.channels.services.channel.ChannelsService
+import pt.isel.daw.channels.services.channel.GetChannelError
 import pt.isel.daw.channels.utils.Failure
 import pt.isel.daw.channels.utils.Success
 
@@ -50,7 +54,55 @@ class ChannelsController(
             .body(ChannelsListOutputModel(res))
     }
 
-    companion object {
-        val logger = LoggerFactory.getLogger(ChannelsController::class.java)
+    @GetMapping(Uris.Channels.GET_BY_ID)
+    fun getChannelById(
+        @PathVariable id: Int
+    ): ResponseEntity<*> {
+        val instance = Uris.Channels.register()
+        return when(val res = channelsService.getChannelById(id)) {
+            is Success -> ResponseEntity
+                .status(200)
+                .body(
+                    ChannelOutputModel(
+                        res.value.id,
+                        res.value.name,
+                        res.value.owner,
+                        res.value.members
+                    ))
+            is Failure ->  when (res.value) {
+                GetChannelError.ChannelNotFound -> Problem.channelNotFound(instance)
+            }
+        }
+    }
+
+    @GetMapping(Uris.Channels.GET_BY_NAME)
+    fun getChannelByName(
+        @RequestParam name: String
+    ): ResponseEntity<*> {
+        val instance = Uris.Channels.register()
+        return when(val res = channelsService.getChannelByName(name)) {
+            is Success -> ResponseEntity
+                .status(200)
+                .body(
+                    ChannelOutputModel(
+                        res.value.id,
+                        res.value.name,
+                        res.value.owner,
+                        res.value.members
+                    ))
+            is Failure ->  when (res.value) {
+                GetChannelError.ChannelNotFound -> Problem.channelNotFound(instance)
+            }
+        }
+    }
+
+    @GetMapping(Uris.Channels.GET_BY_USER)
+    fun getUserChannels(
+        @PathVariable id: Int
+    ): ResponseEntity<*> {
+        val res = channelsService.getUserChannels(id)
+        return ResponseEntity
+            .status(200)
+            .body(ChannelsListOutputModel(res))
     }
 }

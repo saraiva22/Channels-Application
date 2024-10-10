@@ -6,6 +6,5 @@ data class ChannelOutputModel (
     val id: Int,
     val name: String,
     val owner: Int,
-    val type: Type,
     val members: List<Int>
 )

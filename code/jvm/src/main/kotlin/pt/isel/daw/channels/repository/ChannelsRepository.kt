@@ -13,6 +13,8 @@ interface ChannelsRepository {
 
     fun getChannelByName(channelName: String): Channel?
 
+    fun getUserChannels(userId: Int): List<Channel>
+
     fun joinChannel(userId: Int): Boolean
 
     fun getChannels(userId: Int): List<Channel>

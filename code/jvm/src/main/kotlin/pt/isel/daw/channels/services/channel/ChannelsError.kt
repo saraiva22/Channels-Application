@@ -10,7 +10,7 @@ sealed class ChannelCreationError {
 typealias ChannelCreationResult = Either<ChannelCreationError, Int>
 
 sealed class GetChannelError {
-    data object ChannelDoesNotExist: GetChannelError()
+    data object ChannelNotFound: GetChannelError()
 }
 
 typealias GetChannelResult = Either<GetChannelError, Channel>
