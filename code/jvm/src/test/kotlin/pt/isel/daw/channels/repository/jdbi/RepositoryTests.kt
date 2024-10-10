@@ -1,23 +1,16 @@
 package pt.isel.daw.channels.repository.jdbi
 
-import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.AfterAll
-import org.postgresql.ds.PGSimpleDataSource
-import pt.isel.daw.channels.*
+import pt.isel.daw.channels.ApplicationTests
+import pt.isel.daw.channels.clearChannelsDataByType
+import pt.isel.daw.channels.clearData
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
 import pt.isel.daw.channels.domain.user.User
-import pt.isel.daw.channels.repository.configureWithAppRequirements
+import pt.isel.daw.channels.runWithHandle
 
 open class RepositoryTests: ApplicationTests() {
     companion object {
         lateinit var testUser: User
-
-        val jdbi =
-            Jdbi.create(
-                PGSimpleDataSource().apply {
-                    setURL(Environment.getDbUrl())
-                },
-            ).configureWithAppRequirements()
 
         init {
             runWithHandle(jdbi) { handle ->

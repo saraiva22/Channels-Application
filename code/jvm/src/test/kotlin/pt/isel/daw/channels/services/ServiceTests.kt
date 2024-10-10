@@ -12,7 +12,6 @@ import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.domain.user.UsersDomain
 import pt.isel.daw.channels.domain.user.UsersDomainConfig
 import pt.isel.daw.channels.repository.jdbi.JdbiTransactionManager
-import pt.isel.daw.channels.repository.jdbi.RepositoryTests.Companion.jdbi
 import pt.isel.daw.channels.services.channel.ChannelsService
 import pt.isel.daw.channels.services.user.UsersService
 import pt.isel.daw.channels.utils.Either

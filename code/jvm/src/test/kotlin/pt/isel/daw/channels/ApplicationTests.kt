@@ -1,5 +1,8 @@
 package pt.isel.daw.channels
 
+import org.jdbi.v3.core.Jdbi
+import org.postgresql.ds.PGSimpleDataSource
+import pt.isel.daw.channels.repository.configureWithAppRequirements
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -12,5 +15,12 @@ open class ApplicationTests {
         fun newTestChannelName() = "channel-${abs(Random.nextLong())}"
 
         fun newTokenValidationData() = "token-${abs(Random.nextLong())}"
+
+        val jdbi =
+            Jdbi.create(
+                PGSimpleDataSource().apply {
+                    setURL("jdbc:postgresql://localhost/?user=postgres&password=daw")
+                },
+            ).configureWithAppRequirements()
     }
 }
