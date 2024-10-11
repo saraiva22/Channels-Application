@@ -20,11 +20,12 @@ class Problem(
 
     companion object {
         const val MEDIA_TYPE = APPLICATION_PROBLEM_JSON_VALUE
-        const val BASE_URL = "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/"
+        private const val BASE_URL = "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/"
 
 
         //Default
         val internalServerError = URI("${BASE_URL}internal-server-error")
+        val badRequest = URI("${BASE_URL}bad-request")
 
         // User
         private val usernameAlreadyExists = URI("${BASE_URL}username-already-exists")
@@ -43,8 +44,11 @@ class Problem(
 
         // Channel
         val channelNotFound = URI("${BASE_URL}channel-not-found")
+        val channelNameNotFound = URI("${BASE_URL}channel-name-not-found")
         private val channelAlreadyExists = URI("${BASE_URL}channel-already-exists")
         val invalidChannelType = URI("${BASE_URL}invalid-channel-type")
+        val userNotInChannel = URI("${BASE_URL}user-not-in-channel")
+        val channelNameAlreadyExists = URI("${BASE_URL}channel-name-already-exists")
 
         fun internalServerError(
             instance: URI?
@@ -106,11 +110,19 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun channelNotFound(instance: URI?): ResponseEntity<*> = Problem(
+        fun channelNotFound(id: Int, instance: URI?): ResponseEntity<*> = Problem(
             typeUri = channelNotFound,
             title = "Channel not found",
             status = HttpStatus.NOT_FOUND.value(),
-            detail = "Channel not found",
+            detail = "Channel $id not found",
+            instance = instance
+        ).toResponse()
+
+        fun channelNameNotFound(name: String, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = channelNotFound,
+            title = "Channel not found",
+            status = HttpStatus.NOT_FOUND.value(),
+            detail = "Channel $name not found",
             instance = instance
         ).toResponse()
 
@@ -151,6 +163,30 @@ class Problem(
             title = "Unauthorized",
             status = HttpStatus.UNAUTHORIZED.value(),
             detail = "The request has not been applied because it lacks valid authentication credentials for the target resource.",
+            instance = instance
+        ).toResponse()
+
+        fun userNotInChannel(username: String, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = userNotInChannel,
+            title = "User not in channel",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "User $username not in channel",
+            instance = instance
+        ).toResponse()
+
+        fun channelNameAlreadyExists(name: String, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = channelNameAlreadyExists,
+            title = "Channel name already exists",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "Channel name $name already exists",
+            instance = instance
+        ).toResponse()
+
+        fun badRequest(instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = badRequest,
+            title = "Bad request",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "The request could not be understood by the server due to malformed syntax",
             instance = instance
         ).toResponse()
 

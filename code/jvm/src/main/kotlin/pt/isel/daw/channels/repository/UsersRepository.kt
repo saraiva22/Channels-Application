@@ -11,15 +11,19 @@ interface UsersRepository {
         username: String,
         email: String,
         passwordValidation: PasswordValidationInfo,
-    ):Int
+    ): Int
 
     fun getUserByUsername(username: String): User?
 
     fun getUserById(id: Int): User?
 
+    fun getUserByEmail(email: String): User?
+
     fun getTokenByTokenValidationInfo(tokenValidationInfo: TokenValidationInfo): Pair<User, Token>?
 
     fun isUserStoredByUsername(username: String): Boolean
+
+    fun isEmailStoredByEmail(email: String): Boolean
 
     fun createToken(token: Token, maxTokens: Int)
 

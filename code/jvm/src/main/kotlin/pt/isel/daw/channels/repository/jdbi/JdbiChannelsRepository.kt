@@ -10,7 +10,7 @@ import pt.isel.daw.channels.repository.ChannelsRepository
 
 class JdbiChannelsRepository(
     private val handle: Handle
-): ChannelsRepository {
+) : ChannelsRepository {
     override fun createChannel(channel: ChannelModel): Int {
         val channelId = handle.createUpdate(
             """
@@ -92,6 +92,23 @@ class JdbiChannelsRepository(
             .mapTo<Channel>()
             .list()
 
+    override fun getUserChannel(channelId: Int, userId: Int): Channel? =
+        handle.createQuery(
+            """
+                select channels.id, channels.name, channels.owner_id as owner, 
+                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
+                from dbo.Join_Channels as members_table
+                join dbo.Channels as channels on members_table.ch_id = channels.id
+                where members_table.ch_id = :channelId and members_table.user_id = :userId
+                group by channels.id, channels.name, channels.owner_id;
+            """
+        )
+            .bind("channelId", channelId)
+            .bind("userId", userId)
+            .mapTo<Channel>()
+            .singleOrNull()
+
+
     override fun joinChannel(userId: Int): Boolean {
         TODO("Not yet implemented")
     }
@@ -122,5 +139,30 @@ class JdbiChannelsRepository(
 
     override fun leaveChannel(channel: Channel, userId: Int): Boolean {
         TODO("Not yet implemented")
+    }
+
+    override fun updateChannelName(channelId: Int, name: String): Channel {
+        handle.createUpdate(
+            """
+        update dbo.Channels set name = :name where id = :id
+        """
+        )
+            .bind("name", name)
+            .bind("id", channelId)
+            .execute()
+
+        return handle.createQuery(
+            """
+        select channels.id, channels.name, channels.owner_id as owner,
+        coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
+        from dbo.Channels as channels
+        left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id
+        where channels.id = :id
+        group by channels.id, channels.name, channels.owner_id
+        """
+        )
+            .bind("id", channelId)
+            .mapTo<Channel>()
+            .one()
     }
 }

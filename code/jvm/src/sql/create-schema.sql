@@ -86,3 +86,17 @@ create trigger trg_insert_invite_private_channels
     after insert on dbo.Private_Channels
     for each row
 execute function insert_invite_private_channels();
+
+create or replace function insert_owner_into_join_channels()
+returns trigger as $$
+begin
+    insert into dbo.Join_Channels (user_id, ch_id)
+    values (NEW.owner_id, NEW.id);
+    return NEW;
+end;
+$$ language plpgsql;
+
+create trigger trg_insert_owner_into_join_channels
+    after insert on dbo.Channels
+    for each row
+execute function insert_owner_into_join_channels();

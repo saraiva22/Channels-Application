@@ -41,6 +41,18 @@ class JdbiUsersRepository(
             .mapTo<User>()
             .singleOrNull()
 
+    override fun getUserByEmail(email: String): User? =
+        handle.createQuery("select * from dbo.Users where email = :email")
+            .bind("email", email)
+            .mapTo<User>()
+            .singleOrNull()
+
+    override fun isEmailStoredByEmail(email: String): Boolean =
+        handle.createQuery("select count(*) from dbo.Users where email = :email")
+            .bind("email", email)
+            .mapTo<Int>()
+            .single() == 1
+
 
     override fun isUserStoredByUsername(username: String): Boolean =
         handle.createQuery("select count(*) from dbo.Users where username = :username")

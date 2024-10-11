@@ -9,6 +9,4 @@ INSERT INTO dbo.channels(name, owner_id) VALUES
     ('Channel 3', 3);
 
 insert into dbo.join_channels(user_id, ch_id) values
-    (3, 3),
-    (2, 3),
-    (2, 2);
+    (2, 3);

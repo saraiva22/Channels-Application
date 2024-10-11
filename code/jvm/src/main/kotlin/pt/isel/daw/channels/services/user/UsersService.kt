@@ -28,6 +28,9 @@ class UsersService(
             val usersRepository = it.usersRepository
             if (usersRepository.isUserStoredByUsername(username)) {
                 failure(UserCreationError.UserNameAlreadyExists)
+            } else if (usersRepository.isEmailStoredByEmail(email)) {
+                failure(UserCreationError.EmailAlreadyExists)
+
             } else {
                 val id = usersRepository.storeUser(username, email, passwordValidationInfo)
                 success(id)

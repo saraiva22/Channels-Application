@@ -19,7 +19,7 @@ open class ApplicationTests {
         val jdbi =
             Jdbi.create(
                 PGSimpleDataSource().apply {
-                    setURL("jdbc:postgresql://localhost/?user=postgres&password=daw")
+                    setURL(Environment.getDbUrl())
                 },
             ).configureWithAppRequirements()
     }

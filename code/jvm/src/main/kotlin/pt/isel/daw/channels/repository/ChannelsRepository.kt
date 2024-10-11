@@ -15,11 +15,15 @@ interface ChannelsRepository {
 
     fun getUserChannels(userId: Int): List<Channel>
 
+    fun getUserChannel(channelId: Int, userId: Int): Channel?
+
     fun joinChannel(userId: Int): Boolean
 
     fun getChannels(userId: Int): List<Channel>
 
     fun getPublicChannels(): List<Channel>
+
+    fun updateChannelName(channelId: Int, name: String):Channel
 
     fun isChannelPublic(channel: Channel): Boolean
 

@@ -38,16 +38,12 @@ class ChannelsService(
         }
     }
 
-    fun getChannelByName(channelName: String): GetChannelResult {
-        return transactionManager.run {
-            val channel = it.channelsRepository.getChannelByName(channelName)
-            if (channel == null) {
-                failure(GetChannelError.ChannelNotFound)
-            } else {
-                success(channel)
-            }
-        }
+    fun getChannelByName(channelName: String): GetChannelNameResult = transactionManager.run {
+        val channel = it.channelsRepository.getChannelByName(channelName)
+            ?: return@run failure(GetChannelNameError.ChannelNameNotFound)
+        success(channel)
     }
+
 
     fun getPublicChannels(): List<Channel> {
         return transactionManager.run {
@@ -56,9 +52,28 @@ class ChannelsService(
     }
 
     // check if user exists
-    fun getUserChannels(userId: Int): List<Channel> {
+    fun getUserChannels(userId: Int): GetUserChannelsResult {
         return transactionManager.run {
-            it.channelsRepository.getUserChannels(userId)
+            val user = it.usersRepository.getUserById(userId) ?: failure(GetUserChannelsError.UserNotFound)
+            val channel = it.channelsRepository.getUserChannels(userId)
+            success(channel)
+        }
+    }
+
+    fun updateNameChannel(nameChannel: String, channelId: Int, userId: Int): UpdateNameChannelResult {
+        return transactionManager.run {
+            val channelsRepository = it.channelsRepository
+            val channel = channelsRepository.getUserChannel(channelId, userId)
+            if (channel == null) {
+                return@run failure(UpdateNameChannelError.UserNotInChannel)
+            } else {
+                if (channelsRepository.isChannelStoredByName(nameChannel)) {
+                    return@run failure(UpdateNameChannelError.ChannelNameAlreadyExists)
+                } else {
+                    val newChannel = channelsRepository.updateChannelName(channelId, nameChannel)
+                    success(newChannel)
+                }
+            }
         }
     }
 

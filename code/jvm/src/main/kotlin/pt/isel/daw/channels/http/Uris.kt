@@ -34,7 +34,10 @@ object Uris {
         const val GET_BY_USER = "$PREFIX/channels/user/{id}"
         const val GET_PUBLIC_CHANNELS = "$PREFIX/channels/public"
 
+
         fun byId(id: Int): URI = UriTemplate(GET_BY_ID).expand(id)
         fun register(): URI = URI(CREATE)
+        fun update(id: Int): URI = UriTemplate(UPDATE).expand(id)
+
     }
 }
