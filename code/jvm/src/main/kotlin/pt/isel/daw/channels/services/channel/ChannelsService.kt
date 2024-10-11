@@ -55,8 +55,17 @@ class ChannelsService(
     fun getUserChannels(userId: Int): GetUserChannelsResult {
         return transactionManager.run {
             val user = it.usersRepository.getUserById(userId) ?: failure(GetUserChannelsError.UserNotFound)
-            val channel = it.channelsRepository.getUserChannels(userId)
-            success(channel)
+            val channels = it.channelsRepository.getUserChannels(userId)
+            success(channels)
+        }
+    }
+
+    fun joinUsersInChannel(userId: Int, channelId: Int): GetUserChannelResult {
+        return transactionManager.run {
+            val channel = it.channelsRepository.getUserChannel(channelId, userId)
+            if (channel != null) return@run failure(JoinUserInChannelError.UserAlreadyInChannel)
+            val joinChannel = it.channelsRepository.joinChannel(userId, channelId)
+            success(joinChannel)
         }
     }
 

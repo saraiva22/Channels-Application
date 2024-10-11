@@ -48,6 +48,7 @@ class Problem(
         private val channelAlreadyExists = URI("${BASE_URL}channel-already-exists")
         val invalidChannelType = URI("${BASE_URL}invalid-channel-type")
         val userNotInChannel = URI("${BASE_URL}user-not-in-channel")
+        val userAlreadyInChannel = URI("${BASE_URL}user-already-in-channel")
         val channelNameAlreadyExists = URI("${BASE_URL}channel-name-already-exists")
 
         fun internalServerError(
@@ -187,6 +188,14 @@ class Problem(
             title = "Bad request",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "The request could not be understood by the server due to malformed syntax",
+            instance = instance
+        ).toResponse()
+
+        fun userAlreadyInChannel(username: String,instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = userAlreadyInChannel,
+            title = "User already in channel",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "User $username already in channel",
             instance = instance
         ).toResponse()
 

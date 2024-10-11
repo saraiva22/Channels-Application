@@ -17,8 +17,9 @@ create table dbo.Tokens(
 create table dbo.Invitation_Register(
     id serial not null primary key,
     user_id int references dbo.Users(id),
-    cod_hash VARCHAR(64) unique not null,
-    expired BOOLEAN not null
+    cod_hash VARCHAR(64) unique not null
+--    created_at bigint not null,
+--    expired bigint not null
 );
 
 create table dbo.Channels(
@@ -42,8 +43,9 @@ create table dbo.Private_Channels(
 
 create table dbo.Invitation_Channels(
     id serial not null unique primary key,
-    cod_hash VARCHAR(64) unique not null,
-    expired BOOLEAN not null
+    cod_hash VARCHAR(64) unique not null
+--    created_at bigint not null,
+--    expired bigint not null
 );
 
 create table dbo.Invite_Private_Channels(
@@ -58,7 +60,7 @@ create table dbo.Messages(
     channel_id serial references dbo.Channels(id),
     user_id int references dbo.Users(id),
     text VARCHAR(64) not null,
-    timestamp bigint not null
+    create_at bigint not null
 );
 
 create or replace function insert_invite_private_channels()

@@ -142,6 +142,7 @@ class ChannelsController(
                                 )
                             )
                     }
+
                     is Failure -> {
                         when (updateChannel.value) {
                             UpdateNameChannelError.UserNotInChannel -> Problem.userNotInChannel(
@@ -162,5 +163,34 @@ class ChannelsController(
                 GetChannelError.ChannelNotFound -> Problem.channelNotFound(id, instance)
             }
         }
+    }
+
+    @PutMapping(Uris.Channels.JOIN_PUBLIC_CHANNELS)
+    fun joinPublicChannel(
+        @PathVariable id: Int,
+        userAuthenticatedUser: AuthenticatedUser
+    ): ResponseEntity<*> {
+        val instance = Uris.Channels.joinPublicChannel(id)
+        val channel = channelsService.joinUsersInChannel(userAuthenticatedUser.user.id, id)
+        return when (channel) {
+            is Success -> ResponseEntity
+                .status(200)
+                .body(
+                    ChannelOutputModel(
+                        channel.value.id,
+                        channel.value.name,
+                        channel.value.owner,
+                        channel.value.members
+                    )
+                )
+
+            is Failure -> when (channel.value) {
+                JoinUserInChannelError.UserAlreadyInChannel -> Problem.userAlreadyInChannel(
+                    userAuthenticatedUser.user.username,
+                    instance
+                )
+            }
+        }
+
     }
 }

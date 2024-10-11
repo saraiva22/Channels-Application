@@ -17,7 +17,7 @@ interface ChannelsRepository {
 
     fun getUserChannel(channelId: Int, userId: Int): Channel?
 
-    fun joinChannel(userId: Int): Boolean
+    fun joinChannel(userId: Int,channelId: Int): Channel
 
     fun getChannels(userId: Int): List<Channel>
 

@@ -35,3 +35,9 @@ sealed class UpdateNameChannelError {
 }
 
 typealias UpdateNameChannelResult = Either<UpdateNameChannelError, Channel>
+
+sealed class JoinUserInChannelError{
+    data object UserAlreadyInChannel : JoinUserInChannelError()
+}
+
+typealias GetUserChannelResult = Either<JoinUserInChannelError, Channel>

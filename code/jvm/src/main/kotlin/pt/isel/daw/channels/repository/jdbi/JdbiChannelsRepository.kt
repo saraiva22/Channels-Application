@@ -109,9 +109,31 @@ class JdbiChannelsRepository(
             .singleOrNull()
 
 
-    override fun joinChannel(userId: Int): Boolean {
-        TODO("Not yet implemented")
+    override fun joinChannel(userId: Int, channelId: Int): Channel {
+        handle.createUpdate(
+            """
+        insert into dbo.join_channels (user_id, ch_id) values (:userId, :channelId)
+        """
+        )
+            .bind("userId", userId)
+            .bind("channelId", channelId)
+            .execute()
+
+        return handle.createQuery(
+            """
+        select channels.id, channels.name, channels.owner_id as owner,
+        coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
+        from dbo.Channels as channels
+        left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id
+        where channels.id = :channelId
+        group by channels.id, channels.name, channels.owner_id
+        """
+        )
+            .bind("channelId", channelId)
+            .mapTo<Channel>()
+            .one()
     }
+
 
     override fun getChannels(userId: Int): List<Channel> {
         TODO("Not yet implemented")
