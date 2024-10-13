@@ -27,10 +27,11 @@ class ChannelsController(
     @PostMapping(Uris.Channels.CREATE)
     fun createChannel(
         @RequestBody input: ChannelCreateInputModel,
-        //authenticatedUser: AuthenticatedUser
+        authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.register()
-        val channel = ChannelModel(input.name, input.owner, input.type)
+        val userId = authenticatedUser.user.id
+        val channel = ChannelModel(input.name, userId, input.type)
         return when (val res = channelsService.createChannel(channel)) {
             is Success -> ResponseEntity
                 .status(201)
@@ -47,7 +48,9 @@ class ChannelsController(
     }
 
     @GetMapping(Uris.Channels.GET_PUBLIC_CHANNELS)
-    fun getPublicChannels(): ResponseEntity<*> {
+    fun getPublicChannels(
+        authenticatedUser: AuthenticatedUser
+    ): ResponseEntity<*> {
         val res = channelsService.getPublicChannels()
         return ResponseEntity
             .status(200)
@@ -56,7 +59,8 @@ class ChannelsController(
 
     @GetMapping(Uris.Channels.GET_BY_ID)
     fun getChannelById(
-        @PathVariable id: Int
+        @PathVariable id: Int,
+        authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.register()
         return when (val res = channelsService.getChannelById(id)) {
@@ -72,14 +76,15 @@ class ChannelsController(
                 )
 
             is Failure -> when (res.value) {
-                GetChannelError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+                GetChannelByIdError.ChannelNotFound -> Problem.channelNotFound(id, instance)
             }
         }
     }
 
     @GetMapping(Uris.Channels.GET_BY_NAME)
     fun getChannelByName(
-        @RequestParam name: String
+        @RequestParam name: String,
+        authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.register()
         return when (val res = channelsService.getChannelByName(name)) {
@@ -95,26 +100,20 @@ class ChannelsController(
                 )
 
             is Failure -> when (res.value) {
-                GetChannelNameError.ChannelNameNotFound -> Problem.channelNameNotFound(name, instance)
+                GetChannelByNameError.ChannelNameNotFound -> Problem.channelNameNotFound(name, instance)
             }
         }
     }
 
     @GetMapping(Uris.Channels.GET_BY_USER)
     fun getUserChannels(
-        @PathVariable id: Int
+        authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
-        val instance = Uris.Channels.byId(id)
-        val res = channelsService.getUserChannels(id)
-        return when (res) {
-            is Success -> ResponseEntity
-                .status(200)
-                .body(ChannelsListOutputModel(res.value))
-
-            is Failure -> when (res.value) {
-                GetUserChannelsError.UserNotFound -> Problem.userNotFound(id, instance)
-            }
-        }
+        val userId = authenticatedUser.user.id
+        val res = channelsService.getUserChannels(userId)
+        return ResponseEntity
+            .status(200)
+            .body(ChannelsListOutputModel(res))
     }
 
     @PutMapping(Uris.Channels.UPDATE)
@@ -160,7 +159,7 @@ class ChannelsController(
             }
 
             is Failure -> when (channel.value) {
-                GetChannelError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+                GetChannelByIdError.ChannelNotFound -> Problem.channelNotFound(id, instance)
             }
         }
     }

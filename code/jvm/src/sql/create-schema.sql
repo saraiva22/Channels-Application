@@ -17,9 +17,9 @@ create table dbo.Tokens(
 create table dbo.Invitation_Register(
     id serial not null primary key,
     user_id int references dbo.Users(id),
-    cod_hash VARCHAR(64) unique not null
+    cod_hash VARCHAR(64) unique not null,
 --    created_at bigint not null,
---    expired bigint not null
+    expired boolean
 );
 
 create table dbo.Channels(
@@ -73,8 +73,8 @@ begin
     from dbo.Channels
     where id = NEW.channel_id;
 
-    insert into dbo.Invitation_Channels (cod_hash, expired)
-    values (md5(random()::text), true)
+    insert into dbo.Invitation_Channels (cod_hash)
+    values (md5(random()::text))
     returning id into new_invite_id;
 
     insert into dbo.Invite_Private_Channels (user_id, private_ch, invite_id, privacy)

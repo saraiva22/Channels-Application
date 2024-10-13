@@ -9,19 +9,17 @@ sealed class ChannelCreationError {
 
 typealias ChannelCreationResult = Either<ChannelCreationError, Int>
 
-sealed class GetChannelError {
-    data object ChannelNotFound : GetChannelError()
+sealed class GetChannelByIdError {
+    data object ChannelNotFound : GetChannelByIdError()
 }
 
-typealias GetChannelResult = Either<GetChannelError, Channel>
+typealias GetChannelResult = Either<GetChannelByIdError, Channel>
 
-
-sealed class GetChannelNameError {
-    data object ChannelNameNotFound : GetChannelNameError()
+sealed class GetChannelByNameError {
+    data object ChannelNameNotFound : GetChannelByNameError()
 }
 
-typealias GetChannelNameResult = Either<GetChannelNameError, Channel>
-
+typealias GetChannelByNameResult = Either<GetChannelByNameError, Channel>
 
 sealed class GetUserChannelsError {
     data object UserNotFound : GetUserChannelsError()

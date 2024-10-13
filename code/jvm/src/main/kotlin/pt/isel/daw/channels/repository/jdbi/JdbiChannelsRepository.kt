@@ -80,15 +80,14 @@ class JdbiChannelsRepository(
         handle.createQuery(
             """
                 select channels.id, channels.name, channels.owner_id as owner, 
-                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
-                from dbo.Users as users 
-                left join dbo.Channels as channels on users.id = channels.owner_id 
-                left join dbo.Join_Channels as members_table on users.id = members_table.user_id
-                where users.id = :id
+                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members 
+                from dbo.Channels as channels
+                join dbo.Join_Channels as members_table on channels.id = members_table.ch_id
+                where channels.owner_id = :userId
                 group by channels.id, channels.name, channels.owner_id
             """
         )
-            .bind("id", userId)
+            .bind("userId", userId)
             .mapTo<Channel>()
             .list()
 
@@ -153,7 +152,7 @@ class JdbiChannelsRepository(
             .mapTo<Channel>()
             .list()
 
-    // domain function
+    // domain function (??)
     override fun isChannelPublic(channel: Channel): Boolean {
         val publicChannels = getPublicChannels()
         return publicChannels.contains(channel)

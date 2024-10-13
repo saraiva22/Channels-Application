@@ -14,7 +14,6 @@ class ChannelsService(
     private val transactionManager: TransactionManager,
     private val domain: ChannelsDomain
 ) {
-    // missing check user existence !!!!!!
     fun createChannel(channelModel: ChannelModel): ChannelCreationResult {
         return transactionManager.run {
             val channelsRepository = it.channelsRepository
@@ -31,19 +30,18 @@ class ChannelsService(
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(channelId)
             if (channel == null) {
-                failure(GetChannelError.ChannelNotFound)
+                failure(GetChannelByIdError.ChannelNotFound)
             } else {
                 success(channel)
             }
         }
     }
 
-    fun getChannelByName(channelName: String): GetChannelNameResult = transactionManager.run {
+    fun getChannelByName(channelName: String): GetChannelByNameResult = transactionManager.run {
         val channel = it.channelsRepository.getChannelByName(channelName)
-            ?: return@run failure(GetChannelNameError.ChannelNameNotFound)
+            ?: return@run failure(GetChannelByNameError.ChannelNameNotFound)
         success(channel)
     }
-
 
     fun getPublicChannels(): List<Channel> {
         return transactionManager.run {
@@ -51,12 +49,9 @@ class ChannelsService(
         }
     }
 
-    // check if user exists
-    fun getUserChannels(userId: Int): GetUserChannelsResult {
+    fun getUserChannels(userId: Int): List<Channel> {
         return transactionManager.run {
-            val user = it.usersRepository.getUserById(userId) ?: failure(GetUserChannelsError.UserNotFound)
-            val channels = it.channelsRepository.getUserChannels(userId)
-            success(channels)
+            it.channelsRepository.getUserChannels(userId)
         }
     }
 
