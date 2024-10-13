@@ -65,4 +65,10 @@ class UsersDomain(
     fun isSafePassword(password: String) = password.length > 4
 
     val maxNumberOfTokensPerUser = config.maxTokensPerUser
+
+    fun generateInvitation(): String {
+        val part1 = UUID.randomUUID().toString().take(4)
+        val part2 = UUID.randomUUID().toString().take(4)
+        return "$part1-$part2"
+    }
 }

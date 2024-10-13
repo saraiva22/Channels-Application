@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
 import pt.isel.daw.channels.domain.token.Token
 import pt.isel.daw.channels.domain.token.TokenValidationInfo
+import pt.isel.daw.channels.domain.user.RegisterModel
 import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.repository.UsersRepository
 
@@ -130,6 +131,42 @@ class JdbiUsersRepository(
             .execute()
     }
 
+    override fun createRegisterInvite(register: RegisterModel) {
+        handle.createUpdate(
+            """
+               insert into dbo.Invitation_Register(user_id, cod_hash, expired)
+               values (:userId, :codHash, :expired)
+            """
+        )
+            .bind("userId", register.userId)
+            .bind("codHash", register.codHash)
+            .bind("expired", register.expired)
+            .execute()
+    }
+
+    override fun isInviteCodeInvalid(inviteCode: String): Boolean =
+        handle.createQuery(
+            """
+                select invite.expired
+                from dbo.Invitation_Register as invite
+                where invite.cod_hash = :code
+            """
+        )
+            .bind("code", inviteCode)
+            .mapTo<Boolean>()
+            .single()
+
+    override fun invalidateCode(inviteCode: String) {
+        handle.createUpdate(
+            """
+                update dbo.Invitation_Register
+                set expired = TRUE
+                where cod_hash = :code
+            """
+        )
+            .bind("code", inviteCode)
+            .execute()
+    }
 
     private data class UserAndTokenModel(
         val id: Int,

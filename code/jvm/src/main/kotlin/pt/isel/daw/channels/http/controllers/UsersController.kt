@@ -9,6 +9,7 @@ import pt.isel.daw.channels.http.model.Problem
 import pt.isel.daw.channels.http.model.user.UserCreateInputModel
 import pt.isel.daw.channels.http.model.user.UserCreateTokenInputModel
 import pt.isel.daw.channels.http.model.user.UserHomeOutputModel
+import pt.isel.daw.channels.http.model.user.UserInviteOutputModel
 import pt.isel.daw.channels.http.model.user.UserTokenCreateOutputModel
 import pt.isel.daw.channels.services.user.TokenCreationError
 import pt.isel.daw.channels.services.user.UserCreationError
@@ -25,7 +26,7 @@ class UsersController(private val userService: UsersService) {
         @RequestBody input: UserCreateInputModel
     ): ResponseEntity<*> {
         val instance = Uris.Users.register()
-        val user = userService.createUser(input.username, input.email, input.password)
+        val user = userService.createUser(input.username, input.email, input.password, input.inviteCode)
         return when (user) {
             is Success -> ResponseEntity.status(201)
                 .header(
@@ -37,6 +38,7 @@ class UsersController(private val userService: UsersService) {
                 UserCreationError.InsecurePassword -> Problem.insecurePassword(instance)
                 UserCreationError.UserNameAlreadyExists -> Problem.usernameAlreadyExists(input.username, instance)
                 UserCreationError.EmailAlreadyExists -> Problem.emailAlreadyExists(input.email, instance)
+                UserCreationError.InvalidInviteCode -> Problem.invalidInviteRegister(input.inviteCode, instance)
             }
         }
     }
@@ -84,6 +86,17 @@ class UsersController(private val userService: UsersService) {
         }
     }
 
+    @PostMapping(Uris.Users.INVITE)
+    fun createInvitationRegister(
+        authenticatedUser: AuthenticatedUser
+    ): ResponseEntity<*> {
+        val userId = authenticatedUser.user.id
+        val res = userService.createRegisterInvite(userId)
+        val invite = UserInviteOutputModel(res)
+        return ResponseEntity
+            .status(201)
+            .body(invite)
+    }
 
     @GetMapping(Uris.Users.HOME)
     fun getUserHome(userAuthenticatedUser: AuthenticatedUser): UserHomeOutputModel {

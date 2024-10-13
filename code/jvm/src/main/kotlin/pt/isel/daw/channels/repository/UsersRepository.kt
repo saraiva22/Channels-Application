@@ -4,6 +4,7 @@ import kotlinx.datetime.Instant
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
 import pt.isel.daw.channels.domain.token.Token
 import pt.isel.daw.channels.domain.token.TokenValidationInfo
+import pt.isel.daw.channels.domain.user.RegisterModel
 import pt.isel.daw.channels.domain.user.User
 
 interface UsersRepository {
@@ -31,5 +32,9 @@ interface UsersRepository {
 
     fun removeTokenByValidationInfo(tokenValidationInfo: TokenValidationInfo): Int
 
+    fun createRegisterInvite(register: RegisterModel)
 
+    fun isInviteCodeInvalid(inviteCode: String): Boolean
+
+    fun invalidateCode(inviteCode: String)
 }

@@ -4,6 +4,7 @@ import kotlinx.datetime.Clock
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.token.Token
+import pt.isel.daw.channels.domain.user.RegisterModel
 import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.domain.user.UsersDomain
 import pt.isel.daw.channels.repository.TransactionManager
@@ -18,7 +19,7 @@ class UsersService(
     private val usersDomain: UsersDomain,
     private val clock: Clock
 ) {
-    fun createUser(username: String, email: String, password: String): UserCreationResult {
+    fun createUser(username: String, email: String, password: String, inviteCode: String): UserCreationResult {
         if (!usersDomain.isSafePassword(password)) {
             return failure(UserCreationError.InsecurePassword)
         }
@@ -26,15 +27,15 @@ class UsersService(
 
         return transactionManager.run {
             val usersRepository = it.usersRepository
-            if (usersRepository.isUserStoredByUsername(username)) {
-                failure(UserCreationError.UserNameAlreadyExists)
-            } else if (usersRepository.isEmailStoredByEmail(email)) {
-                failure(UserCreationError.EmailAlreadyExists)
-
-            } else {
-                val id = usersRepository.storeUser(username, email, passwordValidationInfo)
-                success(id)
+            when {
+                usersRepository.isUserStoredByUsername(username) -> return@run failure(UserCreationError.UserNameAlreadyExists)
+                usersRepository.isEmailStoredByEmail(email) -> return@run failure(UserCreationError.EmailAlreadyExists)
+                usersRepository.isInviteCodeInvalid(inviteCode) -> return@run failure(UserCreationError.InvalidInviteCode)
             }
+
+            val id = usersRepository.storeUser(username, email, passwordValidationInfo)
+            usersRepository.invalidateCode(inviteCode)
+            success(id)
         }
     }
 
@@ -98,6 +99,15 @@ class UsersService(
             it.usersRepository.removeTokenByValidationInfo(tokenValidationInfo)
             logger.info("Token Revoked")
             true
+        }
+    }
+
+    fun createRegisterInvite(userId: Int): String {
+        val codHash = usersDomain.generateInvitation()
+        val register = RegisterModel(userId, codHash, false)
+        return transactionManager.run {
+            it.usersRepository.createRegisterInvite(register)
+            codHash
         }
     }
 

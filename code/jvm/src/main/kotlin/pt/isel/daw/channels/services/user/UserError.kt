@@ -8,6 +8,7 @@ sealed class UserCreationError {
     data object UserNameAlreadyExists : UserCreationError()
     data object InsecurePassword : UserCreationError()
     data object EmailAlreadyExists : UserCreationError()
+    data object InvalidInviteCode : UserCreationError()
 }
 
 typealias UserCreationResult = Either<UserCreationError, Int>

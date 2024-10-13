@@ -30,6 +30,7 @@ class Problem(
         // User
         private val usernameAlreadyExists = URI("${BASE_URL}username-already-exists")
         private val emailAlreadyExists = URI("${BASE_URL}email-already-exists")
+        private val invalidInviteCode = URI("${BASE_URL}invalid-register-code")
         private val userNotFound = URI("${BASE_URL}user-not-found")
         private val invalidEmail = URI("${BASE_URL}invalid-email")
         private val insecurePassword = URI("${BASE_URL}insecure-password")
@@ -191,7 +192,7 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun userAlreadyInChannel(username: String,instance: URI?): ResponseEntity<*> = Problem(
+        fun userAlreadyInChannel(username: String, instance: URI?): ResponseEntity<*> = Problem(
             typeUri = userAlreadyInChannel,
             title = "User already in channel",
             status = HttpStatus.BAD_REQUEST.value(),
@@ -199,6 +200,12 @@ class Problem(
             instance = instance
         ).toResponse()
 
-
+        fun invalidInviteRegister(code: String, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = invalidInviteCode,
+            title = "Invitation code is invalid",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "Invitation code $code is invalid",
+            instance = instance
+        ).toResponse()
     }
 }
