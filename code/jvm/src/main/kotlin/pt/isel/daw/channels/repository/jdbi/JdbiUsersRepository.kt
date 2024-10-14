@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
 import pt.isel.daw.channels.domain.token.Token
 import pt.isel.daw.channels.domain.token.TokenValidationInfo
-import pt.isel.daw.channels.domain.user.RegisterModel
+import pt.isel.daw.channels.http.model.user.RegisterModel
 import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.repository.UsersRepository
 

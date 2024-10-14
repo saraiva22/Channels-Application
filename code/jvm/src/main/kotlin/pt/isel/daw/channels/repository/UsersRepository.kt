@@ -4,7 +4,7 @@ import kotlinx.datetime.Instant
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
 import pt.isel.daw.channels.domain.token.Token
 import pt.isel.daw.channels.domain.token.TokenValidationInfo
-import pt.isel.daw.channels.domain.user.RegisterModel
+import pt.isel.daw.channels.http.model.user.RegisterModel
 import pt.isel.daw.channels.domain.user.User
 
 interface UsersRepository {

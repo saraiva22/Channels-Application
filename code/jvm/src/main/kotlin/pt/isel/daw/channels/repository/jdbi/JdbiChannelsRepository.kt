@@ -2,9 +2,9 @@ package pt.isel.daw.channels.repository.jdbi
 
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
-import org.slf4j.LoggerFactory
 import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
+import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Type
 import pt.isel.daw.channels.repository.ChannelsRepository
 
@@ -138,6 +138,11 @@ class JdbiChannelsRepository(
         TODO("Not yet implemented")
     }
 
+    override fun isOwnerChannel(channelId: Int, userId: Int): Boolean {
+        val channel = getChannelById(channelId)
+        return channel?.owner == userId
+    }
+
     override fun getPublicChannels(): List<Channel> =
         handle.createQuery(
             """
@@ -186,4 +191,56 @@ class JdbiChannelsRepository(
             .mapTo<Channel>()
             .one()
     }
+
+    override fun createPrivateInvite(codPrivate: String): Int {
+        return handle.createUpdate(
+            """
+        insert into dbo.Invitation_Channels(cod_hash) values (:codPrivate)
+            """
+        ).bind("codPrivate", codPrivate)
+            .executeAndReturnGeneratedKeys()
+            .mapTo<Int>()
+            .one()
+    }
+
+    override fun sendInvitePrivateChannel(userId: Int, channelId: Int, inviteId: Int, privacy: Int): Int {
+        return handle.createUpdate(
+            """
+        insert into dbo.Invite_Private_Channels(user_id, private_ch, invite_id, privacy) values (:userId, :channelId, :inviteId, :privacy)
+            """
+        ).bind("userId", userId)
+            .bind("channelId", channelId)
+            .bind("inviteId", inviteId)
+            .bind("privacy", privacy)
+            .executeAndReturnGeneratedKeys()
+            .mapTo<Int>()
+            .one()
+    }
+
+    override fun getTypeInvitePrivateChannel(userId: Int, channelId: Int): Privacy {
+        return handle.createQuery(
+            """
+        select privacy from dbo.Invite_Private_Channels where user_id = :userId and private_ch = :channelId
+            """
+        ).bind("userId", userId)
+            .bind("channelId", channelId)
+            .mapTo<Privacy>()
+            .one()
+    }
+
+    override fun isPrivateChannelInviteCodeValid(userId: Int, channelId: Int, inviteId: String): Boolean {
+        return handle.createQuery(
+            """
+        select count(*)
+        from dbo.invite_private_channels as ipc
+        join dbo.invitation_channels as ic on ipc.invite_id = ic.id
+        where ipc.user_id = :userId and ipc.private_ch = :channelId and ic.cod_hash = :inviteId;
+            """
+        ).bind("userId", userId)
+            .bind("channelId", channelId)
+            .bind("inviteId", inviteId)
+            .mapTo<Int>()
+            .one() == 1
+    }
+
 }

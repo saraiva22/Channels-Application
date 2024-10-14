@@ -11,18 +11,18 @@ import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.http.Uris
-import pt.isel.daw.channels.http.model.channel.ChannelCreateInputModel
 import pt.isel.daw.channels.http.model.Problem
-import pt.isel.daw.channels.http.model.channel.ChannelOutputModel
-import pt.isel.daw.channels.http.model.channel.ChannelUpdateOutputModel
-import pt.isel.daw.channels.http.model.channel.ChannelsListOutputModel
+import pt.isel.daw.channels.http.model.channel.*
 import pt.isel.daw.channels.services.channel.*
+import pt.isel.daw.channels.services.user.UserSearchError
+import pt.isel.daw.channels.services.user.UsersService
 import pt.isel.daw.channels.utils.Failure
 import pt.isel.daw.channels.utils.Success
 
 @RestController
 class ChannelsController(
-    private val channelsService: ChannelsService
+    private val channelsService: ChannelsService,
+    private val usersService: UsersService
 ) {
     @PostMapping(Uris.Channels.CREATE)
     fun createChannel(
@@ -170,7 +170,7 @@ class ChannelsController(
         userAuthenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.joinPublicChannel(id)
-        val channel = channelsService.joinUsersInChannel(userAuthenticatedUser.user.id, id)
+        val channel = channelsService.joinUsersInPublicChannel(userAuthenticatedUser.user.id, id)
         return when (channel) {
             is Success -> ResponseEntity
                 .status(200)
@@ -184,10 +184,104 @@ class ChannelsController(
                 )
 
             is Failure -> when (channel.value) {
-                JoinUserInChannelError.UserAlreadyInChannel -> Problem.userAlreadyInChannel(
+                JoinUserInChannelPublicError.UserAlreadyInChannel -> Problem.userAlreadyInChannel(
                     userAuthenticatedUser.user.username,
                     instance
                 )
+
+                JoinUserInChannelPublicError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+            }
+        }
+
+    }
+
+
+    @PutMapping(Uris.Channels.JOIN_PRIVATE_CHANNELS)
+    fun joinPrivateChannel(
+        @PathVariable id: Int,
+        @RequestBody input: RegisterPrivateInviteModel,
+        userAuthenticatedUser: AuthenticatedUser
+    ): ResponseEntity<*> {
+        val instance = Uris.Channels.joinPrivateChannel(id)
+        val channel = channelsService.joinUsersInPrivateChannel(userAuthenticatedUser.user.id, id, input.codHash)
+        return when (channel) {
+            is Success -> ResponseEntity
+                .status(200)
+                .body(
+                    ChannelOutputModel(
+                        channel.value.id,
+                        channel.value.name,
+                        channel.value.owner,
+                        channel.value.members
+                    )
+                )
+
+            is Failure -> when (channel.value) {
+                JoinUserInChannelPrivateError.UserAlreadyInChannel -> Problem.userAlreadyInChannel(
+                    userAuthenticatedUser.user.username,
+                    instance
+                )
+                JoinUserInChannelPrivateError.CodeInvalid -> Problem.codeInvalidChannel(id, input.codHash, instance)
+                JoinUserInChannelPrivateError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+            }
+        }
+    }
+
+    @PutMapping(Uris.Channels.CREATE_PRIVATE_INVITE)
+    fun invitePrivateChannel(
+        @PathVariable id: Int,
+        @RequestBody input: ChannelPrivateInviteInput,
+        userAuthenticatedUser: AuthenticatedUser,
+    ): ResponseEntity<*> {
+        val instance = Uris.Channels.invitePrivateChannel(id)
+        val channel = channelsService.getChannelById(id)
+        return when (channel) {
+            is Success -> {
+                val guestUser = usersService.getUserByName(input.username)
+                when (guestUser) {
+                    is Success -> {
+                        val channelPrivate = channelsService.invitePrivateChannel(
+                            channel.value,
+                            userAuthenticatedUser.user.id,
+                            guestUser.value,
+                            input.privacy
+                        )
+                        when (channelPrivate) {
+                            is Success -> ResponseEntity
+                                .status(200)
+                                .body(
+                                    RegisterPrivateInviteModel(
+                                        channelPrivate.value
+                                    )
+                                )
+
+                            is Failure -> when (channelPrivate.value) {
+                                InvitePrivateChannelError.UserAlreadyInChannel -> Problem.userAlreadyInChannel(
+                                    userAuthenticatedUser.user.username,
+                                    instance
+                                )
+
+                                InvitePrivateChannelError.UserNotInChannel -> Problem.userNotInChannel(
+                                    userAuthenticatedUser.user.username,
+                                    instance
+                                )
+
+                                InvitePrivateChannelError.UserNotPermissionsType -> Problem.userNotPermissionsType(
+                                    userAuthenticatedUser.user.username,
+                                    instance
+                                )
+                            }
+                        }
+                    }
+
+                    is Failure -> when (guestUser.value) {
+                        UserSearchError.UserNotFound -> Problem.usernameNotFound(input.username, instance)
+                    }
+                }
+            }
+
+            is Failure -> when (channel.value) {
+                GetChannelByIdError.ChannelNotFound -> Problem.channelNotFound(id, instance)
             }
         }
 

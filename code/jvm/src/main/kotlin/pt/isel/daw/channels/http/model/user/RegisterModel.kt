@@ -1,4 +1,4 @@
-package pt.isel.daw.channels.domain.user
+package pt.isel.daw.channels.http.model.user
 
 data class RegisterModel (
     val userId: Int,

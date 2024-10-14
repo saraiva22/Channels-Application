@@ -32,6 +32,7 @@ class Problem(
         private val emailAlreadyExists = URI("${BASE_URL}email-already-exists")
         private val invalidInviteCode = URI("${BASE_URL}invalid-register-code")
         private val userNotFound = URI("${BASE_URL}user-not-found")
+        private val usernameNotFound = URI("${BASE_URL}username-not-found")
         private val invalidEmail = URI("${BASE_URL}invalid-email")
         private val insecurePassword = URI("${BASE_URL}insecure-password")
         private val userOrPasswordAreInvalid = URI("${BASE_URL}user-or-password-are-invalid")
@@ -51,6 +52,8 @@ class Problem(
         val userNotInChannel = URI("${BASE_URL}user-not-in-channel")
         val userAlreadyInChannel = URI("${BASE_URL}user-already-in-channel")
         val channelNameAlreadyExists = URI("${BASE_URL}channel-name-already-exists")
+        val userNotPermissionsType = URI("${BASE_URL}user-not-permissions-type")
+        val codeInvalidChannel = URI("${BASE_URL}code-invalid-channel")
 
         fun internalServerError(
             instance: URI?
@@ -87,6 +90,15 @@ class Problem(
             detail = "User with given id: $id not found",
             instance = instance
         ).toResponse()
+
+        fun usernameNotFound(username: String, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = usernameNotFound,
+            title = "Username not found",
+            status = HttpStatus.NOT_FOUND.value(),
+            detail = "Username $username not found",
+            instance = instance
+        ).toResponse()
+
 
         fun invalidEmail(email: String, instance: URI?): ResponseEntity<*> = Problem(
             typeUri = invalidEmail,
@@ -205,6 +217,22 @@ class Problem(
             title = "Invitation code is invalid",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Invitation code $code is invalid",
+            instance = instance
+        ).toResponse()
+
+        fun userNotPermissionsType(username: String,instance: URI?):ResponseEntity<*> = Problem(
+            typeUri = userNotPermissionsType,
+            title = "User not permissions type",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "User $username not permissions type",
+            instance = instance
+        ).toResponse()
+
+        fun codeInvalidChannel(channelId :Int, code: String, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = codeInvalidChannel,
+            title = "Code invalid channel",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "Code $code invalid in channel $channelId",
             instance = instance
         ).toResponse()
     }

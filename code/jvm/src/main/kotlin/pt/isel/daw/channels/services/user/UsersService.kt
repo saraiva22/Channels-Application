@@ -4,7 +4,7 @@ import kotlinx.datetime.Clock
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.token.Token
-import pt.isel.daw.channels.domain.user.RegisterModel
+import pt.isel.daw.channels.http.model.user.RegisterModel
 import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.domain.user.UsersDomain
 import pt.isel.daw.channels.repository.TransactionManager
@@ -75,6 +75,13 @@ class UsersService(
         val user = usersRepository.getUserById(id) ?: return@run failure(UserSearchError.UserNotFound)
         success(user)
     }
+
+    fun getUserByName(username: String): UserSearchResult = transactionManager.run {
+        val usersRepository = it.usersRepository
+        val user = usersRepository.getUserByUsername(username) ?: return@run failure(UserSearchError.UserNotFound)
+        success(user)
+    }
+
 
     fun getUserByToken(token: String): User? {
         if (!usersDomain.canBeToken(token)) return null
