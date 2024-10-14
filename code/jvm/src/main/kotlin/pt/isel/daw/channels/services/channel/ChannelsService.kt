@@ -31,21 +31,26 @@ class ChannelsService(
         }
     }
 
-    fun getChannelById(channelId: Int): GetChannelResult {
+    fun getChannelById(userId: Int, channelId: Int): GetChannelResult {
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(channelId)
-            if (channel == null) {
-                failure(GetChannelByIdError.ChannelNotFound)
-            } else {
-                success(channel)
-            }
+                ?: return@run failure(GetChannelByIdError.ChannelNotFound)
+            if (!it.channelsRepository.isChannelPublic(channel) &&
+                !channelsDomain.isUserMember(userId, channel))
+                return@run failure(GetChannelByIdError.PermissionDenied)
+            success(channel)
         }
     }
 
-    fun getChannelByName(channelName: String): GetChannelByNameResult = transactionManager.run {
-        val channel = it.channelsRepository.getChannelByName(channelName)
-            ?: return@run failure(GetChannelByNameError.ChannelNameNotFound)
-        success(channel)
+    fun getChannelByName(userId: Int, channelName: String): GetChannelByNameResult {
+        return transactionManager.run {
+            val channel = it.channelsRepository.getChannelByName(channelName)
+                ?: return@run failure(GetChannelByNameError.ChannelNameNotFound)
+            if (!it.channelsRepository.isChannelPublic(channel) &&
+                !channelsDomain.isUserMember(userId, channel))
+                return@run failure(GetChannelByNameError.PermissionDenied)
+            success(channel)
+        }
     }
 
     fun getPublicChannels(): List<Channel> {

@@ -11,12 +11,14 @@ typealias ChannelCreationResult = Either<ChannelCreationError, Int>
 
 sealed class GetChannelByIdError {
     data object ChannelNotFound : GetChannelByIdError()
+    data object PermissionDenied: GetChannelByIdError()
 }
 
 typealias GetChannelResult = Either<GetChannelByIdError, Channel>
 
 sealed class GetChannelByNameError {
     data object ChannelNameNotFound : GetChannelByNameError()
+    data object PermissionDenied: GetChannelByNameError()
 }
 
 typealias GetChannelByNameResult = Either<GetChannelByNameError, Channel>

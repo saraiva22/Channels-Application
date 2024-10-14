@@ -63,7 +63,8 @@ class ChannelsController(
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.register()
-        return when (val res = channelsService.getChannelById(id)) {
+        val userId = authenticatedUser.user.id
+        return when (val res = channelsService.getChannelById(userId, id)) {
             is Success -> ResponseEntity
                 .status(200)
                 .body(
@@ -77,6 +78,7 @@ class ChannelsController(
 
             is Failure -> when (res.value) {
                 GetChannelByIdError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+                GetChannelByIdError.PermissionDenied -> Problem.unauthorized(instance)
             }
         }
     }
@@ -87,7 +89,8 @@ class ChannelsController(
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.register()
-        return when (val res = channelsService.getChannelByName(name)) {
+        val userId = authenticatedUser.user.id
+        return when (val res = channelsService.getChannelByName(userId, name)) {
             is Success -> ResponseEntity
                 .status(200)
                 .body(
@@ -101,6 +104,7 @@ class ChannelsController(
 
             is Failure -> when (res.value) {
                 GetChannelByNameError.ChannelNameNotFound -> Problem.channelNameNotFound(name, instance)
+                GetChannelByNameError.PermissionDenied -> Problem.unauthorized(instance)
             }
         }
     }
@@ -120,14 +124,15 @@ class ChannelsController(
     fun updateNameChannel(
         @PathVariable id: Int,
         @RequestBody input: ChannelUpdateOutputModel,
-        userAuthenticatedUser: AuthenticatedUser
+        authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.update(id)
-        val channel = channelsService.getChannelById(id)
+        val userId = authenticatedUser.user.id
+        val channel = channelsService.getChannelById(userId, id)
         return when (channel) {
             is Success -> {
                 val updateChannel =
-                    channelsService.updateNameChannel(input.name, id, userAuthenticatedUser.user.id)
+                    channelsService.updateNameChannel(input.name, id, authenticatedUser.user.id)
                 return when (updateChannel) {
                     is Success -> {
                         ResponseEntity
@@ -145,7 +150,7 @@ class ChannelsController(
                     is Failure -> {
                         when (updateChannel.value) {
                             UpdateNameChannelError.UserNotInChannel -> Problem.userNotInChannel(
-                                userAuthenticatedUser.user.username,
+                                authenticatedUser.user.username,
                                 instance
                             )
 
@@ -160,6 +165,7 @@ class ChannelsController(
 
             is Failure -> when (channel.value) {
                 GetChannelByIdError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+                GetChannelByIdError.PermissionDenied -> Problem.unauthorized(instance)
             }
         }
     }
@@ -231,10 +237,11 @@ class ChannelsController(
     fun invitePrivateChannel(
         @PathVariable id: Int,
         @RequestBody input: ChannelPrivateInviteInput,
-        userAuthenticatedUser: AuthenticatedUser,
+        authenticatedUser: AuthenticatedUser,
     ): ResponseEntity<*> {
         val instance = Uris.Channels.invitePrivateChannel(id)
-        val channel = channelsService.getChannelById(id)
+        val userId = authenticatedUser.user.id
+        val channel = channelsService.getChannelById(userId, id)
         return when (channel) {
             is Success -> {
                 val guestUser = usersService.getUserByName(input.username)
@@ -242,7 +249,7 @@ class ChannelsController(
                     is Success -> {
                         val channelPrivate = channelsService.invitePrivateChannel(
                             channel.value,
-                            userAuthenticatedUser.user.id,
+                            authenticatedUser.user.id,
                             guestUser.value,
                             input.privacy
                         )
@@ -257,17 +264,17 @@ class ChannelsController(
 
                             is Failure -> when (channelPrivate.value) {
                                 InvitePrivateChannelError.UserAlreadyInChannel -> Problem.userAlreadyInChannel(
-                                    userAuthenticatedUser.user.username,
+                                    authenticatedUser.user.username,
                                     instance
                                 )
 
                                 InvitePrivateChannelError.UserNotInChannel -> Problem.userNotInChannel(
-                                    userAuthenticatedUser.user.username,
+                                    authenticatedUser.user.username,
                                     instance
                                 )
 
                                 InvitePrivateChannelError.UserNotPermissionsType -> Problem.userNotPermissionsType(
-                                    userAuthenticatedUser.user.username,
+                                    authenticatedUser.user.username,
                                     instance
                                 )
                             }
@@ -282,6 +289,7 @@ class ChannelsController(
 
             is Failure -> when (channel.value) {
                 GetChannelByIdError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+                GetChannelByIdError.PermissionDenied -> Problem.unauthorized(instance)
             }
         }
 

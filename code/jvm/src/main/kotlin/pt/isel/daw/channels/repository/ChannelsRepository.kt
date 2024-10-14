@@ -22,8 +22,6 @@ interface ChannelsRepository {
 
     fun joinChannel(userId: Int,channelId: Int): Channel
 
-    fun getChannels(userId: Int): List<Channel>
-
     fun getPublicChannels(): List<Channel>
 
     fun updateChannelName(channelId: Int, name: String):Channel
