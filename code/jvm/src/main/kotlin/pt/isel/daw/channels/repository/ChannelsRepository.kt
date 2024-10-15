@@ -34,7 +34,7 @@ interface ChannelsRepository {
 
     fun sendInvitePrivateChannel(userId: Int, channelId: Int, inviteId: Int,privacy: Int) : Int
 
-    fun getTypeInvitePrivateChannel(userId: Int,channelId: Int): Privacy
+    fun getTypeInvitePrivateChannel(userId: Int,channelId: Int): Privacy?
 
     fun isPrivateChannelInviteCodeValid(userId: Int,channelId: Int,inviteId: String): Boolean
 }

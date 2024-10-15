@@ -16,6 +16,13 @@ sealed class GetChannelByIdError {
 
 typealias GetChannelResult = Either<GetChannelByIdError, Channel>
 
+sealed class GetChannelSimpleByIdError {
+    data object ChannelNotFound : GetChannelSimpleByIdError()
+}
+
+typealias GetChannelSimpleResult = Either<GetChannelSimpleByIdError, Channel>
+
+
 sealed class GetChannelByNameError {
     data object ChannelNameNotFound : GetChannelByNameError()
     data object PermissionDenied: GetChannelByNameError()
@@ -39,6 +46,7 @@ typealias UpdateNameChannelResult = Either<UpdateNameChannelError, Channel>
 sealed class JoinUserInChannelPublicError{
     data object UserAlreadyInChannel : JoinUserInChannelPublicError()
     data object ChannelNotFound : JoinUserInChannelPublicError()
+    data object IsPrivateChannel : JoinUserInChannelPublicError()
 }
 
 typealias JoinUserInChannelPublicResult = Either<JoinUserInChannelPublicError, Channel>
@@ -56,6 +64,8 @@ sealed class InvitePrivateChannelError{
     data object UserAlreadyInChannel : InvitePrivateChannelError()
     data object UserNotInChannel : InvitePrivateChannelError()
     data object UserNotPermissionsType : InvitePrivateChannelError()
+    data object ChannelIsPublic : InvitePrivateChannelError()
+    data object PrivacyTypeNotFound : InvitePrivateChannelError()
 }
 
 typealias InvitePrivateChannelResult = Either<InvitePrivateChannelError, String>

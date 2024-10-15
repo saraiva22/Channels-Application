@@ -31,23 +31,34 @@ class ChannelsService(
         }
     }
 
-    fun getChannelById(userId: Int, channelId: Int): GetChannelResult {
+    fun getAccessibleChannelById(userId: Int, channelId: Int): GetChannelResult {
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(GetChannelByIdError.ChannelNotFound)
             if (!it.channelsRepository.isChannelPublic(channel) &&
-                !channelsDomain.isUserMember(userId, channel))
+                !channelsDomain.isUserMember(userId, channel)
+            )
                 return@run failure(GetChannelByIdError.PermissionDenied)
             success(channel)
         }
     }
+
+
+    fun getChannelById(channelId: Int): GetChannelSimpleResult =
+        transactionManager.run {
+            val channel = it.channelsRepository.getChannelById(channelId) ?: return@run failure(
+                GetChannelSimpleByIdError.ChannelNotFound
+            )
+            success(channel)
+        }
 
     fun getChannelByName(userId: Int, channelName: String): GetChannelByNameResult {
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelByName(channelName)
                 ?: return@run failure(GetChannelByNameError.ChannelNameNotFound)
             if (!it.channelsRepository.isChannelPublic(channel) &&
-                !channelsDomain.isUserMember(userId, channel))
+                !channelsDomain.isUserMember(userId, channel)
+            )
                 return@run failure(GetChannelByNameError.PermissionDenied)
             success(channel)
         }
@@ -70,10 +81,14 @@ class ChannelsService(
 
     fun joinUsersInPublicChannel(userId: Int, channelId: Int): JoinUserInChannelPublicResult {
         return transactionManager.run {
-            if (it.channelsRepository.getChannelById(channelId) == null) return@run failure(JoinUserInChannelPublicError.ChannelNotFound)
+            val channel = it.channelsRepository.getChannelById(channelId) ?: return@run failure(
+                JoinUserInChannelPublicError.ChannelNotFound
+            )
+            if (!it.channelsRepository.isChannelPublic(channel))
+                return@run failure(JoinUserInChannelPublicError.IsPrivateChannel)
 
-            val channel = it.channelsRepository.getUserChannel(channelId, userId)
-            if (channel != null) return@run failure(JoinUserInChannelPublicError.UserAlreadyInChannel)
+            if (channelsDomain.isUserMember(userId, channel))
+                return@run failure(JoinUserInChannelPublicError.UserAlreadyInChannel)
 
             val joinChannel = it.channelsRepository.joinChannel(userId, channelId)
             success(joinChannel)
@@ -107,12 +122,18 @@ class ChannelsService(
             if (it.channelsRepository.getUserChannel(channel.id, guest.id) != null) {
                 return@run failure(InvitePrivateChannelError.UserAlreadyInChannel)
             }
+            if (it.channelsRepository.isChannelPublic(channel)) {
+                return@run failure(InvitePrivateChannelError.ChannelIsPublic)
+            }
             val isOwner = it.channelsRepository.isOwnerChannel(channel.id, userId)
             if (isOwner) {
                 createInvite(it, guest.id, channel.id, privacy)
             } else {
                 if (channel.members.contains(userId)) {
-                    val typeInvite = it.channelsRepository.getTypeInvitePrivateChannel(userId, channel.id)
+                    val typeInvite =
+                        it.channelsRepository.getTypeInvitePrivateChannel(userId, channel.id) ?: return@run failure(
+                            InvitePrivateChannelError.PrivacyTypeNotFound
+                        )
                     if (typeInvite == Privacy.READ_WRITE) {
                         createInvite(it, guest.id, channel.id, privacy)
                     } else if (typeInvite == Privacy.READ_ONLY && privacy == Privacy.READ_ONLY) {

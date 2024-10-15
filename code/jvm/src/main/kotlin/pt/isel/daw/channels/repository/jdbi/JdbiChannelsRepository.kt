@@ -212,15 +212,17 @@ class JdbiChannelsRepository(
             .one()
     }
 
-    override fun getTypeInvitePrivateChannel(userId: Int, channelId: Int): Privacy {
-        return handle.createQuery(
+    override fun getTypeInvitePrivateChannel(userId: Int, channelId: Int): Privacy? {
+        val privacyValue = handle.createQuery(
             """
         select privacy from dbo.Invite_Private_Channels where user_id = :userId and private_ch = :channelId
-            """
+        """
         ).bind("userId", userId)
             .bind("channelId", channelId)
-            .mapTo<Privacy>()
+            .mapTo<Int>()
             .one()
+
+        return Privacy.fromInt(privacyValue)
     }
 
     override fun isPrivateChannelInviteCodeValid(userId: Int, channelId: Int, inviteId: String): Boolean {

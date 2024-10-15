@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE
+import pt.isel.daw.channels.domain.channels.Privacy
 import java.net.URI
 
 class Problem(
@@ -45,15 +46,18 @@ class Problem(
 
 
         // Channel
-        val channelNotFound = URI("${BASE_URL}channel-not-found")
-        val channelNameNotFound = URI("${BASE_URL}channel-name-not-found")
+        private val channelNotFound = URI("${BASE_URL}channel-not-found")
+        private val channelNameNotFound = URI("${BASE_URL}channel-name-not-found")
         private val channelAlreadyExists = URI("${BASE_URL}channel-already-exists")
-        val invalidChannelType = URI("${BASE_URL}invalid-channel-type")
-        val userNotInChannel = URI("${BASE_URL}user-not-in-channel")
-        val userAlreadyInChannel = URI("${BASE_URL}user-already-in-channel")
-        val channelNameAlreadyExists = URI("${BASE_URL}channel-name-already-exists")
-        val userNotPermissionsType = URI("${BASE_URL}user-not-permissions-type")
-        val codeInvalidChannel = URI("${BASE_URL}code-invalid-channel")
+        private val invalidChannelType = URI("${BASE_URL}invalid-channel-type")
+        private val userNotInChannel = URI("${BASE_URL}user-not-in-channel")
+        private val userAlreadyInChannel = URI("${BASE_URL}user-already-in-channel")
+        private val channelNameAlreadyExists = URI("${BASE_URL}channel-name-already-exists")
+        private val userNotPermissionsType = URI("${BASE_URL}user-not-permissions-type")
+        private val codeInvalidChannel = URI("${BASE_URL}code-invalid-channel")
+        private val isPrivateChannel = URI("${BASE_URL}is-private-channel")
+        private val channelIsPublic = URI("${BASE_URL}channel-is-public")
+        private val privacyTypeInvalid = URI("${BASE_URL}privacy-type-invalid")
 
         fun internalServerError(
             instance: URI?
@@ -220,7 +224,7 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun userNotPermissionsType(username: String,instance: URI?):ResponseEntity<*> = Problem(
+        fun userNotPermissionsType(username: String, instance: URI?): ResponseEntity<*> = Problem(
             typeUri = userNotPermissionsType,
             title = "User not permissions type",
             status = HttpStatus.BAD_REQUEST.value(),
@@ -228,11 +232,35 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun codeInvalidChannel(channelId :Int, code: String, instance: URI?): ResponseEntity<*> = Problem(
+        fun codeInvalidChannel(channelId: Int, code: String, instance: URI?): ResponseEntity<*> = Problem(
             typeUri = codeInvalidChannel,
             title = "Code invalid channel",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Code $code invalid in channel $channelId",
+            instance = instance
+        ).toResponse()
+
+        fun isPrivateChannel(channelId: Int, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = isPrivateChannel,
+            title = "Is private channel",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "Channel $channelId is private",
+            instance = instance
+        ).toResponse()
+
+        fun channelIsPublic(channelId: Int, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = channelIsPublic,
+            title = "Channel is public",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "Channel $channelId is public",
+            instance = instance
+        ).toResponse()
+
+        fun privacyTypeInvalid(privacy: String, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = privacyTypeInvalid,
+            title = "Privacy type invalid",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "Privacy type $privacy invalid",
             instance = instance
         ).toResponse()
     }
