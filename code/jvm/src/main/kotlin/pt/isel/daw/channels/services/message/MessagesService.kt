@@ -1,7 +1,10 @@
 package pt.isel.daw.channels.services.message
 
+import kotlinx.datetime.Clock
 import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
+import pt.isel.daw.channels.domain.channels.Privacy
+import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.repository.TransactionManager
 import pt.isel.daw.channels.utils.failure
 import pt.isel.daw.channels.utils.success
@@ -9,10 +12,28 @@ import pt.isel.daw.channels.utils.success
 @Component
 class MessagesService(
     private val transactionManager: TransactionManager,
-    private val channelsDomain: ChannelsDomain
+    private val channelsDomain: ChannelsDomain,
+    private val clock: Clock,
 ) {
-    fun createMessage(channelId: Int) {
-        TODO()
+    fun createMessage(channelId: Int, user: User, text: String): CreateMessageResult {
+        return transactionManager.run {
+            val channelRep = it.channelsRepository
+            val channel = channelRep.getChannelById(channelId)
+                ?: return@run failure(CreateMessageError.ChannelNotFound)
+            if (!channelsDomain.isUserMember(user.id, channel))
+                return@run failure(CreateMessageError.UserNotMemberInChannel)
+
+            val canCreateMessage = channelRep.isChannelPublic(channel) ||
+                    (channelRep.getTypeInvitePrivateChannel(user.id, channelId) == Privacy.READ_WRITE)
+
+            if (canCreateMessage) {
+                val now = clock.now()
+                val messageId = it.messagesRepository.createMessage(channelId, user.id, text, now)
+                success(messageId)
+            } else {
+                failure(CreateMessageError.PrivacyIsNotReadWrite)
+            }
+        }
     }
 
     fun getChannelMessages(userId: Int, channelId: Int): GetMessageResult {
@@ -20,7 +41,8 @@ class MessagesService(
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(GetMessageError.ChannelNotFound)
             if (!it.channelsRepository.isChannelPublic(channel) &&
-                !channelsDomain.isUserMember(userId, channel))
+                !channelsDomain.isUserMember(userId, channel)
+            )
                 return@run failure(GetMessageError.PermissionDenied)
             val messageList = it.messagesRepository.getChannelMessages(channelId)
             success(messageList)

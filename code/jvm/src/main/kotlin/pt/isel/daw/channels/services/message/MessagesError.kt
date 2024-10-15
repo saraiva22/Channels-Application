@@ -9,3 +9,11 @@ sealed class GetMessageError {
 }
 
 typealias GetMessageResult = Either<GetMessageError, List<Message>>
+
+sealed class CreateMessageError {
+    data object ChannelNotFound : CreateMessageError()
+    data object UserNotMemberInChannel : CreateMessageError()
+    data object PrivacyIsNotReadWrite : CreateMessageError()
+}
+
+typealias CreateMessageResult = Either<CreateMessageError, Int>

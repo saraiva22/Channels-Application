@@ -47,16 +47,21 @@ object Uris {
 
         fun joinPrivateChannel(id: Int): URI = UriTemplate(JOIN_PRIVATE_CHANNELS).expand(id)
 
-        fun invitePrivateChannel(id: Int) :URI = UriTemplate(CREATE_PRIVATE_INVITE).expand(id)
+        fun invitePrivateChannel(id: Int): URI = UriTemplate(CREATE_PRIVATE_INVITE).expand(id)
     }
 
     object Messages {
-        const val CREATE = "$PREFIX/channels/{id}/create"
+        const val CREATE = "$PREFIX/channels/{id}/messages"
         const val GET_BY_CHANNEL = "$PREFIX/channels/{id}/messages"
-        const val DELETE = "$PREFIX/channels/{channelId}/messages/{messageId}"
+        const val DELETE = "$PREFIX/channels/{channelId}/messages/{id}"
+        const val GET_BY_ID = "$PREFIX/channels/{channelId}/messages/{id}"
 
         fun register(): URI = URI(CREATE)
 
         fun byChannel(id: Int): URI = UriTemplate(GET_BY_CHANNEL).expand(id)
+
+        fun byId(channelId: Int, id: Int): URI = UriTemplate(GET_BY_ID).expand(channelId, id)
+
+        fun create(id: Int): URI = UriTemplate(CREATE).expand(id)
     }
 }

@@ -20,6 +20,12 @@ class Problem(
         .body<Any>(this)
 
     companion object {
+
+        fun response(status: Int, problem: Problem) = ResponseEntity
+            .status(status)
+            .header("Content-Type", MEDIA_TYPE)
+            .body<Any>(problem)
+
         const val MEDIA_TYPE = APPLICATION_PROBLEM_JSON_VALUE
         private const val BASE_URL = "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/"
 
@@ -27,6 +33,7 @@ class Problem(
         //Default
         val internalServerError = URI("${BASE_URL}internal-server-error")
         val badRequest = URI("${BASE_URL}bad-request")
+        val invalidRequestContent = URI("${BASE_URL}invalid-request-content")
 
         // User
         private val usernameAlreadyExists = URI("${BASE_URL}username-already-exists")
@@ -59,6 +66,10 @@ class Problem(
         private val channelIsPublic = URI("${BASE_URL}channel-is-public")
         private val privacyTypeInvalid = URI("${BASE_URL}privacy-type-invalid")
 
+        // Message
+        private val messageNotFound = URI("${BASE_URL}message-not-found")
+        private val userPrivacyTypeReadOnly = URI("${BASE_URL}user-privacy-type-read-only")
+
         fun internalServerError(
             instance: URI?
         ): ResponseEntity<*> = Problem(
@@ -68,6 +79,15 @@ class Problem(
             detail = "An internal server error occurred",
             instance = instance
         ).toResponse()
+
+
+        fun invalidRequestContent(): Problem = Problem(
+            typeUri = invalidRequestContent,
+            title = "Invalid request content",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "The request content is invalid",
+            instance = invalidRequestContent
+        )
 
 
         fun usernameAlreadyExists(username: String, instance: URI?): ResponseEntity<*> = Problem(
@@ -263,5 +283,14 @@ class Problem(
             detail = "Privacy type $privacy invalid",
             instance = instance
         ).toResponse()
+
+        fun userPrivacyTypeReadOnly(username: String, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = userPrivacyTypeReadOnly,
+            title = "User privacy type read only",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "User $username privacy type read only",
+            instance = instance
+        ).toResponse()
+
     }
 }

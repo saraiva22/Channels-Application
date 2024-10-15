@@ -1,5 +1,6 @@
 package pt.isel.daw.channels.repository.jdbi
 
+import kotlinx.datetime.Instant
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import pt.isel.daw.channels.domain.messages.Message
@@ -8,9 +9,20 @@ import pt.isel.daw.channels.repository.MessagesRepository
 
 class JdbiMessageRepository(
     private val handle: Handle
-): MessagesRepository {
-    override fun createMessage(message: MessageModel): Int {
-        TODO("Not yet implemented")
+) : MessagesRepository {
+    override fun createMessage(channelId: Int, userId: Int, text: String, createAt: Instant): Int {
+        return handle.createUpdate(
+            """
+                insert into dbo.Messages(channel_id,user_id, text, create_at) 
+                values(:channelId,:userId,:text,:createAt)
+            """
+        ).bind("channelId", channelId)
+            .bind("userId", userId)
+            .bind("text", text)
+            .bind("createAt", createAt.epochSeconds)
+            .executeAndReturnGeneratedKeys()
+            .mapTo<Int>()
+            .one()
     }
 
     override fun getChannelMessages(channelId: Int): List<Message> =
