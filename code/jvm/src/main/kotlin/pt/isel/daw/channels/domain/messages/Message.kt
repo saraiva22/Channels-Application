@@ -4,5 +4,6 @@ data class Message (
     val id: Int,
     val text: String,
     val channel: Int,
-    val user: Int
+    val user: Int,
+    val creation: String
 )

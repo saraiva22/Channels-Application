@@ -13,3 +13,13 @@ insert into dbo.public_channels(channel_id) values
     (1),
     (2),
     (3);
+
+insert into dbo.join_channels(user_id, ch_id) values
+    (2, 3);
+
+insert into dbo.messages(channel_id, user_id, text, create_at) values
+    (5, 8, 'Hello', 12-10-2024),
+    (3, 8, 'Hello', 12-10-2024),
+    (3, 5, 'Hello2',12-10-2024),
+    (3, 1, 'Hello3',12-10-2024);
+
