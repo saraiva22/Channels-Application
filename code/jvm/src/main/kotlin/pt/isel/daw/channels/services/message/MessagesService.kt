@@ -1,6 +1,8 @@
 package pt.isel.daw.channels.services.message
 
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.channels.Privacy
@@ -40,9 +42,7 @@ class MessagesService(
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(GetMessageError.ChannelNotFound)
-            if (!it.channelsRepository.isChannelPublic(channel) &&
-                !channelsDomain.isUserMember(userId, channel)
-            )
+            if (!channelsDomain.isUserMember(userId, channel))
                 return@run failure(GetMessageError.PermissionDenied)
             val messageList = it.messagesRepository.getChannelMessages(channelId)
             success(messageList)
@@ -51,5 +51,9 @@ class MessagesService(
 
     fun deleteMessage(channelId: Int) {
         TODO()
+    }
+
+    companion object {
+        val logger = LoggerFactory.getLogger(MessagesService::class.java)
     }
 }

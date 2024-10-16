@@ -1,6 +1,8 @@
 package pt.isel.daw.channels.http.controllers
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -60,7 +62,9 @@ class MessagesController(
     ): ResponseEntity<*> {
         val instance = Uris.Messages.byChannel(id)
         val userId = authenticatedUser.user.id
-        return when (val res = messagesService.getChannelMessages(userId, id)) {
+        val res = messagesService.getChannelMessages(userId, id)
+        logger.info(res.toString())
+        return when (res) {
             is Success -> ResponseEntity
                 .status(200)
                 .body(MessageListOutputModel(res.value))
@@ -70,5 +74,14 @@ class MessagesController(
                 GetMessageError.PermissionDenied -> Problem.unauthorized(instance)
             }
         }
+    }
+
+    @DeleteMapping(Uris.Messages.DELETE)
+    fun deleteMessagesByChannel() {
+        TODO()
+    }
+
+    companion object {
+        val logger = LoggerFactory.getLogger(MessagesController::class.java)
     }
 }
