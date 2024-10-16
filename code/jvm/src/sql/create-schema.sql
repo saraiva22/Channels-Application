@@ -34,23 +34,20 @@ create table dbo.Channels
 
 create table dbo.Public_Channels
 (
-    id         int generated always as identity,
     channel_id serial references dbo.Channels (id) on delete cascade on update cascade,
-    primary key (id, channel_id)
+    primary key (channel_id)
 );
 
 create table dbo.Join_Channels
 (
-    id      int generated always as identity primary key,
     user_id int references dbo.Users (id),
     ch_id   serial references dbo.Channels (id)
 );
 
 create table dbo.Private_Channels
 (
-    id         int generated always as identity,
     channel_id serial unique references dbo.Channels (id),
-    primary key (id, channel_id)
+    primary key (channel_id)
 );
 
 create table dbo.Invitation_Channels

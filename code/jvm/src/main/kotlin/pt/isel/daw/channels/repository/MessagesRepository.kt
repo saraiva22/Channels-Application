@@ -9,5 +9,5 @@ interface MessagesRepository {
 
     fun getChannelMessages(channelId: Int): List<Message>
 
-    fun deleteMessageFromChannel(messageId: Int, channelId: Int): Boolean
+    fun deleteMessageFromChannel(messageId: Int, channelId: Int): Int
 }

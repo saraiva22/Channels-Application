@@ -63,5 +63,7 @@ object Uris {
         fun byId(channelId: Int, id: Int): URI = UriTemplate(GET_BY_ID).expand(channelId, id)
 
         fun create(id: Int): URI = UriTemplate(CREATE).expand(id)
+
+        fun delete(channelId: Int, id: Int): URI = UriTemplate(DELETE).expand(channelId, id)
     }
 }

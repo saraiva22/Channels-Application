@@ -14,6 +14,7 @@ import pt.isel.daw.channels.http.media.Problem
 import pt.isel.daw.channels.http.model.message.MessageCreateInputModel
 import pt.isel.daw.channels.http.model.message.MessageListOutputModel
 import pt.isel.daw.channels.services.message.CreateMessageError
+import pt.isel.daw.channels.services.message.DeleteMessageError
 import pt.isel.daw.channels.services.message.GetMessageError
 import pt.isel.daw.channels.services.message.MessagesService
 import pt.isel.daw.channels.utils.Failure
@@ -77,8 +78,23 @@ class MessagesController(
     }
 
     @DeleteMapping(Uris.Messages.DELETE)
-    fun deleteMessagesByChannel() {
-        TODO()
+    fun deleteMessagesByChannel(
+        @PathVariable channelId: Int,
+        @PathVariable id: Int,
+        authenticatedUser: AuthenticatedUser
+    ): ResponseEntity<*> {
+        val instance = Uris.Messages.delete(channelId, id)
+        val userId = authenticatedUser.user.id
+        return when (val res = messagesService.deleteMessageFromChannel(userId, id, channelId)) {
+            is Success -> ResponseEntity
+                .status(200)
+                .build<Unit>()
+
+            is Failure -> when (res.value) {
+                DeleteMessageError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+                DeleteMessageError.PermissionDenied -> Problem.unauthorized(instance)
+            }
+        }
     }
 
     companion object {

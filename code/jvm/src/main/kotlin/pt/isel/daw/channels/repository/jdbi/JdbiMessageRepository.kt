@@ -48,8 +48,14 @@ class JdbiMessageRepository(
                 this.map { it.toMessage() }
             }
 
-    override fun deleteMessageFromChannel(messageId: Int, channelId: Int): Boolean {
-        TODO("Not yet implemented")
-    }
-
+    override fun deleteMessageFromChannel(messageId: Int, channelId: Int): Int =
+        handle.createUpdate(
+            """
+                delete from dbo.Messages
+                where id = :messageId and channel_id = :channelId
+            """
+        )
+            .bind("messageId", messageId)
+            .bind("channelId", channelId)
+            .execute()
 }

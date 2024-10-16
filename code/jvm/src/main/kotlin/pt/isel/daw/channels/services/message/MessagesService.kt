@@ -49,8 +49,15 @@ class MessagesService(
         }
     }
 
-    fun deleteMessage(channelId: Int) {
-        TODO()
+    fun deleteMessageFromChannel(userId: Int, messageId: Int, channelId: Int): DeleteMessageResult {
+        return transactionManager.run {
+            val channel = it.channelsRepository.getChannelById(channelId)
+                ?: return@run failure(DeleteMessageError.ChannelNotFound)
+            if (!channelsDomain.isUserMember(userId, channel))
+                return@run failure(DeleteMessageError.PermissionDenied)
+            it.messagesRepository.deleteMessageFromChannel(messageId, channelId)
+            success(true)
+        }
     }
 
     companion object {
