@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.http.Uris
-import pt.isel.daw.channels.http.model.Problem
+import pt.isel.daw.channels.http.media.Problem
 import pt.isel.daw.channels.http.model.channel.*
 import pt.isel.daw.channels.services.channel.*
 import pt.isel.daw.channels.services.user.UserSearchError

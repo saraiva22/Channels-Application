@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.http.Uris
-import pt.isel.daw.channels.http.model.Problem
+import pt.isel.daw.channels.http.media.Problem
 import pt.isel.daw.channels.http.model.user.UserCreateInputModel
 import pt.isel.daw.channels.http.model.user.UserCreateTokenInputModel
 import pt.isel.daw.channels.http.model.user.UserHomeOutputModel
@@ -17,7 +17,6 @@ import pt.isel.daw.channels.services.user.UserSearchError
 import pt.isel.daw.channels.services.user.UsersService
 import pt.isel.daw.channels.utils.Failure
 import pt.isel.daw.channels.utils.Success
-import pt.isel.daw.channels.utils.failure
 
 @RestController
 class UsersController(private val userService: UsersService) {

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.http.Uris
-import pt.isel.daw.channels.http.model.Problem
+import pt.isel.daw.channels.http.media.Problem
 import pt.isel.daw.channels.http.model.message.MessageCreateInputModel
 import pt.isel.daw.channels.http.model.message.MessageListOutputModel
 import pt.isel.daw.channels.services.message.CreateMessageError

@@ -1,10 +1,8 @@
-package pt.isel.daw.channels.http.model
+package pt.isel.daw.channels.http.media
 
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE
-import pt.isel.daw.channels.domain.channels.Privacy
 import java.net.URI
 
 class Problem(

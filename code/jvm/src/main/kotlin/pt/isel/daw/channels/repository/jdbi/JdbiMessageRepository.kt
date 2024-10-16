@@ -3,11 +3,8 @@ package pt.isel.daw.channels.repository.jdbi
 import kotlinx.datetime.Instant
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
-import org.jdbi.v3.core.mapper.Nested
-import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.messages.Message
-import pt.isel.daw.channels.domain.messages.MessageDbModel
-import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.http.model.message.MessageDbModel
 import pt.isel.daw.channels.repository.MessagesRepository
 
 class JdbiMessageRepository(

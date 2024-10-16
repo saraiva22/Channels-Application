@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.HandlerInterceptor
 import pt.isel.daw.channels.domain.user.AuthenticatedUser
-import pt.isel.daw.channels.http.model.Problem.Companion.unauthorized
+import pt.isel.daw.channels.http.media.Problem.Companion.unauthorized
 
 @Component
 class AuthenticationInterceptor(
