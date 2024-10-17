@@ -16,9 +16,9 @@ interface ChannelsRepository {
 
     fun getChannelByName(channelName: String): Channel?
 
-    fun getUserChannels(userId: Int): List<Channel>
+    fun getUserOwnedChannels(userId: Int): List<Channel>
 
-    fun getUserChannel(channelId: Int, userId: Int): Channel?
+    // missing get channels where user is member, not only owner
 
     fun joinChannel(userId: Int,channelId: Int): Channel
 
@@ -36,5 +36,5 @@ interface ChannelsRepository {
 
     fun getTypeInvitePrivateChannel(userId: Int,channelId: Int): Privacy?
 
-    fun isPrivateChannelInviteCodeValid(userId: Int,channelId: Int,inviteId: String): Boolean
+    fun isPrivateChannelInviteCodeValid(userId: Int, inviteId: String): Channel?
 }

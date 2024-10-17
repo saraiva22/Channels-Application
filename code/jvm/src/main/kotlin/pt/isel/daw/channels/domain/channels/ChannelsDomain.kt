@@ -12,5 +12,6 @@ class ChannelsDomain {
         return "$part1-$part2"
     }
 
-    fun isUserMember(userId: Int, channel: Channel) = channel.members.contains(userId)
+    fun isUserMember(userId: Int, channel: Channel): Boolean =
+        channel.members.filter { user -> user.id == userId }.size == 1
 }

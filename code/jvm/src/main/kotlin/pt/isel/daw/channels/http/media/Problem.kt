@@ -250,11 +250,11 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun codeInvalidChannel(channelId: Int, code: String, instance: URI?): ResponseEntity<*> = Problem(
+        fun codeInvalidChannel(code: String, instance: URI?): ResponseEntity<*> = Problem(
             typeUri = codeInvalidChannel,
             title = "Code invalid channel",
             status = HttpStatus.BAD_REQUEST.value(),
-            detail = "Code $code invalid in channel $channelId",
+            detail = "Code $code is invalid",
             instance = instance
         ).toResponse()
 

@@ -6,6 +6,8 @@ import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Type
+import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.http.model.channel.ChannelDbModel
 import pt.isel.daw.channels.repository.ChannelsRepository
 
 class JdbiChannelsRepository(
@@ -46,112 +48,110 @@ class JdbiChannelsRepository(
             .mapTo<Int>()
             .single() == 1
 
-    override fun getChannelById(channelId: Int): Channel? =
-        handle.createQuery(
+    override fun getChannelById(channelId: Int): Channel? {
+        val channelDbModel = handle.createQuery(
             """
-                select channels.id, channels.name, channels.owner_id as owner, 
-                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
+                select channels.id, channels.name, 
+                users.id as owner_id, users.email as owner_email, users.username as owner_username, users.password_validation as owner_passwordValidation
                 from dbo.Channels as channels 
-                left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id 
-                where channels.id = :id 
-                group by channels.id, channels.name, channels.owner_id
+                left join dbo.Users as users on channels.owner_id = users.id
+                where channels.id = :id
             """
         )
             .bind("id", channelId)
-            .mapTo<Channel>()
+            .mapTo<ChannelDbModel>()
             .singleOrNull()
 
-    override fun getChannelByName(channelName: String): Channel? =
-        handle.createQuery(
+        if (channelDbModel == null) return channelDbModel
+
+        val members = getChannelMembers(channelId)
+
+        return channelDbModel.copy(members = members).toChannel()
+    }
+
+    override fun getChannelByName(channelName: String): Channel? {
+        val channelDbModel = handle.createQuery(
             """
-                select channels.id, channels.name, channels.owner_id as owner, 
-                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
+                select channels.id, channels.name, 
+                users.id as owner_id, users.email as owner_email, users.username as owner_username, users.password_validation as owner_passwordValidation
                 from dbo.Channels as channels 
-                left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id 
-                where channels.name = :name 
-                group by channels.id, channels.name, channels.owner_id
+                left join dbo.Users as users on channels.owner_id = users.id
+                where channels.name = :name
             """
         )
             .bind("name", channelName)
-            .mapTo<Channel>()
+            .mapTo<ChannelDbModel>()
             .singleOrNull()
 
-    override fun getUserChannels(userId: Int): List<Channel> =
-        handle.createQuery(
+        if (channelDbModel == null) return channelDbModel
+
+        val members = getChannelMembers(channelDbModel.id)
+
+        return channelDbModel.copy(members = members).toChannel()
+    }
+
+    override fun getUserOwnedChannels(userId: Int): List<Channel> {
+        val channelDbModelList = handle.createQuery(
             """
-                select channels.id, channels.name, channels.owner_id as owner, 
-                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members 
-                from dbo.Channels as channels
-                join dbo.Join_Channels as user_channels on channels.id = user_channels.ch_id
-                left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id
-                where user_channels.user_id = :userId
-                group by channels.id, channels.name, channels.owner_id
+                select channels.id, channels.name, 
+                users.id as owner_id, users.email as owner_email, users.username as owner_username, users.password_validation as owner_passwordValidation
+                from dbo.Channels as channels 
+                left join dbo.Users as users on channels.owner_id = users.id
+                where users.id = :userId
             """
         )
             .bind("userId", userId)
-            .mapTo<Channel>()
+            .mapTo<ChannelDbModel>()
             .list()
 
-    override fun getUserChannel(channelId: Int, userId: Int): Channel? =
-        handle.createQuery(
-            """
-                select channels.id, channels.name, channels.owner_id as owner, 
-                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
-                from dbo.Join_Channels as members_table
-                join dbo.Channels as channels on members_table.ch_id = channels.id
-                where members_table.ch_id = :channelId and members_table.user_id = :userId
-                group by channels.id, channels.name, channels.owner_id;
-            """
-        )
-            .bind("channelId", channelId)
-            .bind("userId", userId)
-            .mapTo<Channel>()
-            .singleOrNull()
-
+        return channelDbModelList.map {
+            channel ->
+                val members = getChannelMembers(channel.id)
+                channel.copy(members = members).toChannel()
+        }
+    }
 
     override fun joinChannel(userId: Int, channelId: Int): Channel {
         handle.createUpdate(
             """
-        insert into dbo.join_channels (user_id, ch_id) values (:userId, :channelId)
-        """
+                insert into dbo.join_channels (user_id, ch_id) values (:userId, :channelId)
+            """
         )
             .bind("userId", userId)
             .bind("channelId", channelId)
             .execute()
 
-        return handle.createQuery(
-            """
-        select channels.id, channels.name, channels.owner_id as owner,
-        coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
-        from dbo.Channels as channels
-        left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id
-        where channels.id = :channelId
-        group by channels.id, channels.name, channels.owner_id
-        """
-        )
-            .bind("channelId", channelId)
-            .mapTo<Channel>()
-            .one()
+        val channelDbModel = secureGetChannelById(channelId)
+
+        val members = getChannelMembers(channelId)
+
+        return channelDbModel.copy(members = members).toChannel()
     }
 
     override fun isOwnerChannel(channelId: Int, userId: Int): Boolean {
         val channel = getChannelById(channelId)
-        return channel?.owner == userId
+        return channel?.owner?.id == userId
     }
 
-    override fun getPublicChannels(): List<Channel> =
-        handle.createQuery(
+    override fun getPublicChannels(): List<Channel> {
+        val channelDbModelList = handle.createQuery(
             """
-                select channels.id, channels.name, channels.owner_id as owner,
-                coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
-                from dbo.Channels as channels
-                left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id
+                select channels.id, channels.name,
+                users.id as owner_id, users.email as owner_email, users.username as owner_username, users.password_validation as owner_passwordValidation
+                from dbo.Channels as channels 
+                left join dbo.Users as users on channels.owner_id = users.id
                 join dbo.Public_Channels as public on channels.id = public.channel_id
-                group by channels.id, channels.name, channels.owner_id
             """
         )
-            .mapTo<Channel>()
+            .mapTo<ChannelDbModel>()
             .list()
+
+        return channelDbModelList.map {
+            channel ->
+                val members = getChannelMembers(channel.id)
+                channel.copy(members = members).toChannel()
+        }
+    }
 
     override fun isChannelPublic(channel: Channel): Boolean {
         val publicChannels = getPublicChannels()
@@ -165,34 +165,27 @@ class JdbiChannelsRepository(
     override fun updateChannelName(channelId: Int, name: String): Channel {
         handle.createUpdate(
             """
-        update dbo.Channels set name = :name where id = :id
-        """
+                update dbo.Channels set name = :name where id = :id
+            """
         )
             .bind("name", name)
             .bind("id", channelId)
             .execute()
 
-        return handle.createQuery(
-            """
-        select channels.id, channels.name, channels.owner_id as owner,
-        coalesce(array_agg(members_table.user_id) filter (where members_table.user_id is not null), '{}') as members
-        from dbo.Channels as channels
-        left join dbo.Join_Channels as members_table on channels.id = members_table.ch_id
-        where channels.id = :id
-        group by channels.id, channels.name, channels.owner_id
-        """
-        )
-            .bind("id", channelId)
-            .mapTo<Channel>()
-            .one()
+        val channelDbModel = secureGetChannelById(channelId)
+
+        val members = getChannelMembers(channelId)
+
+        return channelDbModel.copy(members = members).toChannel()
     }
 
     override fun createPrivateInvite(codPrivate: String): Int {
         return handle.createUpdate(
             """
-        insert into dbo.Invitation_Channels(cod_hash) values (:codPrivate)
+                insert into dbo.Invitation_Channels(cod_hash) values (:codPrivate)
             """
-        ).bind("codPrivate", codPrivate)
+        )
+            .bind("codPrivate", codPrivate)
             .executeAndReturnGeneratedKeys()
             .mapTo<Int>()
             .one()
@@ -201,9 +194,11 @@ class JdbiChannelsRepository(
     override fun sendInvitePrivateChannel(userId: Int, channelId: Int, inviteId: Int, privacy: Int): Int {
         return handle.createUpdate(
             """
-        insert into dbo.Invite_Private_Channels(user_id, private_ch, invite_id, privacy) values (:userId, :channelId, :inviteId, :privacy)
+                insert into dbo.Invite_Private_Channels(user_id, private_ch, invite_id, privacy) 
+                values (:userId, :channelId, :inviteId, :privacy)
             """
-        ).bind("userId", userId)
+        )
+            .bind("userId", userId)
             .bind("channelId", channelId)
             .bind("inviteId", inviteId)
             .bind("privacy", privacy)
@@ -215,9 +210,10 @@ class JdbiChannelsRepository(
     override fun getTypeInvitePrivateChannel(userId: Int, channelId: Int): Privacy? {
         val privacyValue = handle.createQuery(
             """
-        select privacy from dbo.Invite_Private_Channels where user_id = :userId and private_ch = :channelId
-        """
-        ).bind("userId", userId)
+                select privacy from dbo.Invite_Private_Channels where user_id = :userId and private_ch = :channelId
+            """
+        )
+            .bind("userId", userId)
             .bind("channelId", channelId)
             .mapTo<Int>()
             .one()
@@ -225,19 +221,53 @@ class JdbiChannelsRepository(
         return Privacy.fromInt(privacyValue)
     }
 
-    override fun isPrivateChannelInviteCodeValid(userId: Int, channelId: Int, inviteId: String): Boolean {
-        return handle.createQuery(
+    override fun isPrivateChannelInviteCodeValid(userId: Int, inviteId: String): Channel? {
+        val channelDbModel = handle.createQuery(
             """
-        select count(*)
-        from dbo.invite_private_channels as ipc
-        join dbo.invitation_channels as ic on ipc.invite_id = ic.id
-        where ipc.user_id = :userId and ipc.private_ch = :channelId and ic.cod_hash = :inviteId;
+                select c.id, c.name,
+                u.id as owner_id, u.email as owner_email, u.username as owner_username, u.password_validation as owner_passwordValidation
+                from dbo.invite_private_channels as ipc
+                join dbo.invitation_channels as ic on ipc.invite_id = ic.id
+                join dbo.channels as c on c.id = ipc.private_ch
+                join dbo.users as u on u.id = c.owner_id
+                where ic.cod_hash = :inviteId;
             """
-        ).bind("userId", userId)
-            .bind("channelId", channelId)
+        )
             .bind("inviteId", inviteId)
-            .mapTo<Int>()
-            .one() == 1
+            .mapTo<ChannelDbModel>()
+            .singleOrNull()
+
+        if (channelDbModel == null) return channelDbModel
+
+        val members = getChannelMembers(channelDbModel.id)
+
+        return channelDbModel.copy(members = members).toChannel()
     }
 
+    private fun getChannelMembers(channelId: Int) =
+        handle.createQuery(
+            """
+                select users.id, users.email, users.username, users.password_validation as passwordValidation
+                from dbo.Users as users
+                join dbo.Join_Channels as members_table on members_table.user_id = users.id
+                where members_table.ch_id = :channelId
+            """
+        )
+            .bind("channelId", channelId)
+            .mapTo<User>()
+            .list()
+
+    private fun secureGetChannelById(channelId: Int) =
+        handle.createQuery(
+            """
+                select channels.id, channels.name, 
+                users.id as owner_id, users.email as owner_email, users.username as owner_username, users.password_validation as owner_passwordValidation
+                from dbo.Channels as channels 
+                left join dbo.Users as users on channels.owner_id = users.id
+                where channels.id = :id
+            """
+        )
+            .bind("id", channelId)
+            .mapTo<ChannelDbModel>()
+            .single()
 }

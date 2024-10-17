@@ -13,6 +13,7 @@ import pt.isel.daw.channels.http.Uris
 import pt.isel.daw.channels.http.media.Problem
 import pt.isel.daw.channels.http.model.message.MessageCreateInputModel
 import pt.isel.daw.channels.http.model.message.MessageListOutputModel
+import pt.isel.daw.channels.http.model.message.MessageOutputModel
 import pt.isel.daw.channels.services.message.CreateMessageError
 import pt.isel.daw.channels.services.message.DeleteMessageError
 import pt.isel.daw.channels.services.message.GetMessageError
@@ -63,12 +64,22 @@ class MessagesController(
     ): ResponseEntity<*> {
         val instance = Uris.Messages.byChannel(id)
         val userId = authenticatedUser.user.id
-        val res = messagesService.getChannelMessages(userId, id)
-        logger.info(res.toString())
-        return when (res) {
-            is Success -> ResponseEntity
-                .status(200)
-                .body(MessageListOutputModel(res.value))
+        return when (val res = messagesService.getChannelMessages(userId, id)) {
+            is Success -> {
+                val outputRes = res.value.map {
+                    MessageOutputModel(
+                        it.id,
+                        it.text,
+                        it.channel,
+                        it.user,
+                        it.created.toString()
+                    )
+                }
+
+                ResponseEntity
+                    .status(200)
+                    .body(MessageListOutputModel(outputRes))
+            }
 
             is Failure -> when (res.value) {
                 GetMessageError.ChannelNotFound -> Problem.channelNotFound(id, instance)

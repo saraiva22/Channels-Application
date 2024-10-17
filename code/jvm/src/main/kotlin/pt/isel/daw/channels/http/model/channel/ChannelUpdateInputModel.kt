@@ -1,5 +1,5 @@
 package pt.isel.daw.channels.http.model.channel
 
-data class ChannelUpdateOutputModel(
+data class ChannelUpdateInputModel(
     val name: String
 )

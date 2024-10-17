@@ -9,6 +9,7 @@ import pt.isel.daw.channels.domain.token.TokenValidationInfo
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
 import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.repository.mappers.ChannelMapper
+//import pt.isel.daw.channels.repository.mappers.ChannelMapper
 import pt.isel.daw.channels.repository.mappers.InstantMapper
 import pt.isel.daw.channels.repository.mappers.PasswordValidationInfoMapper
 import pt.isel.daw.channels.repository.mappers.TokenValidationInfoMapper
@@ -22,8 +23,8 @@ fun Jdbi.configureWithAppRequirements(): Jdbi {
     registerColumnMapper(TokenValidationInfo::class.java, TokenValidationInfoMapper())
     registerColumnMapper(Instant::class.java, InstantMapper())
 
-    registerRowMapper(Channel::class.java, ChannelMapper())
-    registerColumnMapper(User::class.java, UserMapper())
+    registerRowMapper(User::class.java, UserMapper())
+    registerRowMapper(Channel::class.java, ChannelMapper(UserMapper()))
 
     return this
 }
