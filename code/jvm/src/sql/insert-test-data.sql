@@ -18,8 +18,9 @@ insert into dbo.join_channels(user_id, ch_id)
 values (2, 3);
 
 insert into dbo.messages(channel_id, user_id, text, create_at)
-values (3,4,'HELLO WORD!',1729106384)
+values (3,4,'HELLO WORD!',1729106384);
 
-
+insert into dbo.invitation_register(user_id,cod_hash,expired)
+values (4,'0503-c5da',false);
 
 

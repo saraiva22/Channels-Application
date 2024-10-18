@@ -106,7 +106,7 @@ class UsersController(private val userService: UsersService) {
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(UsersController::class.java)
+        private val logger = LoggerFactory.getLogger(UsersController::class.java)
     }
 
 }

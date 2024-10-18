@@ -1,6 +1,7 @@
 package pt.isel.daw.channels.repository.jdbi
 
 import org.jdbi.v3.core.Handle
+import org.slf4j.LoggerFactory
 import pt.isel.daw.channels.repository.ChannelsRepository
 import pt.isel.daw.channels.repository.MessagesRepository
 import pt.isel.daw.channels.repository.Transaction
@@ -14,6 +15,11 @@ class JdbiTransaction(
     override val messagesRepository: MessagesRepository = JdbiMessageRepository(handle)
 
     override fun rollback() {
+        logger.info("Rolling back transaction")
         handle.rollback()
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(JdbiTransaction::class.java)
     }
 }
