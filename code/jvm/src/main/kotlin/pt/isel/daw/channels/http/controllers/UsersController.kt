@@ -37,7 +37,7 @@ class UsersController(private val userService: UsersService) {
                 UserCreationError.InsecurePassword -> Problem.insecurePassword(instance)
                 UserCreationError.UserNameAlreadyExists -> Problem.usernameAlreadyExists(input.username, instance)
                 UserCreationError.EmailAlreadyExists -> Problem.emailAlreadyExists(input.email, instance)
-                UserCreationError.InvalidInviteCode -> Problem.invalidInviteRegister(input.inviteCode, instance)
+                UserCreationError.InvalidInviteCode -> Problem.invalidInviteRegister(instance)
             }
         }
     }

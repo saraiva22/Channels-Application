@@ -22,11 +22,46 @@ class UsersControllerTests {
         // given: an HTTP client
         val client = WebTestClient.bindToServer().baseUrl("http://localhost:$port/api").build()
 
+        // admin user
+        val adminUsername = "admin"
+        val adminEmail = "admin@example.com"
+        val adminPassword = "admin"
+
 
         // and: a random user
         val username = newTestUserName()
         val email = newTestEmail()
         val password = "changeit"
+
+        //when: create an admin user, first user created
+        // then: the response is a 201 with a proper Location header
+        client.post().uri("/users")
+            .bodyValue(
+                mapOf(
+                    "username" to adminUsername,
+                    "password" to adminPassword,
+                    "email" to adminEmail,
+                ),
+            )
+            .exchange()
+            .expectStatus().isCreated
+            .expectHeader().value("location") {
+                assertTrue(it.startsWith("/api/users/"))
+            }
+
+        //when: error creating an admin user, because database have one user
+        // then: the response is a 400 with the proper problem
+        client.post().uri("/users")
+            .bodyValue(
+                mapOf(
+                    "username" to adminUsername,
+                    "password" to adminPassword,
+                    "email" to adminEmail,
+                ),
+            )
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectHeader().contentType("application/problem+json")
 
         // when: creating a token
         // then: the response is a 200
@@ -34,9 +69,9 @@ class UsersControllerTests {
             client.post().uri("/users/token")
                 .bodyValue(
                     mapOf(
-                        "username" to USERNAME_TEST,
-                        "password" to PASSWORD_TEST,
-                    ),
+                        "username" to adminUsername,
+                        "password" to adminPassword,
+                        ),
                 )
                 .exchange()
                 .expectStatus().isOk
@@ -158,13 +193,9 @@ class UsersControllerTests {
     }
 
 
-
     companion object {
         private fun newTestUserName() = "user-${abs(Random.nextLong())}"
         private fun newTestEmail() = "email-${abs(Random.nextLong())}@example.com"
 
-        // and: user exist in the database
-        private const val USERNAME_TEST = "test"
-        private const val PASSWORD_TEST = "12345"
     }
 }

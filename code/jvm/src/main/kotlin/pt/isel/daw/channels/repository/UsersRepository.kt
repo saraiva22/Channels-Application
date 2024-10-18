@@ -15,6 +15,8 @@ interface UsersRepository {
         passwordValidation: PasswordValidationInfo,
     ): Int
 
+    fun hasUsers(): Boolean
+
     fun getUserByUsername(username: String): User?
 
     fun getUserById(id: Int): User?

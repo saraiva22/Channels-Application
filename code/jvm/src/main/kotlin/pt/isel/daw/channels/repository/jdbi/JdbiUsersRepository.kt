@@ -31,6 +31,13 @@ class JdbiUsersRepository(
         return userId
     }
 
+
+    override fun hasUsers(): Boolean =
+        handle.createQuery("select count(*) > 0 from dbo.Users")
+            .mapTo<Boolean>()
+            .single()
+
+
     override fun getUserByUsername(username: String): User? =
         handle.createQuery("select * from dbo.Users where username = :username")
             .bind("username", username)

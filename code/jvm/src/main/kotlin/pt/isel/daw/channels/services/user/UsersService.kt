@@ -23,7 +23,7 @@ class UsersService(
         username: String,
         email: String,
         password: String,
-        inviteCode: String
+        inviteCode: String?
     ): UserCreationResult {
         if (!usersDomain.isSafePassword(password)) {
             return failure(UserCreationError.InsecurePassword)
@@ -32,13 +32,22 @@ class UsersService(
 
         return transactionManager.run {
             val usersRepository = it.usersRepository
+            if (!usersRepository.hasUsers()) {
+                val id = usersRepository.storeUser(username, email, passwordValidationInfo)
+                return@run success(id)
+            }
+            if (inviteCode == null) {
+                return@run failure(UserCreationError.InvalidInviteCode)
+            }
             val codeValidation = usersRepository.codeValidation(inviteCode)
 
             when {
                 usersRepository.isUserStoredByUsername(username) ->
                     return@run failure(UserCreationError.UserNameAlreadyExists)
+
                 usersRepository.isEmailStoredByEmail(email) ->
                     return@run failure(UserCreationError.EmailAlreadyExists)
+
                 codeValidation == null || codeValidation.expired ->
                     return@run failure(UserCreationError.InvalidInviteCode)
             }

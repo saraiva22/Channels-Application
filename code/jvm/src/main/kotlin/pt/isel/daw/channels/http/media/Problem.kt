@@ -235,11 +235,11 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun invalidInviteRegister(code: String, instance: URI?): ResponseEntity<*> = Problem(
+        fun invalidInviteRegister(instance: URI?): ResponseEntity<*> = Problem(
             typeUri = invalidInviteCode,
             title = "Invitation code is invalid",
             status = HttpStatus.BAD_REQUEST.value(),
-            detail = "Invitation code $code is invalid",
+            detail = "Invitation code is invalid, please provide a valid invitation code",
             instance = instance
         ).toResponse()
 
