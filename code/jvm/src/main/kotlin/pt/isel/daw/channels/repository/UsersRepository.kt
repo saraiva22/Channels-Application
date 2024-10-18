@@ -6,6 +6,7 @@ import pt.isel.daw.channels.domain.token.Token
 import pt.isel.daw.channels.domain.token.TokenValidationInfo
 import pt.isel.daw.channels.http.model.user.RegisterModel
 import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.http.model.user.InviteModel
 
 interface UsersRepository {
     fun storeUser(
@@ -34,7 +35,7 @@ interface UsersRepository {
 
     fun createRegisterInvite(register: RegisterModel)
 
-    fun isInviteCodeInvalid(inviteCode: String): Boolean
+    fun codeValidation(inviteCode: String): InviteModel?
 
     fun invalidateCode(inviteCode: String)
 }

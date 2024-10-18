@@ -9,6 +9,7 @@ import pt.isel.daw.channels.domain.token.Token
 import pt.isel.daw.channels.domain.token.TokenValidationInfo
 import pt.isel.daw.channels.http.model.user.RegisterModel
 import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.http.model.user.InviteModel
 import pt.isel.daw.channels.repository.UsersRepository
 
 class JdbiUsersRepository(
@@ -144,17 +145,17 @@ class JdbiUsersRepository(
             .execute()
     }
 
-    override fun isInviteCodeInvalid(inviteCode: String): Boolean =
+    override fun codeValidation(inviteCode: String): InviteModel? =
         handle.createQuery(
             """
-                select invite.expired
+                select invite.cod_hash, invite.expired
                 from dbo.Invitation_Register as invite
                 where invite.cod_hash = :code
             """
         )
             .bind("code", inviteCode)
-            .mapTo<Boolean>()
-            .single()
+            .mapTo<InviteModel>()
+            .singleOrNull()
 
     override fun invalidateCode(inviteCode: String) {
         handle.createUpdate(

@@ -19,7 +19,12 @@ class UsersService(
     private val usersDomain: UsersDomain,
     private val clock: Clock
 ) {
-    fun createUser(username: String, email: String, password: String, inviteCode: String): UserCreationResult {
+    fun createUser(
+        username: String,
+        email: String,
+        password: String,
+        inviteCode: String
+    ): UserCreationResult {
         if (!usersDomain.isSafePassword(password)) {
             return failure(UserCreationError.InsecurePassword)
         }
@@ -27,10 +32,15 @@ class UsersService(
 
         return transactionManager.run {
             val usersRepository = it.usersRepository
+            val codeValidation = usersRepository.codeValidation(inviteCode)
+
             when {
-                usersRepository.isUserStoredByUsername(username) -> return@run failure(UserCreationError.UserNameAlreadyExists)
-                usersRepository.isEmailStoredByEmail(email) -> return@run failure(UserCreationError.EmailAlreadyExists)
-                usersRepository.isInviteCodeInvalid(inviteCode) -> return@run failure(UserCreationError.InvalidInviteCode)
+                usersRepository.isUserStoredByUsername(username) ->
+                    return@run failure(UserCreationError.UserNameAlreadyExists)
+                usersRepository.isEmailStoredByEmail(email) ->
+                    return@run failure(UserCreationError.EmailAlreadyExists)
+                codeValidation == null || codeValidation.expired ->
+                    return@run failure(UserCreationError.InvalidInviteCode)
             }
 
             val id = usersRepository.storeUser(username, email, passwordValidationInfo)
