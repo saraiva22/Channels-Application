@@ -1,4 +1,9 @@
+drop schema if exists dbo cascade;
+
+
 create schema dbo;
+
+
 
 create table dbo.Users
 (
@@ -10,7 +15,7 @@ create table dbo.Users
 
 create table dbo.Tokens
 (
-    token_validation VARCHAR(256) primary key,
+    token_validation varchar(256) primary key,
     user_id          int references dbo.Users (id) on delete cascade on update cascade,
     created_at       bigint not null,
     last_used_at     bigint not null
@@ -21,7 +26,6 @@ create table dbo.Invitation_Register
     id       int generated always as identity primary key,
     user_id  int references dbo.Users (id) on delete cascade on update cascade,
     cod_hash VARCHAR(64) unique not null,
---    created_at bigint not null,
     expired  boolean
 );
 
@@ -53,18 +57,17 @@ create table dbo.Private_Channels
 create table dbo.Invitation_Channels
 (
     id       int generated always as identity primary key,
-    cod_hash VARCHAR(64) unique not null
---    created_at bigint not null,
---    expired bigint not null
+    cod_hash VARCHAR(64) unique not null,
+    expired  boolean
 );
 
 create table dbo.Invite_Private_Channels
 (
-    id         int generated always as identity primary key,
     user_id    int references dbo.Users (id),
     private_ch serial references dbo.Private_Channels (channel_id),
     invite_id  serial references dbo.Invitation_Channels (id),
-    privacy    int not null
+    privacy    int not null,
+    primary key (user_id, private_ch, invite_id)
 );
 
 create table dbo.Messages
@@ -88,8 +91,8 @@ begin
     from dbo.Channels
     where id = NEW.channel_id;
 
-    insert into dbo.Invitation_Channels (cod_hash)
-    values (md5(random()::text))
+    insert into dbo.Invitation_Channels (cod_hash,expired)
+    values (md5(random()::text),false)
     returning id into new_invite_id;
 
     insert into dbo.Invite_Private_Channels (user_id, private_ch, invite_id, privacy)
@@ -104,6 +107,7 @@ create trigger trg_insert_invite_private_channels
     on dbo.Private_Channels
     for each row
 execute function insert_invite_private_channels();
+
 
 create or replace function insert_owner_into_join_channels()
     returns trigger as
@@ -120,3 +124,4 @@ create trigger trg_insert_owner_into_join_channels
     on dbo.Channels
     for each row
 execute function insert_owner_into_join_channels();
+

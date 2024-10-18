@@ -59,10 +59,11 @@ class Problem(
         private val userAlreadyInChannel = URI("${BASE_URL}user-already-in-channel")
         private val channelNameAlreadyExists = URI("${BASE_URL}channel-name-already-exists")
         private val userNotPermissionsType = URI("${BASE_URL}user-not-permissions-type")
-        private val codeInvalidChannel = URI("${BASE_URL}code-invalid-channel")
+        private val codeInvalidOrExpiredChannel = URI("${BASE_URL}code-invalid-or-expired-channel")
         private val isPrivateChannel = URI("${BASE_URL}is-private-channel")
         private val channelIsPublic = URI("${BASE_URL}channel-is-public")
         private val privacyTypeInvalid = URI("${BASE_URL}privacy-type-invalid")
+        private val errorLeavingChannel = URI("${BASE_URL}error-leaving-channel")
 
         // Message
         private val messageNotFound = URI("${BASE_URL}message-not-found")
@@ -205,7 +206,7 @@ class Problem(
         fun userNotInChannel(username: String, instance: URI?): ResponseEntity<*> = Problem(
             typeUri = userNotInChannel,
             title = "User not in channel",
-            status = HttpStatus.BAD_REQUEST.value(),
+            status = HttpStatus.NOT_FOUND.value(),
             detail = "User $username not in channel",
             instance = instance
         ).toResponse()
@@ -250,11 +251,11 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun codeInvalidChannel(code: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = codeInvalidChannel,
+        fun codeInvalidOrExpiredChannel(code: String, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = codeInvalidOrExpiredChannel,
             title = "Code invalid channel",
             status = HttpStatus.BAD_REQUEST.value(),
-            detail = "Code $code is invalid",
+            detail = "Code $code is invalid or expired",
             instance = instance
         ).toResponse()
 
@@ -287,6 +288,14 @@ class Problem(
             title = "User privacy type read only",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "User $username privacy type read only",
+            instance = instance
+        ).toResponse()
+
+        fun errorLeavingChannel(channelId: Int, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = errorLeavingChannel,
+            title = "Error leaving channel",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "Error leaving channel $channelId",
             instance = instance
         ).toResponse()
 

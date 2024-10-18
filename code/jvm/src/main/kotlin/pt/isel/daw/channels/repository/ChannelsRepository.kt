@@ -20,21 +20,28 @@ interface ChannelsRepository {
 
     // missing get channels where user is member, not only owner
 
-    fun joinChannel(userId: Int,channelId: Int): Channel
+    fun joinChannel(userId: Int, channelId: Int): Channel
+
+    fun joinMemberInChannelPrivate(userId: Int, channelId: Int, codHas: String): Channel
 
     fun getPublicChannels(): List<Channel>
 
-    fun updateChannelName(channelId: Int, name: String):Channel
+    fun updateChannelName(channelId: Int, name: String): Channel
 
     fun isChannelPublic(channel: Channel): Boolean
 
-    fun leaveChannel(channel: Channel, userId: Int): Boolean
+    fun leaveChannel(userId: Int, channelId: Int): Boolean
 
-    fun createPrivateInvite(codPrivate: String): Int
+    fun createPrivateInvite(codPrivate: String, expired: Boolean): Int
 
-    fun sendInvitePrivateChannel(userId: Int, channelId: Int, inviteId: Int,privacy: Int) : Int
+    fun sendInvitePrivateChannel(userId: Int, channelId: Int, inviteId: Int, privacy: Int): Int
 
-    fun getTypeInvitePrivateChannel(userId: Int,channelId: Int): Privacy?
+    fun getTypeInvitePrivateChannel(userId: Int, channelId: Int): Privacy?
 
-    fun isPrivateChannelInviteCodeValid(userId: Int, inviteId: String): Channel?
+    fun isPrivateChannelInviteCodeValid(
+        userId: Int,
+        channelId: Int,
+        inviteId: String,
+        expired: Boolean
+    ): Channel?
 }

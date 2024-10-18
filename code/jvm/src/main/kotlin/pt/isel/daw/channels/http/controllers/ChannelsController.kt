@@ -161,7 +161,7 @@ class ChannelsController(
         }
     }
 
-    @PutMapping(Uris.Channels.JOIN_PUBLIC_CHANNELS)
+    @PostMapping(Uris.Channels.JOIN_PUBLIC_CHANNELS)
     fun joinPublicChannel(
         @PathVariable id: Int,
         userAuthenticatedUser: AuthenticatedUser
@@ -193,13 +193,14 @@ class ChannelsController(
     }
 
 
-    @PutMapping(Uris.Channels.JOIN_PRIVATE_CHANNELS)
+    @PostMapping(Uris.Channels.JOIN_PRIVATE_CHANNELS)
     fun joinPrivateChannel(
+        @PathVariable id: Int,
         @RequestBody input: RegisterPrivateInviteModel,
         userAuthenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
-        val instance = Uris.Channels.joinPrivateChannel()
-        val channel = channelsService.joinUsersInPrivateChannel(userAuthenticatedUser.user.id, input.codHash)
+        val instance = Uris.Channels.joinPrivateChannel(id)
+        val channel = channelsService.joinUsersInPrivateChannel(userAuthenticatedUser.user.id, id, input.codHash)
         return when (channel) {
             is Success -> ResponseEntity
                 .status(200)
@@ -218,33 +219,33 @@ class ChannelsController(
                     instance
                 )
 
-                JoinUserInChannelPrivateError.CodeInvalid -> Problem.codeInvalidChannel(input.codHash, instance)
+                JoinUserInChannelPrivateError.CodeInvalidOrExpired   -> Problem.codeInvalidOrExpiredChannel(input.codHash, instance)
+                JoinUserInChannelPrivateError.ChannelNotFound -> Problem.channelNotFound(id, instance)
             }
         }
     }
 
-    @PutMapping(Uris.Channels.CREATE_PRIVATE_INVITE)
+    @PostMapping(Uris.Channels.CREATE_PRIVATE_INVITE)
     fun invitePrivateChannel(
         @PathVariable id: Int,
         @RequestBody input: ChannelPrivateInviteInput,
         authenticatedUser: AuthenticatedUser,
     ): ResponseEntity<*> {
         val instance = Uris.Channels.invitePrivateChannel(id)
-        val userId = authenticatedUser.user.id
         val channelPrivate = channelsService.invitePrivateChannel(
             id,
-            userId,
+            authenticatedUser.user.id,
             input.username,
             input.privacy
         )
         return when (channelPrivate) {
             is Success -> ResponseEntity
-                    .status(200)
-                    .body(
-                        RegisterPrivateInviteModel(
-                            channelPrivate.value
-                        )
+                .status(200)
+                .body(
+                    RegisterPrivateInviteModel(
+                        channelPrivate.value
                     )
+                )
 
             is Failure -> when (channelPrivate.value) {
                 InvitePrivateChannelError.UserAlreadyInChannel -> Problem.userAlreadyInChannel(
@@ -274,5 +275,34 @@ class ChannelsController(
                 InvitePrivateChannelError.GuestNotFound -> Problem.usernameNotFound(input.username, instance)
             }
         }
+    }
+
+    @PostMapping(Uris.Channels.LEAVE_CHANNEL)
+    fun leaveChannel(
+        @PathVariable id: Int,
+        authenticatedUser: AuthenticatedUser
+    ): ResponseEntity<*> {
+        val instance = Uris.Channels.leaveChannel(id)
+        val res = channelsService.leaveChannel(authenticatedUser.user.id, id)
+        return when (res) {
+            is Success -> ResponseEntity
+                .status(200)
+                .header(
+                    "Location",
+                    instance.toASCIIString()
+                )
+                .build<Unit>()
+
+            is Failure -> when (res.value) {
+                LeaveChannelResultError.UserNotInChannel -> Problem.userNotInChannel(
+                    authenticatedUser.user.username,
+                    instance
+                )
+
+                LeaveChannelResultError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+                LeaveChannelResultError.ErrorLeavingChannel -> Problem.errorLeavingChannel(id, instance)
+            }
+        }
+
     }
 }

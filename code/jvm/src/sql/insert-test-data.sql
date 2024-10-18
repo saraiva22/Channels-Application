@@ -17,7 +17,9 @@ values (1),
 insert into dbo.join_channels(user_id, ch_id)
 values (2, 3);
 
-insert into dbo.messages(channel_id, user_id, message, created_at)
-values (3,4,'Hello World!',1729106384);
+insert into dbo.messages(channel_id, user_id, text, create_at)
+values (3,4,'HELLO WORD!',1729106384)
+
+
 
 

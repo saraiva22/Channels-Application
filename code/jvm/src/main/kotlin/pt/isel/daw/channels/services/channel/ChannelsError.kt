@@ -55,7 +55,8 @@ typealias JoinUserInChannelPublicResult = Either<JoinUserInChannelPublicError, C
 
 sealed class JoinUserInChannelPrivateError{
     data object UserAlreadyInChannel : JoinUserInChannelPrivateError()
-    data object CodeInvalid : JoinUserInChannelPrivateError()
+    data object CodeInvalidOrExpired : JoinUserInChannelPrivateError()
+    data object ChannelNotFound : JoinUserInChannelPrivateError()
 }
 
 typealias JoinUserInChannelPrivateResult = Either<JoinUserInChannelPrivateError, Channel>
@@ -71,3 +72,12 @@ sealed class InvitePrivateChannelError{
 }
 
 typealias InvitePrivateChannelResult = Either<InvitePrivateChannelError, String>
+
+
+sealed class LeaveChannelResultError{
+    data object UserNotInChannel : LeaveChannelResultError()
+    data object ChannelNotFound : LeaveChannelResultError()
+    data object ErrorLeavingChannel : LeaveChannelResultError()
+}
+
+typealias LeaveChannelResult = Either<LeaveChannelResultError, Unit>

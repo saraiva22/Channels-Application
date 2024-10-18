@@ -6,7 +6,6 @@ import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.channels.Privacy
-import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.http.model.channel.RegisterPrivateInviteModel
 import pt.isel.daw.channels.repository.Transaction
 import pt.isel.daw.channels.repository.TransactionManager
@@ -67,6 +66,7 @@ class ChannelsService(
         }
     }
 
+
     fun joinUsersInPublicChannel(userId: Int, channelId: Int): JoinUserInChannelPublicResult {
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(channelId)
@@ -82,18 +82,32 @@ class ChannelsService(
         }
     }
 
-    fun joinUsersInPrivateChannel(userId: Int, codInvite: String): JoinUserInChannelPrivateResult {
+    fun joinUsersInPrivateChannel(userId: Int, channelId: Int, codInvite: String): JoinUserInChannelPrivateResult {
         return transactionManager.run {
-            val channel = it.channelsRepository.isPrivateChannelInviteCodeValid(userId, codInvite)
-                ?: return@run failure(JoinUserInChannelPrivateError.CodeInvalid)
+            val channel = it.channelsRepository.getChannelById(channelId)
+                ?: return@run failure(JoinUserInChannelPrivateError.ChannelNotFound)
+
+            if (channelsDomain.isOwner(userId, channel)) {
+                if (channelsDomain.isUserMember(userId, channel)) {
+                    return@run failure(JoinUserInChannelPrivateError.UserAlreadyInChannel)
+                }
+                val joinChannel = it.channelsRepository.joinChannel(userId, channel.id)
+                return@run success(joinChannel)
+            }
 
             if (channelsDomain.isUserMember(userId, channel))
                 return@run failure(JoinUserInChannelPrivateError.UserAlreadyInChannel)
 
-            val joinChannel = it.channelsRepository.joinChannel(userId, channel.id)
+            val validChannel =
+                it.channelsRepository.isPrivateChannelInviteCodeValid(userId, channelId, codInvite, false)
+                    ?: return@run failure(JoinUserInChannelPrivateError.CodeInvalidOrExpired)
+
+            val joinChannel = it.channelsRepository.joinMemberInChannelPrivate(userId, validChannel.id, codInvite)
             success(joinChannel)
+
         }
     }
+
 
     fun invitePrivateChannel(
         channelId: Int,
@@ -116,7 +130,7 @@ class ChannelsService(
                 return@run failure(InvitePrivateChannelError.ChannelIsPublic)
             }
 
-            val isOwner = it.channelsRepository.isOwnerChannel(channel.id, userId)
+            val isOwner = channelsDomain.isOwner(userId, channel)
             if (isOwner) {
                 createInvite(it, guestUser.id, channel.id, privacy)
             } else {
@@ -146,7 +160,7 @@ class ChannelsService(
     ): Either.Right<String> {
         val codHash = channelsDomain.generateInvitation()
         val register = RegisterPrivateInviteModel(codHash)
-        val inviteId = it.channelsRepository.createPrivateInvite(codHash)
+        val inviteId = it.channelsRepository.createPrivateInvite(register.codHash, false)
         it.channelsRepository.sendInvitePrivateChannel(userId, channelId, inviteId, privacy.ordinal)
         return success(register.codHash)
     }
@@ -155,16 +169,36 @@ class ChannelsService(
     fun updateNameChannel(nameChannel: String, channelId: Int, userId: Int): UpdateNameChannelResult {
         return transactionManager.run {
             val channelsRepository = it.channelsRepository
-            val channel = channelsRepository.getChannelById(channelId) ?:
-                return@run failure(UpdateNameChannelError.ChannelNotFound)
-            if (!channelsDomain.isUserMember(userId, channel)) {
+            val channel = channelsRepository.getChannelById(channelId)
+                ?: return@run failure(UpdateNameChannelError.ChannelNotFound)
+
+            if (channelsDomain.isOwner(userId, channel) || channelsDomain.isUserMember(userId, channel)) {
+
+                if (channelsRepository.isChannelStoredByName(nameChannel)) {
+                    return@run failure(UpdateNameChannelError.ChannelNameAlreadyExists)
+                }
+
+                val newChannel = channelsRepository.updateChannelName(channelId, nameChannel)
+                return@run success(newChannel)
+            } else {
                 return@run failure(UpdateNameChannelError.UserNotInChannel)
             }
-            if (channelsRepository.isChannelStoredByName(nameChannel)) {
-                return@run failure(UpdateNameChannelError.ChannelNameAlreadyExists)
+        }
+    }
+
+    fun leaveChannel(userId: Int, channelId: Int): LeaveChannelResult {
+        return transactionManager.run {
+            val channelsRepository = it.channelsRepository
+            val channel = channelsRepository.getChannelById(channelId)
+                ?: return@run failure(LeaveChannelResultError.ChannelNotFound)
+
+            if (!channelsDomain.isUserMember(userId, channel)) {
+                return@run failure(LeaveChannelResultError.UserNotInChannel)
             }
-            val newChannel = channelsRepository.updateChannelName(channelId, nameChannel)
-            success(newChannel)
+            if (!channelsRepository.leaveChannel(userId, channelId))
+                failure(LeaveChannelResultError.ErrorLeavingChannel)
+            success(Unit)
+
         }
     }
 

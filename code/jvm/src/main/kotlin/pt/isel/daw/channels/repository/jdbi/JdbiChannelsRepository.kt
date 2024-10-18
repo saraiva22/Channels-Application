@@ -104,25 +104,60 @@ class JdbiChannelsRepository(
             .mapTo<ChannelDbModel>()
             .list()
 
-        return channelDbModelList.map {
-            channel ->
-                val members = getChannelMembers(channel.id)
-                channel.copy(members = members).toChannel()
+        return channelDbModelList.map { channel ->
+            val members = getChannelMembers(channel.id)
+            channel.copy(members = members).toChannel()
         }
     }
 
-    override fun joinChannel(userId: Int, channelId: Int): Channel {
+    private fun insertUserIntoChannel(userId: Int, channelId: Int) {
         handle.createUpdate(
             """
-                insert into dbo.join_channels (user_id, ch_id) values (:userId, :channelId)
-            """
+            insert into dbo.join_channels (user_id, ch_id) values (:userId, :channelId)
+        """
         )
             .bind("userId", userId)
             .bind("channelId", channelId)
             .execute()
+    }
+
+    override fun joinChannel(userId: Int, channelId: Int): Channel {
+        insertUserIntoChannel(userId, channelId)
 
         val channelDbModel = secureGetChannelById(channelId)
+        val members = getChannelMembers(channelId)
 
+        return channelDbModel.copy(members = members).toChannel()
+    }
+
+    override fun joinMemberInChannelPrivate(userId: Int, channelId: Int, codHas: String): Channel {
+        insertUserIntoChannel(userId, channelId)
+
+        val inviteId = handle.createQuery(
+            """
+            select invite_id
+            from dbo.invite_private_channels as ipc
+                     join dbo.invitation_channels as ic on ipc.invite_id = ic.id
+            where ipc.user_id = :userId and ipc.private_ch = :channelId and ic.cod_hash = :codHash
+
+            """
+        ).bind("userId", userId)
+            .bind("channelId", channelId)
+            .bind("codHash", codHas)
+            .mapTo<Int>()
+            .single()
+
+        handle.createUpdate(
+            """
+            update dbo.invitation_channels set expired = :updateExpired where id = :inviteId
+        """
+        )
+            .bind("inviteId", inviteId)
+            .bind("updateExpired", true)
+            .bind("userId", userId)
+            .execute()
+
+        val channelDbModel = secureGetChannelById(channelId)
         val members = getChannelMembers(channelId)
 
         return channelDbModel.copy(members = members).toChannel()
@@ -146,10 +181,9 @@ class JdbiChannelsRepository(
             .mapTo<ChannelDbModel>()
             .list()
 
-        return channelDbModelList.map {
-            channel ->
-                val members = getChannelMembers(channel.id)
-                channel.copy(members = members).toChannel()
+        return channelDbModelList.map { channel ->
+            val members = getChannelMembers(channel.id)
+            channel.copy(members = members).toChannel()
         }
     }
 
@@ -158,8 +192,15 @@ class JdbiChannelsRepository(
         return publicChannels.contains(channel)
     }
 
-    override fun leaveChannel(channel: Channel, userId: Int): Boolean {
-        TODO("Not yet implemented")
+    override fun leaveChannel(userId: Int, channelId: Int): Boolean {
+        return handle.createUpdate(
+            """
+                delete from dbo.Join_Channels where user_id = :userId and ch_id = :channelId
+            """
+        )
+            .bind("userId", userId)
+            .bind("channelId", channelId)
+            .execute() == 1
     }
 
     override fun updateChannelName(channelId: Int, name: String): Channel {
@@ -179,13 +220,14 @@ class JdbiChannelsRepository(
         return channelDbModel.copy(members = members).toChannel()
     }
 
-    override fun createPrivateInvite(codPrivate: String): Int {
+    override fun createPrivateInvite(codPrivate: String, expired: Boolean): Int {
         return handle.createUpdate(
             """
-                insert into dbo.Invitation_Channels(cod_hash) values (:codPrivate)
+                insert into dbo.Invitation_Channels(cod_hash,expired) values (:codPrivate,:expired)
             """
         )
             .bind("codPrivate", codPrivate)
+            .bind("expired", expired)
             .executeAndReturnGeneratedKeys()
             .mapTo<Int>()
             .one()
@@ -221,7 +263,12 @@ class JdbiChannelsRepository(
         return Privacy.fromInt(privacyValue)
     }
 
-    override fun isPrivateChannelInviteCodeValid(userId: Int, inviteId: String): Channel? {
+    override fun isPrivateChannelInviteCodeValid(
+        userId: Int,
+        channelId: Int,
+        inviteId: String,
+        expired: Boolean
+    ): Channel? {
         val channelDbModel = handle.createQuery(
             """
                 select c.id, c.name,
@@ -230,10 +277,13 @@ class JdbiChannelsRepository(
                 join dbo.invitation_channels as ic on ipc.invite_id = ic.id
                 join dbo.channels as c on c.id = ipc.private_ch
                 join dbo.users as u on u.id = c.owner_id
-                where ic.cod_hash = :inviteId;
+                where ic.cod_hash = :inviteId and ipc.user_id = :userId and ipc.private_ch = :channelId and ic.expired = :expired;
             """
         )
             .bind("inviteId", inviteId)
+            .bind("userId", userId)
+            .bind("channelId", channelId)
+            .bind("expired", expired)
             .mapTo<ChannelDbModel>()
             .singleOrNull()
 
