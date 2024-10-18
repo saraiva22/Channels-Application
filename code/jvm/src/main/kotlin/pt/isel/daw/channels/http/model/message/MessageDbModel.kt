@@ -9,11 +9,12 @@ import pt.isel.daw.channels.domain.user.User
 data class MessageDbModel (
     val id: Int,
     val text: String,
-    @Nested("channel")
-    val channel: Channel,
+    //@Nested("channel")
+    //val channel: Channel,
     @Nested("user")
     val user: User,
     val created: Long
 ) {
-    fun toMessage() = Message(id, text, channel, user, Instant.fromEpochSeconds(created))
+    fun toMessage(channel: Channel) =
+        Message(id, text, channel, user, Instant.fromEpochSeconds(created))
 }

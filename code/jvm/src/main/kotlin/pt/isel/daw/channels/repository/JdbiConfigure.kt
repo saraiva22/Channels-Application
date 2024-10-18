@@ -9,7 +9,6 @@ import pt.isel.daw.channels.domain.token.TokenValidationInfo
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
 import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.repository.mappers.ChannelMapper
-//import pt.isel.daw.channels.repository.mappers.ChannelMapper
 import pt.isel.daw.channels.repository.mappers.InstantMapper
 import pt.isel.daw.channels.repository.mappers.PasswordValidationInfoMapper
 import pt.isel.daw.channels.repository.mappers.TokenValidationInfoMapper

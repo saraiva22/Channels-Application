@@ -1,7 +1,6 @@
 package pt.isel.daw.channels.services.message
 
 import pt.isel.daw.channels.domain.messages.Message
-import pt.isel.daw.channels.http.model.message.MessageOutputModel
 import pt.isel.daw.channels.utils.Either
 
 sealed class GetMessageError {
