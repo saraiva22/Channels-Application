@@ -6,6 +6,7 @@ import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.channels.Privacy
+import pt.isel.daw.channels.domain.channels.Sort
 import pt.isel.daw.channels.http.model.channel.RegisterPrivateInviteModel
 import pt.isel.daw.channels.repository.Transaction
 import pt.isel.daw.channels.repository.TransactionManager
@@ -42,30 +43,35 @@ class ChannelsService(
         }
     }
 
-    fun getChannelByName(userId: Int, channelName: String): GetChannelByNameResult {
+    fun getChannelByName(userId: Int, channelName: String, sort: Sort?): List<Channel> {
         return transactionManager.run {
-            val channel = it.channelsRepository.getChannelByName(channelName)
-                ?: return@run failure(GetChannelByNameError.ChannelNameNotFound)
-            if (!it.channelsRepository.isChannelPublic(channel) &&
-                !channelsDomain.isUserMember(userId, channel)
-            )
-                return@run failure(GetChannelByNameError.PermissionDenied)
-            success(channel)
+            val channelsList = it.channelsRepository.searchChannelsByName(channelName, sort)
+
+            channelsList.filter {
+                channel -> it.channelsRepository.isChannelPublic(channel) ||
+                    channelsDomain.isUserMember(userId, channel)
+            }
         }
     }
 
-    fun getPublicChannels(): List<Channel> {
+    fun getPublicChannels(sort: Sort?): List<Channel> {
         return transactionManager.run {
-            it.channelsRepository.getPublicChannels()
+            it.channelsRepository.getPublicChannels(sort)
         }
     }
 
-    fun getUserOwnedChannels(userId: Int): List<Channel> {
+    fun getUserOwnedChannels(userId: Int, sort: Sort?): List<Channel> {
         return transactionManager.run {
-            it.channelsRepository.getUserOwnedChannels(userId)
+            it.channelsRepository.getUserOwnedChannels(userId, sort)
         }
     }
 
+    fun getUserMemberChannels(userId: Int, sort: Sort?): List<Channel> {
+        return transactionManager.run {
+            val channels = it.channelsRepository.getAllChannels(sort)
+            channels.filter { channel -> channelsDomain.isUserMember(userId, channel) }
+        }
+    }
 
     fun joinUsersInPublicChannel(userId: Int, channelId: Int): JoinUserInChannelPublicResult {
         return transactionManager.run {

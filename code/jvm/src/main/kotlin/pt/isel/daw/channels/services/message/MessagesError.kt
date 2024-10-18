@@ -21,6 +21,7 @@ typealias CreateMessageResult = Either<CreateMessageError, Int>
 sealed class DeleteMessageError {
     data object ChannelNotFound : DeleteMessageError()
     data object PermissionDenied : DeleteMessageError()
+    data object MessageNotFound : DeleteMessageError()
 }
 
 typealias DeleteMessageResult = Either<DeleteMessageError, Boolean>

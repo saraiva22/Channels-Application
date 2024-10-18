@@ -104,11 +104,8 @@ class MessagesController(
             is Failure -> when (res.value) {
                 DeleteMessageError.ChannelNotFound -> Problem.channelNotFound(id, instance)
                 DeleteMessageError.PermissionDenied -> Problem.unauthorized(instance)
+                DeleteMessageError.MessageNotFound -> Problem.messageNotFound(id, instance)
             }
         }
-    }
-
-    companion object {
-        val logger = LoggerFactory.getLogger(MessagesController::class.java)
     }
 }

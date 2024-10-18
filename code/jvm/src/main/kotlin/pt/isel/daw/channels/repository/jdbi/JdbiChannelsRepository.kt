@@ -5,6 +5,7 @@ import org.jdbi.v3.core.kotlin.mapTo
 import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
+import pt.isel.daw.channels.domain.channels.Sort
 import pt.isel.daw.channels.domain.channels.Type
 import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.http.model.channel.ChannelDbModel
@@ -52,7 +53,8 @@ class JdbiChannelsRepository(
         val channelDbModel = handle.createQuery(
             """
                 select channels.id, channels.name, 
-                users.id as owner_id, users.email as owner_email, users.username as owner_username, users.password_validation as owner_passwordValidation
+                users.id as owner_id, users.email as owner_email, 
+                users.username as owner_username, users.password_validation as owner_passwordValidation
                 from dbo.Channels as channels 
                 left join dbo.Users as users on channels.owner_id = users.id
                 where channels.id = :id
@@ -69,40 +71,74 @@ class JdbiChannelsRepository(
         return channelDbModel.copy(members = members).toChannel()
     }
 
-    override fun getChannelByName(channelName: String): Channel? {
-        val channelDbModel = handle.createQuery(
+    override fun searchChannelsByName(channelName: String, sort: Sort?): List<Channel> {
+        val queryString =
             """
                 select channels.id, channels.name, 
-                users.id as owner_id, users.email as owner_email, users.username as owner_username, users.password_validation as owner_passwordValidation
+                users.id as owner_id, users.email as owner_email, 
+                users.username as owner_username, users.password_validation as owner_passwordValidation
                 from dbo.Channels as channels 
                 left join dbo.Users as users on channels.owner_id = users.id
-                where channels.name = :name
+                where lower(channels.name) like lower(:name)
             """
-        )
-            .bind("name", channelName)
-            .mapTo<ChannelDbModel>()
-            .singleOrNull()
 
-        if (channelDbModel == null) return channelDbModel
+        val withSortQuery = builtSortQuery(sort, queryString)
 
-        val members = getChannelMembers(channelDbModel.id)
+        val searchChannel = "%$channelName%"
 
-        return channelDbModel.copy(members = members).toChannel()
+        val channelDbModelList =
+            handle.createQuery(withSortQuery)
+                .bind("name", searchChannel)
+                .mapTo<ChannelDbModel>()
+                .list()
+
+        return channelDbModelList.map { channel ->
+            val members = getChannelMembers(channel.id)
+            channel.copy(members = members).toChannel()
+        }
     }
 
-    override fun getUserOwnedChannels(userId: Int): List<Channel> {
-        val channelDbModelList = handle.createQuery(
+    override fun getUserOwnedChannels(userId: Int, sort: Sort?): List<Channel> {
+        val queryString =
             """
                 select channels.id, channels.name, 
-                users.id as owner_id, users.email as owner_email, users.username as owner_username, users.password_validation as owner_passwordValidation
+                users.id as owner_id, users.email as owner_email, 
+                users.username as owner_username, users.password_validation as owner_passwordValidation
                 from dbo.Channels as channels 
                 left join dbo.Users as users on channels.owner_id = users.id
                 where users.id = :userId
             """
-        )
-            .bind("userId", userId)
-            .mapTo<ChannelDbModel>()
-            .list()
+
+        val withSortQuery = builtSortQuery(sort, queryString)
+
+        val channelDbModelList =
+            handle.createQuery(withSortQuery)
+                .bind("userId", userId)
+                .mapTo<ChannelDbModel>()
+                .list()
+
+        return channelDbModelList.map { channel ->
+            val members = getChannelMembers(channel.id)
+            channel.copy(members = members).toChannel()
+        }
+    }
+
+    override fun getAllChannels(sort: Sort?): List<Channel> {
+        val queryString =
+            """
+                select channels.id, channels.name, 
+                users.id as owner_id, users.email as owner_email, 
+                users.username as owner_username, users.password_validation as owner_passwordValidation
+                from dbo.Channels as channels 
+                left join dbo.Users as users on channels.owner_id = users.id
+            """
+
+        val withSortQuery = builtSortQuery(sort, queryString)
+
+        val channelDbModelList =
+            handle.createQuery(withSortQuery)
+                .mapTo<ChannelDbModel>()
+                .list()
 
         return channelDbModelList.map { channel ->
             val members = getChannelMembers(channel.id)
@@ -113,8 +149,8 @@ class JdbiChannelsRepository(
     private fun insertUserIntoChannel(userId: Int, channelId: Int) {
         handle.createUpdate(
             """
-            insert into dbo.join_channels (user_id, ch_id) values (:userId, :channelId)
-        """
+                insert into dbo.join_channels (user_id, ch_id) values (:userId, :channelId)
+            """
         )
             .bind("userId", userId)
             .bind("channelId", channelId)
@@ -135,13 +171,13 @@ class JdbiChannelsRepository(
 
         val inviteId = handle.createQuery(
             """
-            select invite_id
-            from dbo.invite_private_channels as ipc
-                     join dbo.invitation_channels as ic on ipc.invite_id = ic.id
-            where ipc.user_id = :userId and ipc.private_ch = :channelId and ic.cod_hash = :codHash
-
+                select invite_id
+                from dbo.invite_private_channels as ipc
+                join dbo.invitation_channels as ic on ipc.invite_id = ic.id
+                where ipc.user_id = :userId and ipc.private_ch = :channelId and ic.cod_hash = :codHash
             """
-        ).bind("userId", userId)
+        )
+            .bind("userId", userId)
             .bind("channelId", channelId)
             .bind("codHash", codHas)
             .mapTo<Int>()
@@ -168,18 +204,23 @@ class JdbiChannelsRepository(
         return channel?.owner?.id == userId
     }
 
-    override fun getPublicChannels(): List<Channel> {
-        val channelDbModelList = handle.createQuery(
+    override fun getPublicChannels(sort: Sort?): List<Channel> {
+        val queryString =
             """
                 select channels.id, channels.name,
-                users.id as owner_id, users.email as owner_email, users.username as owner_username, users.password_validation as owner_passwordValidation
+                users.id as owner_id, users.email as owner_email, 
+                users.username as owner_username, users.password_validation as owner_passwordValidation
                 from dbo.Channels as channels 
                 left join dbo.Users as users on channels.owner_id = users.id
                 join dbo.Public_Channels as public on channels.id = public.channel_id
             """
-        )
-            .mapTo<ChannelDbModel>()
-            .list()
+
+        val withSortQuery = builtSortQuery(sort, queryString)
+
+        val channelDbModelList =
+            handle.createQuery(withSortQuery)
+                .mapTo<ChannelDbModel>()
+                .list()
 
         return channelDbModelList.map { channel ->
             val members = getChannelMembers(channel.id)
@@ -188,7 +229,7 @@ class JdbiChannelsRepository(
     }
 
     override fun isChannelPublic(channel: Channel): Boolean {
-        val publicChannels = getPublicChannels()
+        val publicChannels = getPublicChannels(null)
         return publicChannels.contains(channel)
     }
 
@@ -272,12 +313,16 @@ class JdbiChannelsRepository(
         val channelDbModel = handle.createQuery(
             """
                 select c.id, c.name,
-                u.id as owner_id, u.email as owner_email, u.username as owner_username, u.password_validation as owner_passwordValidation
+                u.id as owner_id, u.email as owner_email, 
+                u.username as owner_username, u.password_validation as owner_passwordValidation
                 from dbo.invite_private_channels as ipc
                 join dbo.invitation_channels as ic on ipc.invite_id = ic.id
                 join dbo.channels as c on c.id = ipc.private_ch
                 join dbo.users as u on u.id = c.owner_id
-                where ic.cod_hash = :inviteId and ipc.user_id = :userId and ipc.private_ch = :channelId and ic.expired = :expired;
+                where ic.cod_hash = :inviteId and 
+                ipc.user_id = :userId and 
+                ipc.private_ch = :channelId and 
+                ic.expired = :expired;
             """
         )
             .bind("inviteId", inviteId)
@@ -311,7 +356,8 @@ class JdbiChannelsRepository(
         handle.createQuery(
             """
                 select channels.id, channels.name, 
-                users.id as owner_id, users.email as owner_email, users.username as owner_username, users.password_validation as owner_passwordValidation
+                users.id as owner_id, users.email as owner_email, 
+                users.username as owner_username, users.password_validation as owner_passwordValidation
                 from dbo.Channels as channels 
                 left join dbo.Users as users on channels.owner_id = users.id
                 where channels.id = :id
@@ -320,4 +366,11 @@ class JdbiChannelsRepository(
             .bind("id", channelId)
             .mapTo<ChannelDbModel>()
             .single()
+
+    private fun builtSortQuery(sort: Sort?, queryString: String): String =
+        if (sort != null && sort.value == "name") {
+            "$queryString order by channels.name"
+        } else {
+            queryString
+        }
 }

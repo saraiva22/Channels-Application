@@ -24,7 +24,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             repo.createChannel(channel)
 
             // and: retrieving a channel
-            val retrievedChannel: Channel? = repo.getChannelByName(channelName)
+            val retrievedChannel: Channel? = repo.searchChannelsByName(channelName)
 
             // then:
             assertNotNull(retrievedChannel)
@@ -65,7 +65,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             repo.createChannel(channel)
 
             // and: retrieving a channel
-            val retrievedChannel: Channel? = repo.getChannelByName(channelName)
+            val retrievedChannel: Channel? = repo.searchChannelsByName(channelName)
 
             // then:
             assertNotNull(retrievedChannel)

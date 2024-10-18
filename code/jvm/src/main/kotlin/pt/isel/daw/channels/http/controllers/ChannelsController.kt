@@ -9,13 +9,12 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.channels.domain.channels.ChannelModel
+import pt.isel.daw.channels.domain.channels.Sort
 import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.http.Uris
 import pt.isel.daw.channels.http.media.Problem
 import pt.isel.daw.channels.http.model.channel.*
 import pt.isel.daw.channels.services.channel.*
-import pt.isel.daw.channels.services.user.UserSearchError
-import pt.isel.daw.channels.services.user.UsersService
 import pt.isel.daw.channels.utils.Failure
 import pt.isel.daw.channels.utils.Success
 
@@ -48,9 +47,11 @@ class ChannelsController(
 
     @GetMapping(Uris.Channels.GET_PUBLIC_CHANNELS)
     fun getPublicChannels(
+        @RequestParam sort: String?,
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
-        val res = channelsService.getPublicChannels()
+        val sortParam = sort?.let { Sort.fromString(sort) }
+        val res = channelsService.getPublicChannels(sortParam)
         return ResponseEntity
             .status(200)
             .body(ChannelsListOutputModel(res))
@@ -61,7 +62,7 @@ class ChannelsController(
         @PathVariable id: Int,
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
-        val instance = Uris.Channels.register()
+        val instance = Uris.Channels.byId(id)
         val userId = authenticatedUser.user.id
         return when (val res = channelsService.getChannelById(userId, id)) {
             is Success -> ResponseEntity
@@ -83,37 +84,40 @@ class ChannelsController(
     }
 
     @GetMapping(Uris.Channels.GET_BY_NAME)
-    fun getChannelByName(
+    fun searchChannelsByName(
         @RequestParam name: String,
+        @RequestParam sort: String?,
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
-        val instance = Uris.Channels.register()
         val userId = authenticatedUser.user.id
-        return when (val res = channelsService.getChannelByName(userId, name)) {
-            is Success -> ResponseEntity
-                .status(200)
-                .body(
-                    ChannelOutputModel(
-                        res.value.id,
-                        res.value.name,
-                        res.value.owner,
-                        res.value.members
-                    )
-                )
-
-            is Failure -> when (res.value) {
-                GetChannelByNameError.ChannelNameNotFound -> Problem.channelNameNotFound(name, instance)
-                GetChannelByNameError.PermissionDenied -> Problem.unauthorized(instance)
-            }
-        }
+        val sortParam = sort?.let { Sort.fromString(sort) }
+        val res = channelsService.getChannelByName(userId, name, sortParam)
+        return ResponseEntity
+            .status(200)
+            .body(ChannelsListOutputModel(res))
     }
 
-    @GetMapping(Uris.Channels.GET_BY_USER)
+    @GetMapping(Uris.Channels.GET_USER_OWNED_CHANNELS)
     fun getUserOwnedChannels(
+        @RequestParam sort: String?,
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val userId = authenticatedUser.user.id
-        val res = channelsService.getUserOwnedChannels(userId)
+        val sortParam = sort?.let { Sort.fromString(sort) }
+        val res = channelsService.getUserOwnedChannels(userId, sortParam)
+        return ResponseEntity
+            .status(200)
+            .body(ChannelsListOutputModel(res))
+    }
+
+    @GetMapping(Uris.Channels.GET_USER_MEMBER_CHANNELS)
+    fun getUserMemberChannels(
+        @RequestParam sort: String?,
+        authenticatedUser: AuthenticatedUser
+    ): ResponseEntity<*> {
+        val userId = authenticatedUser.user.id
+        val sortParam = sort?.let { Sort.fromString(sort) }
+        val res = channelsService.getUserMemberChannels(userId, sortParam)
         return ResponseEntity
             .status(200)
             .body(ChannelsListOutputModel(res))
@@ -283,8 +287,7 @@ class ChannelsController(
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.leaveChannel(id)
-        val res = channelsService.leaveChannel(authenticatedUser.user.id, id)
-        return when (res) {
+        return when (val res = channelsService.leaveChannel(authenticatedUser.user.id, id)) {
             is Success -> ResponseEntity
                 .status(200)
                 .header(

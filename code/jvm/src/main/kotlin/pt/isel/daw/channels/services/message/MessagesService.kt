@@ -6,8 +6,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.channels.Privacy
+import pt.isel.daw.channels.domain.messages.Message
+import pt.isel.daw.channels.domain.messages.MessageDomain
 import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.repository.TransactionManager
+import pt.isel.daw.channels.utils.Either
 import pt.isel.daw.channels.utils.failure
 import pt.isel.daw.channels.utils.success
 
@@ -15,6 +18,7 @@ import pt.isel.daw.channels.utils.success
 class MessagesService(
     private val transactionManager: TransactionManager,
     private val channelsDomain: ChannelsDomain,
+    private val messagesDomain: MessageDomain,
     private val clock: Clock,
 ) {
     fun createMessage(channelId: Int, user: User, text: String): CreateMessageResult {
@@ -55,12 +59,13 @@ class MessagesService(
                 ?: return@run failure(DeleteMessageError.ChannelNotFound)
             if (!channelsDomain.isUserMember(userId, channel))
                 return@run failure(DeleteMessageError.PermissionDenied)
+            val messagesOfChannel = getChannelMessages(userId, channelId)
+            if (messagesOfChannel is Either.Right<List<Message>> &&
+                !messagesDomain.isMessageInList(messageId, messagesOfChannel.value)) {
+                return@run failure(DeleteMessageError.MessageNotFound)
+            }
             it.messagesRepository.deleteMessageFromChannel(messageId, channelId)
             success(true)
         }
-    }
-
-    companion object {
-        val logger = LoggerFactory.getLogger(MessagesService::class.java)
     }
 }

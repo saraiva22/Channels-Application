@@ -299,5 +299,12 @@ class Problem(
             instance = instance
         ).toResponse()
 
+        fun messageNotFound(messageId: Int, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = messageNotFound,
+            title = "Message not found",
+            status = HttpStatus.NOT_FOUND.value(),
+            detail = "Message with id $messageId not found",
+            instance = instance
+        ).toResponse()
     }
 }

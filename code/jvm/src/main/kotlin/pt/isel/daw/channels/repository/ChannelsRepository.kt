@@ -3,6 +3,7 @@ package pt.isel.daw.channels.repository
 import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
+import pt.isel.daw.channels.domain.channels.Sort
 
 interface ChannelsRepository {
 
@@ -14,17 +15,17 @@ interface ChannelsRepository {
 
     fun getChannelById(channelId: Int): Channel?
 
-    fun getChannelByName(channelName: String): Channel?
+    fun searchChannelsByName(channelName: String, sort: Sort?): List<Channel>
 
-    fun getUserOwnedChannels(userId: Int): List<Channel>
+    fun getUserOwnedChannels(userId: Int, sort: Sort?): List<Channel>
 
-    // missing get channels where user is member, not only owner
+    fun getAllChannels(sort: Sort?): List<Channel>
 
     fun joinChannel(userId: Int, channelId: Int): Channel
 
     fun joinMemberInChannelPrivate(userId: Int, channelId: Int, codHas: String): Channel
 
-    fun getPublicChannels(): List<Channel>
+    fun getPublicChannels(sort: Sort?): List<Channel>
 
     fun updateChannelName(channelId: Int, name: String): Channel
 
