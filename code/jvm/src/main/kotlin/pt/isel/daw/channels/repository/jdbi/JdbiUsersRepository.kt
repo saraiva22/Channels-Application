@@ -176,6 +176,11 @@ class JdbiUsersRepository(
             .execute()
     }
 
+    override fun getRandomUser(): User? =
+        handle.createQuery("select * from dbo.Users order by random() limit 1")
+            .mapTo<User>()
+            .singleOrNull()
+
     private data class UserAndTokenModel(
         val id: Int,
         val username: String,

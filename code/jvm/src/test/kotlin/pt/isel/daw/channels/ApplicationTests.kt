@@ -16,6 +16,8 @@ open class ApplicationTests {
 
         fun newTokenValidationData() = "token-${abs(Random.nextLong())}"
 
+        fun newMessageText() = "message-${abs(Random.nextLong())}"
+
         val jdbi =
             Jdbi.create(
                 PGSimpleDataSource().apply {

@@ -40,4 +40,6 @@ interface UsersRepository {
     fun codeValidation(inviteCode: String): InviteModel?
 
     fun invalidateCode(inviteCode: String)
+
+    fun getRandomUser(): User?
 }

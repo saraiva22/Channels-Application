@@ -137,6 +137,12 @@ class UsersService(
         }
     }
 
+    fun getRandomUser(): User? {
+        return transactionManager.run {
+            it.usersRepository.getRandomUser()
+        }
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger(UsersService::class.java)
     }

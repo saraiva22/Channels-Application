@@ -33,3 +33,27 @@ fun clearChannelsDataByType(jdbi: Jdbi, tableName: String, value: Int) {
             .execute()
     })
 }
+
+fun clearInvitationChannelsData(jdbi: Jdbi, value: Int) {
+    runWithHandle(jdbi, { handle ->
+        run {
+            val inviteIds = handle.createQuery(
+                """
+                select invite_id 
+                from dbo.Invite_Private_Channels
+                where user_id = :value
+            """
+            )
+                .bind("value", value)
+                .mapTo(Int::class.java)
+                .list()
+
+            clearData(jdbi, "dbo.Invite_Private_Channels", "user_id", value)
+            clearData(jdbi, "dbo.Invite_Private_Channels", "user_id", value)
+
+            inviteIds.forEach { inviteId ->
+                clearData(jdbi, "dbo.Invitation_Channels", "id", inviteId)
+            }
+        }
+    })
+}

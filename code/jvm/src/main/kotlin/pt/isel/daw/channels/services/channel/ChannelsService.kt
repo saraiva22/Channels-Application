@@ -1,6 +1,5 @@
 package pt.isel.daw.channels.services.channel
 
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
@@ -208,7 +207,9 @@ class ChannelsService(
         }
     }
 
-    companion object {
-        val logger = LoggerFactory.getLogger(ChannelsService::class.java)
+    fun dbHasUsers(): Boolean {
+        return transactionManager.run {
+            it.usersRepository.hasUsers()
+        }
     }
 }
