@@ -244,7 +244,7 @@ class ChannelsController(
         )
         return when (channelPrivate) {
             is Success -> ResponseEntity
-                .status(200)
+                .status(201)
                 .body(
                     RegisterPrivateInviteModel(
                         channelPrivate.value
