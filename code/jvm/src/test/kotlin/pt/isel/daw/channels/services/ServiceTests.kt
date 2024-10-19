@@ -26,7 +26,7 @@ import kotlin.time.Duration.Companion.minutes
 
 open class ServiceTests: ApplicationTests() {
     companion object {
-        private fun createUsersService(
+        fun createUsersService(
             testClock: TestClock,
             tokenTtl: Duration = 30.days,
             tokenRollingTtl: Duration = 30.minutes,
@@ -74,7 +74,7 @@ open class ServiceTests: ApplicationTests() {
             return createUserInService(userName, email, password, invitationCode)
         }
 
-        private fun generateInvitationCode(): String? {
+        fun generateInvitationCode(): String? {
             return if (!::testUser.isInitialized) {
                 val hasUsers = channelServices.dbHasUsers()
                 if (hasUsers) {
@@ -89,7 +89,7 @@ open class ServiceTests: ApplicationTests() {
             }
         }
 
-        private fun createUserInService(
+        fun createUserInService(
             userName: String,
             email: String,
             password: String,
