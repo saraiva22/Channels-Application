@@ -1,6 +1,7 @@
 package pt.isel.daw.channels.repository.jdbi
 
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import pt.isel.daw.channels.ApplicationTests
 import pt.isel.daw.channels.clearChannelsDataByType
 import pt.isel.daw.channels.clearData
@@ -17,7 +18,9 @@ open class RepositoryTests: ApplicationTests() {
         lateinit var testUser: User
         lateinit var testUser2: User
 
-        init {
+        @JvmStatic
+        @BeforeAll
+        fun setupDB() {
             runWithHandle(jdbi) { handle ->
                 val repo = JdbiUsersRepository(handle)
                 testUser = createUser(repo)

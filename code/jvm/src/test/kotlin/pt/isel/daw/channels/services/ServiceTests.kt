@@ -1,6 +1,7 @@
 package pt.isel.daw.channels.services
 
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import pt.isel.daw.channels.ApplicationTests
 import pt.isel.daw.channels.TestClock
@@ -52,15 +53,17 @@ open class ServiceTests: ApplicationTests() {
         fun createMessageService() =
             MessagesService(JdbiTransactionManager(jdbi), ChannelsDomain(), MessageDomain(), testClock)
 
-        lateinit var testUser: User
-        var testUser2: User
-        lateinit var randomUser: User
-
         private val testClock = TestClock()
         private val userServices = createUsersService(testClock)
         private val channelServices = createChannelService()
 
-        init {
+        lateinit var testUser: User
+        lateinit var testUser2: User
+        lateinit var randomUser: User
+
+        @JvmStatic
+        @BeforeAll
+        fun setupDB() {
             testUser = createUser()
             testUser2 = createUser()
         }
@@ -75,18 +78,15 @@ open class ServiceTests: ApplicationTests() {
         }
 
         fun generateInvitationCode(): String? {
-            return if (!::testUser.isInitialized) {
+            if (!::randomUser.isInitialized) {
                 val hasUsers = channelServices.dbHasUsers()
                 if (hasUsers) {
-                    randomUser = userServices.getRandomUser() ?: fail("No random user found")
-                    return userServices.createRegisterInvite(randomUser.id)
+                    randomUser = userServices.getRandomUser() ?: createUser()
+                } else {
+                    return null
                 }
-                else {
-                    null
-                }
-            } else {
-                userServices.createRegisterInvite(testUser.id)
             }
+            return userServices.createRegisterInvite(randomUser.id)
         }
 
         fun createUserInService(
@@ -119,7 +119,7 @@ open class ServiceTests: ApplicationTests() {
             clearData(jdbi, "dbo.Messages", "user_id", testUser2.id)
             clearInvitationChannelsData(jdbi, testUser.id)
             clearInvitationChannelsData(jdbi, testUser2.id)
-            if (::randomUser.isInitialized) clearInvitationChannelsData(jdbi, randomUser.id)
+            clearInvitationChannelsData(jdbi, randomUser.id)
             clearChannelsDataByType(jdbi, "dbo.Public_Channels", testUser.id)
             clearChannelsDataByType(jdbi, "dbo.Public_Channels", testUser2.id)
             clearChannelsDataByType(jdbi, "dbo.Private_Channels", testUser.id)
