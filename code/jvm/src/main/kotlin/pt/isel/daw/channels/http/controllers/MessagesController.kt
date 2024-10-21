@@ -14,6 +14,7 @@ import pt.isel.daw.channels.http.media.Problem
 import pt.isel.daw.channels.http.model.message.MessageCreateInputModel
 import pt.isel.daw.channels.http.model.message.MessageListOutputModel
 import pt.isel.daw.channels.http.model.message.MessageOutputModel
+import pt.isel.daw.channels.http.model.utils.IdOutputModel
 import pt.isel.daw.channels.services.message.CreateMessageError
 import pt.isel.daw.channels.services.message.DeleteMessageError
 import pt.isel.daw.channels.services.message.GetMessageError
@@ -39,7 +40,7 @@ class MessagesController(
                 .header(
                     "Location",
                     Uris.Messages.byId(id, message.value).toASCIIString()
-                ).build<Unit>()
+                ).body(IdOutputModel(message.value))
 
             is Failure -> when (message.value) {
                 CreateMessageError.ChannelNotFound -> Problem.channelNotFound(id, instance)

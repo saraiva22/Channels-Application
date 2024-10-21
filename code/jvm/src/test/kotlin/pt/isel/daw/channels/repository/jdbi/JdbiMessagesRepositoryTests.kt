@@ -39,7 +39,7 @@ class JdbiMessagesRepositoryTests: RepositoryTests() {
                 val message = messagesList.first()
                 assertTrue(message.text == messageText)
                 assertTrue(message.channel == channelById)
-                assertTrue(message.user == testUser)
+                assertTrue(message.user == testUserInfo)
             }
         }
     }
@@ -73,7 +73,7 @@ class JdbiMessagesRepositoryTests: RepositoryTests() {
                 val message = messagesList.first()
                 assertTrue(message.text == messageText)
                 assertTrue(message.channel == channelById)
-                assertTrue(message.user == testUser)
+                assertTrue(message.user == testUserInfo)
 
                 // when: deleting the message
                 messagesRepo.deleteMessageFromChannel(message.id, channel.id)

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Type
+import pt.isel.daw.channels.repository.jdbi.RepositoryTests.Companion.testUserInfo
 import pt.isel.daw.channels.utils.Either
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -53,7 +54,7 @@ class MessageServiceTests: ServiceTests() {
                         val message = messagesList.value.first()
                         assertEquals(message.text, messageText)
                         assertEquals(message.channel, channelById.value)
-                        assertEquals(message.user, testUser)
+                        assertEquals(message.user, testUserInfo)
                     }
                 }
             }
@@ -102,7 +103,7 @@ class MessageServiceTests: ServiceTests() {
                         val message = messagesList.value.first()
                         assertEquals(message.text, messageText)
                         assertEquals(message.channel, channelById.value)
-                        assertEquals(message.user, testUser)
+                        assertEquals(message.user, testUserInfo)
                     }
                 }
             }

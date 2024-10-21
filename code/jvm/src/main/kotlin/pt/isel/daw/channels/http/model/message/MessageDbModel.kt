@@ -5,6 +5,7 @@ import org.jdbi.v3.core.mapper.Nested
 import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.messages.Message
 import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.domain.user.UserInfo
 
 data class MessageDbModel (
     val id: Int,
@@ -12,7 +13,7 @@ data class MessageDbModel (
     //@Nested("channel")
     //val channel: Channel,
     @Nested("user")
-    val user: User,
+    val user: UserInfo,
     val created: Long
 ) {
     fun toMessage(channel: Channel) =

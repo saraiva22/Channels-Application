@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Type
+import pt.isel.daw.channels.repository.jdbi.RepositoryTests.Companion.testUserInfo
+import pt.isel.daw.channels.repository.jdbi.RepositoryTests.Companion.testUserInfo2
 import pt.isel.daw.channels.utils.Either
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -39,9 +41,9 @@ class ChannelsServiceTests: ServiceTests() {
             is Either.Right -> {
                 assertEquals(createChannelResult.value, getChannelByIdResult.value.id)
                 assertEquals(channelName, getChannelByIdResult.value.name)
-                assertEquals(testUser, getChannelByIdResult.value.owner)
+                assertEquals(testUserInfo, getChannelByIdResult.value.owner)
                 assertTrue(getChannelByIdResult.value.members.size == 1)
-                assertTrue(getChannelByIdResult.value.members.contains(testUser))
+                assertTrue(getChannelByIdResult.value.members.contains(testUserInfo))
             }
         }
 
@@ -52,7 +54,7 @@ class ChannelsServiceTests: ServiceTests() {
         assertTrue(getChannelByNameResult.size == 1)
         val createdChannel = getChannelByNameResult[0]
         assertEquals(channelName, createdChannel.name)
-        assertEquals(testUser, createdChannel.owner)
+        assertEquals(testUserInfo, createdChannel.owner)
         assertTrue(createdChannel.members.size == 1)
         assertEquals(createdChannel.members[0], createdChannel.owner)
 
@@ -93,9 +95,9 @@ class ChannelsServiceTests: ServiceTests() {
             is Either.Right -> {
                 assertEquals(createChannelResult.value, getChannelByIdResult.value.id)
                 assertEquals(channelName, getChannelByIdResult.value.name)
-                assertEquals(testUser, getChannelByIdResult.value.owner)
+                assertEquals(testUserInfo, getChannelByIdResult.value.owner)
                 assertTrue(getChannelByIdResult.value.members.size == 1)
-                assertTrue(getChannelByIdResult.value.members.contains(testUser))
+                assertTrue(getChannelByIdResult.value.members.contains(testUserInfo))
             }
         }
 
@@ -106,7 +108,7 @@ class ChannelsServiceTests: ServiceTests() {
         assertTrue(getChannelByNameResult.size == 1)
         val createdChannel = getChannelByNameResult[0]
         assertEquals(channelName, createdChannel.name)
-        assertEquals(testUser, createdChannel.owner)
+        assertEquals(testUserInfo, createdChannel.owner)
         assertTrue(createdChannel.members.size == 1)
         assertEquals(createdChannel.members[0], createdChannel.owner)
 
@@ -242,9 +244,9 @@ class ChannelsServiceTests: ServiceTests() {
                 assertEquals(createChannelResult.value, updateChannelResult.value.id)
                 assertNotEquals(channelName, updateChannelResult.value.name)
                 assertEquals(newChannelName, updateChannelResult.value.name)
-                assertEquals(testUser, updateChannelResult.value.owner)
+                assertEquals(testUserInfo, updateChannelResult.value.owner)
                 assertTrue(updateChannelResult.value.members.size == 1)
-                assertTrue(updateChannelResult.value.members.contains(testUser))
+                assertTrue(updateChannelResult.value.members.contains(testUserInfo))
             }
         }
 
@@ -291,10 +293,10 @@ class ChannelsServiceTests: ServiceTests() {
             is Either.Right -> {
                 assertEquals(createPublicChannelResult.value, joinChannelResult.value.id)
                 assertEquals(publicChannelName, joinChannelResult.value.name)
-                assertEquals(testUser, joinChannelResult.value.owner)
+                assertEquals(testUserInfo, joinChannelResult.value.owner)
                 assertTrue(joinChannelResult.value.members.size == 2)
-                assertTrue(joinChannelResult.value.members.contains(testUser))
-                assertTrue(joinChannelResult.value.members.contains(testUser2))
+                assertTrue(joinChannelResult.value.members.contains(testUserInfo))
+                assertTrue(joinChannelResult.value.members.contains(testUserInfo2))
             }
         }
 
@@ -307,10 +309,10 @@ class ChannelsServiceTests: ServiceTests() {
             is Either.Right -> {
                 assertEquals(createPublicChannelResult.value, getChannelByIdResult.value.id)
                 assertEquals(publicChannelName, getChannelByIdResult.value.name)
-                assertEquals(testUser, getChannelByIdResult.value.owner)
+                assertEquals(testUserInfo, getChannelByIdResult.value.owner)
                 assertTrue(getChannelByIdResult.value.members.size == 2)
-                assertTrue(getChannelByIdResult.value.members.contains(testUser))
-                assertTrue(getChannelByIdResult.value.members.contains(testUser2))
+                assertTrue(getChannelByIdResult.value.members.contains(testUserInfo))
+                assertTrue(getChannelByIdResult.value.members.contains(testUserInfo2))
             }
         }
 
@@ -321,7 +323,7 @@ class ChannelsServiceTests: ServiceTests() {
         assertTrue(getChannelByNameResult.size == 1)
         val createdChannel = getChannelByNameResult[0]
         assertEquals(publicChannelName, createdChannel.name)
-        assertEquals(testUser, createdChannel.owner)
+        assertEquals(testUserInfo, createdChannel.owner)
     }
 
     @Test
@@ -349,10 +351,10 @@ class ChannelsServiceTests: ServiceTests() {
             is Either.Right -> {
                 assertEquals(createPublicChannelResult.value, joinChannelResult.value.id)
                 assertEquals(publicChannelName, joinChannelResult.value.name)
-                assertEquals(testUser, joinChannelResult.value.owner)
+                assertEquals(testUserInfo, joinChannelResult.value.owner)
                 assertTrue(joinChannelResult.value.members.size == 2)
-                assertTrue(joinChannelResult.value.members.contains(testUser))
-                assertTrue(joinChannelResult.value.members.contains(testUser2))
+                assertTrue(joinChannelResult.value.members.contains(testUserInfo))
+                assertTrue(joinChannelResult.value.members.contains(testUserInfo2))
             }
         }
 
@@ -374,10 +376,10 @@ class ChannelsServiceTests: ServiceTests() {
             is Either.Right -> {
                 assertEquals(createPublicChannelResult.value, getChannelByIdResult.value.id)
                 assertEquals(publicChannelName, getChannelByIdResult.value.name)
-                assertEquals(testUser, getChannelByIdResult.value.owner)
+                assertEquals(testUserInfo, getChannelByIdResult.value.owner)
                 assertTrue(getChannelByIdResult.value.members.size == 1)
-                assertTrue(getChannelByIdResult.value.members.contains(testUser))
-                assertFalse(getChannelByIdResult.value.members.contains(testUser2))
+                assertTrue(getChannelByIdResult.value.members.contains(testUserInfo))
+                assertFalse(getChannelByIdResult.value.members.contains(testUserInfo2))
             }
         }
     }
@@ -425,10 +427,10 @@ class ChannelsServiceTests: ServiceTests() {
             is Either.Right -> {
                 assertEquals(createPrivateChannelResult.value, joinChannelResult.value.id)
                 assertEquals(privateChannelName, joinChannelResult.value.name)
-                assertEquals(testUser, joinChannelResult.value.owner)
+                assertEquals(testUserInfo, joinChannelResult.value.owner)
                 assertTrue(joinChannelResult.value.members.size == 2)
-                assertTrue(joinChannelResult.value.members.contains(testUser))
-                assertTrue(joinChannelResult.value.members.contains(testUser2))
+                assertTrue(joinChannelResult.value.members.contains(testUserInfo))
+                assertTrue(joinChannelResult.value.members.contains(testUserInfo2))
             }
         }
 
@@ -441,10 +443,10 @@ class ChannelsServiceTests: ServiceTests() {
             is Either.Right -> {
                 assertEquals(createPrivateChannelResult.value, getChannelByIdResult.value.id)
                 assertEquals(privateChannelName, getChannelByIdResult.value.name)
-                assertEquals(testUser, getChannelByIdResult.value.owner)
+                assertEquals(testUserInfo, getChannelByIdResult.value.owner)
                 assertTrue(getChannelByIdResult.value.members.size == 2)
-                assertTrue(getChannelByIdResult.value.members.contains(testUser))
-                assertTrue(getChannelByIdResult.value.members.contains(testUser2))
+                assertTrue(getChannelByIdResult.value.members.contains(testUserInfo))
+                assertTrue(getChannelByIdResult.value.members.contains(testUserInfo2))
             }
         }
     }
@@ -492,10 +494,10 @@ class ChannelsServiceTests: ServiceTests() {
             is Either.Right -> {
                 assertEquals(createPrivateChannelResult.value, joinChannelResult.value.id)
                 assertEquals(privateChannelName, joinChannelResult.value.name)
-                assertEquals(testUser, joinChannelResult.value.owner)
+                assertEquals(testUserInfo, joinChannelResult.value.owner)
                 assertTrue(joinChannelResult.value.members.size == 2)
-                assertTrue(joinChannelResult.value.members.contains(testUser))
-                assertTrue(joinChannelResult.value.members.contains(testUser2))
+                assertTrue(joinChannelResult.value.members.contains(testUserInfo))
+                assertTrue(joinChannelResult.value.members.contains(testUserInfo2))
             }
         }
 
@@ -517,10 +519,10 @@ class ChannelsServiceTests: ServiceTests() {
             is Either.Right -> {
                 assertEquals(createPrivateChannelResult.value, getChannelByIdResult.value.id)
                 assertEquals(privateChannelName, getChannelByIdResult.value.name)
-                assertEquals(testUser, getChannelByIdResult.value.owner)
+                assertEquals(testUserInfo, getChannelByIdResult.value.owner)
                 assertTrue(getChannelByIdResult.value.members.size == 1)
-                assertTrue(getChannelByIdResult.value.members.contains(testUser))
-                assertFalse(getChannelByIdResult.value.members.contains(testUser2))
+                assertTrue(getChannelByIdResult.value.members.contains(testUserInfo))
+                assertFalse(getChannelByIdResult.value.members.contains(testUserInfo2))
             }
         }
     }

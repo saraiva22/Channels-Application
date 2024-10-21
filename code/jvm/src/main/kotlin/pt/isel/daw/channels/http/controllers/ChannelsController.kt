@@ -14,6 +14,7 @@ import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.http.Uris
 import pt.isel.daw.channels.http.media.Problem
 import pt.isel.daw.channels.http.model.channel.*
+import pt.isel.daw.channels.http.model.utils.IdOutputModel
 import pt.isel.daw.channels.services.channel.*
 import pt.isel.daw.channels.utils.Failure
 import pt.isel.daw.channels.utils.Success
@@ -37,7 +38,7 @@ class ChannelsController(
                     "Location",
                     Uris.Channels.byId(res.value).toASCIIString()
                 )
-                .build<Unit>()
+                .body(IdOutputModel(res.value))
 
             is Failure -> when (res.value) {
                 ChannelCreationError.ChannelAlreadyExists -> Problem.channelAlreadyExists(instance)
@@ -223,7 +224,11 @@ class ChannelsController(
                     instance
                 )
 
-                JoinUserInChannelPrivateError.CodeInvalidOrExpired   -> Problem.codeInvalidOrExpiredChannel(input.codHash, instance)
+                JoinUserInChannelPrivateError.CodeInvalidOrExpired -> Problem.codeInvalidOrExpiredChannel(
+                    input.codHash,
+                    instance
+                )
+
                 JoinUserInChannelPrivateError.ChannelNotFound -> Problem.channelNotFound(id, instance)
             }
         }

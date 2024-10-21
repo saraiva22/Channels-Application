@@ -32,7 +32,6 @@ class JdbiMessageRepository(
             """ 
                 select messages.id, messages.text,
                 users.id as user_id, users.email as user_email, users.username as user_username,
-                users.password_validation as user_passwordValidation,
                 messages.create_at as created
                 from dbo.Messages as messages
                 join dbo.Channels as channels on messages.channel_id = channels.id

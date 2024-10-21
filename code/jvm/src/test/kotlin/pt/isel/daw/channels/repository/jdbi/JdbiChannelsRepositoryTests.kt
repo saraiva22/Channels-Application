@@ -31,7 +31,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             assertTrue(retrievedChannel.size == 1)
             val createdChannel = retrievedChannel[0]
             assertEquals(channelName, createdChannel.name)
-            assertEquals(testUser, createdChannel.owner)
+            assertEquals(testUserInfo, createdChannel.owner)
             assertTrue(createdChannel.members.size == 1)
             assertEquals(createdChannel.members[0], createdChannel.owner)
 
@@ -80,7 +80,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             assertTrue(retrievedChannel.size == 1)
             val createdChannel = retrievedChannel[0]
             assertEquals(channelName, createdChannel.name)
-            assertEquals(testUser, createdChannel.owner)
+            assertEquals(testUserInfo, createdChannel.owner)
             assertTrue(createdChannel.id >= 0)
             assertTrue(createdChannel.members.size == 1)
             assertEquals(createdChannel.members[0], createdChannel.owner)
@@ -238,8 +238,8 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             // then:
             assertNotNull(retrievedChannel)
             assertTrue(retrievedChannel.members.size == 2)
-            assertTrue(retrievedChannel.members.contains(testUser))
-            assertTrue(retrievedChannel.members.contains(testUser2))
+            assertTrue(retrievedChannel.members.contains(testUserInfo))
+            assertTrue(retrievedChannel.members.contains(testUserInfo2))
         }
     }
 
@@ -266,8 +266,8 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             // then:
             assertNotNull(retrievedChannel)
             assertTrue(retrievedChannel.members.size == 1)
-            assertTrue(retrievedChannel.members.contains(testUser))
-            assertFalse(retrievedChannel.members.contains(testUser2))
+            assertTrue(retrievedChannel.members.contains(testUserInfo))
+            assertFalse(retrievedChannel.members.contains(testUserInfo2))
         }
     }
 
@@ -299,8 +299,8 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             // then:
             assertNotNull(retrievedChannel)
             assertTrue(retrievedChannel.members.size == 2)
-            assertTrue(retrievedChannel.members.contains(testUser))
-            assertTrue(retrievedChannel.members.contains(testUser2))
+            assertTrue(retrievedChannel.members.contains(testUserInfo))
+            assertTrue(retrievedChannel.members.contains(testUserInfo2))
         }
     }
 
@@ -411,8 +411,8 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             // then:
             assertNotNull(retrievedChannel)
             assertTrue(retrievedChannel.members.size == 1)
-            assertTrue(retrievedChannel.members.contains(testUser))
-            assertFalse(retrievedChannel.members.contains(testUser2))
+            assertTrue(retrievedChannel.members.contains(testUserInfo))
+            assertFalse(retrievedChannel.members.contains(testUserInfo2))
         }
     }
 }

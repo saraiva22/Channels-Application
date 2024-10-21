@@ -8,11 +8,7 @@ import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.token.TokenValidationInfo
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
 import pt.isel.daw.channels.domain.user.User
-import pt.isel.daw.channels.repository.mappers.ChannelMapper
-import pt.isel.daw.channels.repository.mappers.InstantMapper
-import pt.isel.daw.channels.repository.mappers.PasswordValidationInfoMapper
-import pt.isel.daw.channels.repository.mappers.TokenValidationInfoMapper
-import pt.isel.daw.channels.repository.mappers.UserMapper
+import pt.isel.daw.channels.repository.mappers.*
 
 fun Jdbi.configureWithAppRequirements(): Jdbi {
     installPlugin(KotlinPlugin())
@@ -23,7 +19,7 @@ fun Jdbi.configureWithAppRequirements(): Jdbi {
     registerColumnMapper(Instant::class.java, InstantMapper())
 
     registerRowMapper(User::class.java, UserMapper())
-    registerRowMapper(Channel::class.java, ChannelMapper(UserMapper()))
+    registerRowMapper(Channel::class.java, ChannelMapper(UserInfoMapper()))
 
     return this
 }

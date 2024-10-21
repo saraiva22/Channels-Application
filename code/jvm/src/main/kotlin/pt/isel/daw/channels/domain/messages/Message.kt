@@ -2,12 +2,12 @@ package pt.isel.daw.channels.domain.messages
 
 import kotlinx.datetime.Instant
 import pt.isel.daw.channels.domain.channels.Channel
-import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.domain.user.UserInfo
 
 data class Message (
     val id: Int,
     val text: String,
     val channel: Channel,
-    val user: User,
+    val user: UserInfo,
     val created: Instant
 )

@@ -11,6 +11,7 @@ import pt.isel.daw.channels.http.model.user.UserCreateTokenInputModel
 import pt.isel.daw.channels.http.model.user.UserHomeOutputModel
 import pt.isel.daw.channels.http.model.user.UserInviteOutputModel
 import pt.isel.daw.channels.http.model.user.UserTokenCreateOutputModel
+import pt.isel.daw.channels.http.model.utils.IdOutputModel
 import pt.isel.daw.channels.services.user.TokenCreationError
 import pt.isel.daw.channels.services.user.UserCreationError
 import pt.isel.daw.channels.services.user.UserSearchError
@@ -31,7 +32,7 @@ class UsersController(private val userService: UsersService) {
                 .header(
                     "Location",
                     Uris.Users.byId(user.value).toASCIIString()
-                ).build<Unit>()
+                ).body(IdOutputModel(user.value))
 
             is Failure -> when (user.value) {
                 UserCreationError.InsecurePassword -> Problem.insecurePassword(instance)
@@ -91,10 +92,9 @@ class UsersController(private val userService: UsersService) {
     ): ResponseEntity<*> {
         val userId = authenticatedUser.user.id
         val res = userService.createRegisterInvite(userId)
-        val invite = UserInviteOutputModel(res)
         return ResponseEntity
             .status(201)
-            .body(invite)
+            .body(UserInviteOutputModel(res))
     }
 
     @GetMapping(Uris.Users.HOME)

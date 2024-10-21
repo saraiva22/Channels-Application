@@ -8,6 +8,7 @@ import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Sort
 import pt.isel.daw.channels.domain.channels.Type
 import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.domain.user.UserInfo
 import pt.isel.daw.channels.http.model.channel.ChannelDbModel
 import pt.isel.daw.channels.repository.ChannelsRepository
 
@@ -54,7 +55,7 @@ class JdbiChannelsRepository(
             """
                 select channels.id, channels.name, 
                 users.id as owner_id, users.email as owner_email, 
-                users.username as owner_username, users.password_validation as owner_passwordValidation
+                users.username as owner_username
                 from dbo.Channels as channels 
                 left join dbo.Users as users on channels.owner_id = users.id
                 where channels.id = :id
@@ -342,14 +343,14 @@ class JdbiChannelsRepository(
     private fun getChannelMembers(channelId: Int) =
         handle.createQuery(
             """
-                select users.id, users.email, users.username, users.password_validation as passwordValidation
+                select users.id, users.email, users.username
                 from dbo.Users as users
                 join dbo.Join_Channels as members_table on members_table.user_id = users.id
                 where members_table.ch_id = :channelId
             """
         )
             .bind("channelId", channelId)
-            .mapTo<User>()
+            .mapTo<UserInfo>()
             .list()
 
     private fun secureGetChannelById(channelId: Int) =

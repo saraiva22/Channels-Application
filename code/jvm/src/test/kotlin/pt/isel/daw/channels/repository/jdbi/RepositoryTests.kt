@@ -2,6 +2,7 @@ package pt.isel.daw.channels.repository.jdbi
 
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.TestInstance
 import pt.isel.daw.channels.ApplicationTests
 import pt.isel.daw.channels.clearChannelsDataByType
 import pt.isel.daw.channels.clearData
@@ -9,7 +10,9 @@ import pt.isel.daw.channels.clearInvitationChannelsData
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
 import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.domain.user.UserInfo
 import pt.isel.daw.channels.runWithHandle
+
 
 open class RepositoryTests: ApplicationTests() {
     companion object {
@@ -18,6 +21,11 @@ open class RepositoryTests: ApplicationTests() {
         lateinit var testUser: User
         lateinit var testUser2: User
 
+        lateinit var testUserInfo: UserInfo
+        lateinit var testUserInfo2: UserInfo
+
+
+
         @JvmStatic
         @BeforeAll
         fun setupDB() {
@@ -25,6 +33,8 @@ open class RepositoryTests: ApplicationTests() {
                 val repo = JdbiUsersRepository(handle)
                 testUser = createUser(repo)
                 testUser2 = createUser(repo)
+                testUserInfo = UserInfo(testUser.id, testUser.username, testUser.email)
+                testUserInfo2 = UserInfo(testUser2.id, testUser2.username, testUser2.email)
             }
         }
 

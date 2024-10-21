@@ -4,10 +4,11 @@ import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.statement.StatementContext
 import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.domain.user.UserInfo
 import java.sql.ResultSet
 
 class ChannelMapper(
-    private val ownerMapper: RowMapper<User>
+    private val ownerMapper: RowMapper<UserInfo>
 ) : RowMapper<Channel> {
     override fun map(rs: ResultSet, ctx: StatementContext): Channel {
         val owner = ownerMapper.map(rs, ctx)
