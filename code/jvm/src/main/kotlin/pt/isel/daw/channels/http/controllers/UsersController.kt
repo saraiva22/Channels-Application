@@ -71,6 +71,7 @@ class UsersController(private val userService: UsersService) {
     @GetMapping(Uris.Users.GET_BY_ID)
     fun getById(
         @PathVariable id: Int,
+        authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Users.byId(id)
         val user = userService.getUserById(id)

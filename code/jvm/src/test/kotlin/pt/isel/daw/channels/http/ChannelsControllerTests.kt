@@ -11,6 +11,8 @@ import pt.isel.daw.channels.http.model.ChannelInviteResponse
 import pt.isel.daw.channels.http.model.TokenResponse
 import pt.isel.daw.channels.http.model.UserInviteResponse
 import pt.isel.daw.channels.http.model.channel.ChannelOutputModel
+import pt.isel.daw.channels.http.model.channel.ChannelsListOutputModel
+import pt.isel.daw.channels.http.model.utils.IdOutputModel
 import kotlin.math.abs
 import kotlin.random.Random
 import kotlin.test.Test
@@ -21,6 +23,7 @@ class ChannelsControllerTests {
     // One of the very few places where we use property injection
     @LocalServerPort
     var port: Int = 0
+
 
     @Test
     fun `can create a channel`() {
@@ -37,19 +40,7 @@ class ChannelsControllerTests {
 
         // when: getting the token
         // then: the response is a 200
-        val result =
-            client.post().uri("/users/token")
-                .bodyValue(
-                    mapOf(
-                        "username" to USERNAME_TEST,
-                        "password" to PASSWORD_TEST,
-                    ),
-                )
-                .exchange()
-                .expectStatus().isOk
-                .expectBody(TokenResponse::class.java)
-                .returnResult()
-                .responseBody!!
+        val result = getTokenUserAdmin(client)
 
         // when: creating a private channel
         // then: the response is a 201 with a proper Location header
@@ -134,10 +125,6 @@ class ChannelsControllerTests {
         // given: an HTTP client
         val client = WebTestClient.bindToServer().baseUrl("http://localhost:$port/api").build()
 
-        // and user random
-        val username = newTestUsername()
-        val email = newTestEmail()
-        val password = "changeit"
 
         // and a random channel private
         val channelPrivateName = newTestChannelName()
@@ -146,19 +133,7 @@ class ChannelsControllerTests {
 
         // when: creating a token
         // then: the response is a 200
-        val result =
-            client.post().uri("/users/token")
-                .bodyValue(
-                    mapOf(
-                        "username" to USERNAME_TEST,
-                        "password" to PASSWORD_TEST,
-                    ),
-                )
-                .exchange()
-                .expectStatus().isOk
-                .expectBody(TokenResponse::class.java)
-                .returnResult()
-                .responseBody!!
+        val result = getTokenUserAdmin(client)
 
         // when: creating an invite code
         // then: the response is a 201 with a proper Location header
@@ -170,43 +145,15 @@ class ChannelsControllerTests {
             .returnResult()
             .responseBody!!
 
-        // when: creating an user
-        // then: the response is a 201 with a proper Location header
-        client.post().uri("/users")
-            .bodyValue(
-                mapOf(
-                    "username" to username,
-                    "password" to password,
-                    "email" to email,
-                    "inviteCode" to invite.code
-                ),
-            )
-            .exchange()
-            .expectStatus().isCreated
-            .expectHeader().value("location") {
-                kotlin.test.assertTrue(it.startsWith("/api/users/"))
-            }
 
         // when: creating a token new user
         // then: the response is a 200
-        val resultNewUser =
-            client.post().uri("/users/token")
-                .bodyValue(
-                    mapOf(
-                        "username" to username,
-                        "password" to password,
-                    ),
-                )
-                .exchange()
-                .expectStatus().isOk
-                .expectBody(TokenResponse::class.java)
-                .returnResult()
-                .responseBody!!
+        val resultNewUser = getTokenUserRandom(client)
 
 
         // when: creating a private channel
         // then: the response is a 201 with a proper Location header
-        val response = client.post().uri("/channels/create")
+        val channelId = client.post().uri("/channels/create")
             .header("Authorization", "Bearer ${result.token}")
             .bodyValue(
                 mapOf(
@@ -216,12 +163,9 @@ class ChannelsControllerTests {
             )
             .exchange()
             .expectStatus().isCreated
-            .expectHeader().value("location") {
-                assertTrue(it.startsWith("/api/channels"))
-            }.returnResult<Unit>()
-
-
-        val channelId = response.responseHeaders["Location"]?.get(0)?.split("/")?.last()?.toInt()!!
+            .expectBody(IdOutputModel::class.java)
+            .returnResult()
+            .responseBody!!.id
 
 
         // when: create invite to private channel
@@ -231,7 +175,7 @@ class ChannelsControllerTests {
             .bodyValue(
                 mapOf(
                     "privacy" to privacyReadWrite,
-                    "username" to username
+                    "username" to USERNAME_TEST1
                 ),
             )
             .exchange()
@@ -239,7 +183,6 @@ class ChannelsControllerTests {
             .expectBody(ChannelInviteResponse::class.java)
             .returnResult()
             .responseBody!!
-
 
 
         // when: join in private channel
@@ -261,7 +204,7 @@ class ChannelsControllerTests {
         assertEquals(channelPrivateName, channel.name)
         assertEquals(USERNAME_TEST, channel.owner.username)
         assertEquals(2, channel.members.size)
-        assertEquals(username, channel.members[1].username)
+        assertEquals(USERNAME_TEST1, channel.members[1].username)
 
         // when: leave a channel
         // then: the response is a 200
@@ -285,6 +228,111 @@ class ChannelsControllerTests {
             .expectHeader().contentType("application/problem+json")
 
 
+    }
+
+
+    @Test
+    fun `create public channel, join, leave, and retrieval`() {
+        // given: an HTTP client
+        val client = WebTestClient.bindToServer().baseUrl("http://localhost:$port/api").build()
+
+        // and a random channel public
+        val channelPublicName = newTestChannelName()
+        val privacyPublic = public
+
+        // when: getting the token
+        // then: the response is a 200
+        val result = getTokenUserAdmin(client)
+
+        // when: creating a public channel
+        // then: the response is a 201 with a proper Location header
+        val channelId = client.post().uri("/channels/create")
+            .header("Authorization", "Bearer ${result.token}")
+            .bodyValue(
+                mapOf(
+                    "name" to channelPublicName,
+                    "type" to privacyPublic
+                ),
+            )
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody(IdOutputModel::class.java)
+            .returnResult()
+            .responseBody!!.id
+
+        // when: getting channel public
+        // then: the response is a 200
+        val res = client.get().uri("/channels/public")
+            .header("Authorization", "Bearer ${result.token}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(ChannelsListOutputModel::class.java)
+            .returnResult()
+            .responseBody!!.channels
+
+
+        val channel = res.last()
+
+        assertEquals(channelId, channel.id)
+        assertEquals(channelPublicName, channel.name)
+        assertEquals(USERNAME_TEST, channel.owner.username)
+        assertEquals(1, channel.members.size)
+
+
+        // when getting token user random
+        // then: the response is a 200
+        val resultUserRandom = getTokenUserRandom(client)
+
+        // when: join in public channel
+        // then: the response is a 200 with a proper Location header
+
+        val channelJoin = client.post().uri("/channels/${channelId}/public")
+            .header("Authorization", "Bearer ${resultUserRandom.token}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(ChannelOutputModel::class.java)
+            .returnResult()
+            .responseBody!!
+
+        assertEquals(channelId, channelJoin.id)
+        assertEquals(channelPublicName, channelJoin.name)
+        assertEquals(USERNAME_TEST, channelJoin.owner.username)
+        assertEquals(2, channelJoin.members.size)
+        assertEquals(USERNAME_TEST1, channelJoin.members[1].username)
+
+        // when: get public
+
+        //when: leave user random channel
+        //then: the response is a 200
+        client.post().uri("/channels/${channelId}/leave")
+            .header("Authorization", "Bearer ${resultUserRandom.token}")
+            .exchange()
+            .expectStatus().isOk
+
+        // when: get channel public id
+        // then: the response is a 200
+        client.get().uri("/channels/${channelId}")
+            .header("Authorization", "Bearer ${resultUserRandom.token}")
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().contentType("application/json")
+
+
+        // when: get public
+        // then: the response is a 200
+        val res2 = client.get().uri("/channels/public")
+            .header("Authorization", "Bearer ${result.token}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(ChannelsListOutputModel::class.java)
+            .returnResult()
+            .responseBody!!.channels
+
+        val channel2 = res2.last()
+        assertEquals(channelId, channel2.id)
+        assertEquals(channelPublicName, channel2.name)
+        assertEquals(USERNAME_TEST, channel2.owner.username)
+        assertEquals(1, channel2.members.size)
 
     }
 
@@ -300,5 +348,41 @@ class ChannelsControllerTests {
         // and: user exist in the database
         private const val USERNAME_TEST = "admin"
         private const val PASSWORD_TEST = "admin"
+
+        // and random user
+        private const val USERNAME_TEST1 = "random"
+        private const val PASSWORD_TEST1 = "admin"
+        private const val EMAIL_TEST1 = "random1@gmail.com"
+
+        private fun getTokenUserRandom(client: WebTestClient): TokenResponse {
+            return client.post().uri("/users/token")
+                .bodyValue(
+                    mapOf(
+                        "username" to USERNAME_TEST1,
+                        "password" to PASSWORD_TEST1,
+                    ),
+                )
+                .exchange()
+                .expectStatus().isOk
+                .expectBody(TokenResponse::class.java)
+                .returnResult()
+                .responseBody!!
+        }
+
+
+        private fun getTokenUserAdmin(client: WebTestClient): TokenResponse {
+            return client.post().uri("/users/token")
+                .bodyValue(
+                    mapOf(
+                        "username" to USERNAME_TEST,
+                        "password" to PASSWORD_TEST,
+                    ),
+                )
+                .exchange()
+                .expectStatus().isOk
+                .expectBody(TokenResponse::class.java)
+                .returnResult()
+                .responseBody!!
+        }
     }
 }

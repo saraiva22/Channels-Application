@@ -15,11 +15,50 @@ import kotlin.time.Duration.Companion.seconds
 
 class UsersServiceTests: ServiceTests() {
 
-    /*
+
     @Test
-    fun `create a user`()
-    // include getUserByUsername, getUserByEmail, isEmailStoredByEmail, isUsernameStoredByUsername
-     */
+    fun `can create user, token, and retrieve by token`(){
+        /// given: a user service
+        val testClock = TestClock()
+        val userService = createUsersService(testClock)
+
+        // when: creating a user
+        val username = newTestUserName()
+        val password = "changeit"
+        val email = newTestEmail(username)
+        val invite = generateInvitationCode()
+        val createUserResult = userService.createUser(username, email, password, invite)
+
+        // then: the creation is successful
+        when (createUserResult) {
+            is Either.Left -> fail("Unexpected $createUserResult")
+            is Either.Right -> assertTrue(createUserResult.value > 0)
+        }
+
+        // when: creating a token
+        val createTokenResult = userService.createToken(username, password)
+
+        // then: the creation is successful
+        val token = when (createTokenResult) {
+            is Either.Left -> fail(createTokenResult.toString())
+            is Either.Right -> createTokenResult.value.tokenValue
+        }
+
+        // and: the token bytes have the expected length
+        val tokenBytes = Base64.getUrlDecoder().decode(token)
+        kotlin.test.assertEquals(256 / 8, tokenBytes.size)
+
+        // when: retrieving the user by token
+        val user = userService.getUserByToken(token)
+
+        // then: a user is found
+        assertNotNull(user)
+
+        // and: has the expected name
+        kotlin.test.assertEquals(username, user.username)
+
+    }
+
 
     @Test
     fun `create user token`() {
@@ -152,6 +191,124 @@ class UsersServiceTests: ServiceTests() {
         // finally: clear the data
         clearData(jdbi, "dbo.Invitation_Register", "user_id", createUserResult.id)
         clearData(jdbi, "dbo.Users", "id", createUserResult.id)
+    }
+
+    @Test
+    fun `can limit the number of tokens`() {
+        // given: a user service
+        val testClock = TestClock()
+        val maxTokensPerUser = 5
+        val userService = createUsersService(testClock, maxTokensPerUser = maxTokensPerUser)
+
+        // when: creating a user
+        val username = newTestUserName()
+        val password = "changeit"
+        val email = newTestEmail(username)
+        val invite = generateInvitationCode()
+        val createUserResult = userService.createUser(username,email,  password, invite)
+
+        // then: the creation is successful
+        when (createUserResult) {
+            is Either.Left -> fail("Unexpected $createUserResult")
+            is Either.Right -> kotlin.test.assertTrue(createUserResult.value > 0)
+        }
+
+        // when: creating MAX tokens
+        val tokens = (0 until maxTokensPerUser).map {
+            val createTokenResult = userService.createToken(username, password)
+            testClock.advance(1.minutes)
+
+            // then: the creation is successful
+            val token = when (createTokenResult) {
+                is Either.Left -> fail(createTokenResult.toString())
+                is Either.Right -> createTokenResult.value
+            }
+            token
+        }.toTypedArray().reversedArray()
+
+        // and: using the tokens at different times
+        (tokens.indices).forEach {
+            assertNotNull(userService.getUserByToken(tokens[it].tokenValue), "token $it must be valid")
+            testClock.advance(1.seconds)
+        }
+
+        // and: creating a new token
+        val createTokenResult = userService.createToken(username, password)
+        testClock.advance(1.seconds)
+        val newToken = when (createTokenResult) {
+            is Either.Left -> fail(createTokenResult.toString())
+            is Either.Right -> createTokenResult.value
+        }
+
+        // then: newToken is valid
+        assertNotNull(userService.getUserByToken(newToken.tokenValue))
+
+        // and: the first token (the least recently used) is not valid
+        assertNull(userService.getUserByToken(tokens[0].tokenValue))
+
+        // and: the remaining tokens are still valid
+        (1 until tokens.size).forEach {
+            assertNotNull(userService.getUserByToken(tokens[it].tokenValue))
+        }
+    }
+
+    @Test
+    fun `can limit the number of tokens even if multiple tokens are used at the same time`() {
+        // given: a user service
+        val testClock = TestClock()
+        val maxTokensPerUser = 5
+        val userService = createUsersService(testClock, maxTokensPerUser = maxTokensPerUser)
+
+        // when: creating a user
+        val username = newTestUserName()
+        val password = "changeit"
+        val email = newTestEmail(username)
+        val invite = generateInvitationCode()
+        val createUserResult = userService.createUser(username,email,  password, invite)
+
+        // then: the creation is successful
+        when (createUserResult) {
+            is Either.Left -> fail("Unexpected $createUserResult")
+            is Either.Right -> kotlin.test.assertTrue(createUserResult.value > 0)
+        }
+
+        // when: creating MAX tokens
+        val tokens = (0 until maxTokensPerUser).map {
+            val createTokenResult = userService.createToken(username, password)
+            testClock.advance(1.minutes)
+
+            // then: the creation is successful
+            val token = when (createTokenResult) {
+                is Either.Left -> fail(createTokenResult.toString())
+                is Either.Right -> createTokenResult.value
+            }
+            token
+        }.toTypedArray().reversedArray()
+
+        // and: using the tokens at the same time
+        testClock.advance(1.minutes)
+        (tokens.indices).forEach {
+            assertNotNull(userService.getUserByToken(tokens[it].tokenValue), "token $it must be valid")
+        }
+
+        // and: creating a new token
+        val createTokenResult = userService.createToken(username, password)
+        testClock.advance(1.minutes)
+        val newToken = when (createTokenResult) {
+            is Either.Left -> fail(createTokenResult.toString())
+            is Either.Right -> createTokenResult.value
+        }
+
+        // then: newToken is valid
+        assertNotNull(userService.getUserByToken(newToken.tokenValue))
+
+        // and: exactly one of the previous tokens is now not valid
+        kotlin.test.assertEquals(
+            maxTokensPerUser - 1,
+            tokens.count {
+                userService.getUserByToken(it.tokenValue) != null
+            },
+        )
     }
 
     companion object {

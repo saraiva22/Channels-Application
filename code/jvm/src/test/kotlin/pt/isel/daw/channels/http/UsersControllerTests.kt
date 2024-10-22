@@ -18,29 +18,39 @@ class UsersControllerTests {
     var port: Int = 0
 
     @Test
-    fun `obtain a token, obtain a invite code, create an user, and access user home, and logout`() {
+    fun `can create an user`() {
         // given: an HTTP client
         val client = WebTestClient.bindToServer().baseUrl("http://localhost:$port/api").build()
 
-        // admin user
-        val adminUsername = "admin"
-        val adminEmail = "admin@example.com"
-        val adminPassword = "admin"
-
-
         // and: a random user
         val username = newTestUserName()
-        val email = newTestEmail()
         val password = "changeit"
 
-        //when: create an admin user, first user created
+
+        // when: get Token for admin
+        // then: the response is a 200
+        val result = getTokenUserAdmin(client)
+
+        // when: create invite code
+        // then: the response is a 201 with a proper Location header
+        val invite = client.post().uri("/users/invite")
+            .header("Authorization", "Bearer ${result.token}")
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody(UserInviteResponse::class.java)
+            .returnResult()
+            .responseBody!!
+
+
+        // when: creating an user
         // then: the response is a 201 with a proper Location header
         client.post().uri("/users")
             .bodyValue(
                 mapOf(
-                    "username" to adminUsername,
-                    "password" to adminPassword,
-                    "email" to adminEmail,
+                    "username" to username,
+                    "password" to password,
+                    "email" to newTestEmail(),
+                    "inviteCode" to invite.code
                 ),
             )
             .exchange()
@@ -48,15 +58,29 @@ class UsersControllerTests {
             .expectHeader().value("location") {
                 assertTrue(it.startsWith("/api/users/"))
             }
+    }
+
+
+    @Test
+    fun `obtain a token, obtain a invite code, create an user, and access user home, and logout`() {
+        // given: an HTTP client
+        val client = WebTestClient.bindToServer().baseUrl("http://localhost:$port/api").build()
+
+
+
+        // and: a random user
+        val username = newTestUserName()
+        val email = newTestEmail()
+        val password = "changeit"
 
         //when: error creating an admin user, because database have one user
         // then: the response is a 400 with the proper problem
         client.post().uri("/users")
             .bodyValue(
                 mapOf(
-                    "username" to adminUsername,
-                    "password" to adminPassword,
-                    "email" to adminEmail,
+                    "username" to ADMIN_USERNAME,
+                    "password" to ADMIN_PASSWORD,
+                    "email" to ADMIN_EMAIL,
                 ),
             )
             .exchange()
@@ -69,8 +93,8 @@ class UsersControllerTests {
             client.post().uri("/users/token")
                 .bodyValue(
                     mapOf(
-                        "username" to adminUsername,
-                        "password" to adminPassword,
+                        "username" to ADMIN_USERNAME,
+                        "password" to ADMIN_PASSWORD,
                         ),
                 )
                 .exchange()
@@ -84,7 +108,7 @@ class UsersControllerTests {
         client.post().uri("/users/token")
             .bodyValue(
                 mapOf(
-                    "username" to username,
+                    "username" to ADMIN_USERNAME,
                     "password" to password,
                 ),
             )
@@ -193,9 +217,29 @@ class UsersControllerTests {
     }
 
 
+
     companion object {
         private fun newTestUserName() = "user-${abs(Random.nextLong())}"
         private fun newTestEmail() = "email-${abs(Random.nextLong())}@example.com"
+
+        private const val ADMIN_USERNAME = "admin"
+        private const val ADMIN_EMAIL = "admin@gmail.com"
+        private const val ADMIN_PASSWORD = "admin"
+
+        private fun getTokenUserAdmin(client: WebTestClient): TokenResponse {
+            return client.post().uri("/users/token")
+                .bodyValue(
+                    mapOf(
+                        "username" to ADMIN_USERNAME,
+                        "password" to ADMIN_PASSWORD,
+                    ),
+                )
+                .exchange()
+                .expectStatus().isOk
+                .expectBody(TokenResponse::class.java)
+                .returnResult()
+                .responseBody!!
+        }
 
     }
 }

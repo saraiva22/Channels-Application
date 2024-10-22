@@ -1,6 +1,7 @@
 package pt.isel.daw.channels.repository.jdbi
 
 import kotlinx.datetime.Instant
+import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -9,6 +10,7 @@ import pt.isel.daw.channels.TestClock
 import pt.isel.daw.channels.domain.token.Token
 import pt.isel.daw.channels.domain.token.TokenValidationInfo
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
+import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.http.model.user.RegisterModel
 import pt.isel.daw.channels.runWithHandle
 import java.util.*
@@ -17,16 +19,52 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-class JdbiUserRepositoryTests: ApplicationTests() {
+class JdbiUserRepositoryTests : ApplicationTests() {
 
-    /*
+
     @Test
-    fun `create a user`()
+    fun `can create and retrieve user`() =
+        runWithHandle { handle ->
+
+            // given: a UserRepository
+            val repo = JdbiUsersRepository(handle)
+
+            //when: storing a user
+            val userName = newTestUserName()
+            val email = newTestEmail(userName)
+            val passwordValidationInfo = PasswordValidationInfo(newTokenValidationData())
+            repo.storeUser(userName, email, passwordValidationInfo)
+
+            // and: retrieving a user
+            val retrievedUser: User? = repo.getUserByUsername(userName)
+
+            // then:
+            assertNotNull(retrievedUser)
+            assertEquals(userName, retrievedUser.username)
+            assertEquals(passwordValidationInfo, retrievedUser.passwordValidation)
+            assertTrue(retrievedUser.id >= 0)
+
+            // when: asking if the user exists
+            val isUserIsStored = repo.isUserStoredByUsername(userName)
+
+            // then: response is true
+            assertTrue(isUserIsStored)
+
+            // when: asking if a different user exists
+            val anotherUserIsStored = repo.isUserStoredByUsername("another-$userName")
+
+            // then: response is false
+            assertFalse(anotherUserIsStored)
+
+
+        }
+
+
     // include getUserByUsername, getUserByEmail, isEmailStoredByEmail, isUsernameStoredByUsername
-     */
+
 
     @Test
-    fun `create and retrieve token with associated user`() {
+    fun `create and retrieve token with associated user`() =
         runWithHandle(jdbi) { handle ->
             // given: a UsersRepository
             val repo = JdbiUsersRepository(handle)
@@ -75,10 +113,10 @@ class JdbiUserRepositoryTests: ApplicationTests() {
             clearData(jdbi, "dbo.Tokens", "user_id", user.id)
             clearData(jdbi, "dbo.Users", "id", user.id)
         }
-    }
+
 
     @Test
-    fun `update token`() {
+    fun `update token`() =
         runWithHandle(jdbi) { handle ->
             // given: a UsersRepository
             val repo = JdbiUsersRepository(handle)
@@ -135,11 +173,11 @@ class JdbiUserRepositoryTests: ApplicationTests() {
             // finally: clear data
             clearData(jdbi, "dbo.Tokens", "user_id", user.id)
             clearData(jdbi, "dbo.Users", "id", user.id)
+
         }
-    }
 
     @Test
-    fun `delete token`() {
+    fun `delete token`() =
         runWithHandle(jdbi) { handle ->
             // given: a UsersRepository
             val repo = JdbiUsersRepository(handle)
@@ -187,11 +225,11 @@ class JdbiUserRepositoryTests: ApplicationTests() {
 
             // finally: clear data
             clearData(jdbi, "dbo.Users", "id", user.id)
+
         }
-    }
 
     @Test
-    fun `create and validate invite register code`() {
+    fun `create and validate invite register code`() =
         runWithHandle(jdbi) { handle ->
             // given: a UsersRepository
             val repo = JdbiUsersRepository(handle)
@@ -248,10 +286,10 @@ class JdbiUserRepositoryTests: ApplicationTests() {
             clearData(jdbi, "dbo.Invitation_Register", "user_id", user.id)
             clearData(jdbi, "dbo.Users", "id", user.id)
         }
-    }
+
 
     @Test
-    fun `invalidate invite code`() {
+    fun `invalidate invite code`() =
         runWithHandle(jdbi) { handle ->
             // given: a UsersRepository
             val repo = JdbiUsersRepository(handle)
@@ -313,9 +351,12 @@ class JdbiUserRepositoryTests: ApplicationTests() {
             // finally: clear data
             clearData(jdbi, "dbo.Users", "id", user.id)
         }
-    }
+
 
     companion object {
+
+        private fun runWithHandle(block: (Handle) -> Unit) = jdbi.useTransaction<Exception>(block)
+
         private fun clearData(jdbi: Jdbi, tableName: String, columnName: String, userId: Int) {
             jdbi.useHandle<Exception> { handle ->
                 handle.execute("delete from $tableName where $columnName = $userId")
