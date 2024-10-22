@@ -20,7 +20,7 @@ class MessageServiceTests: ServiceTests() {
 
         // when: storing a public channel
         val channelName = newTestChannelName()
-        val channelModel = ChannelModel(channelName, testUser.id, Type.PUBLIC)
+        val channelModel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
         val channelId = channelsService.createChannel(channelModel)
 
         // then: the channel creation is successful
@@ -40,13 +40,13 @@ class MessageServiceTests: ServiceTests() {
         }
 
         // then: getting the channel messages
-        val channelById = channelsService.getChannelById(testUser.id, channelId.value)
+        val channelById = channelsService.getChannelById(testUserInfo.id, channelId.value)
         assertNotNull(channelById)
 
         when (channelById) {
             is Either.Left -> fail("Unexpected $channelById")
             is Either.Right -> {
-                val messagesList = messagesService.getChannelMessages(testUser.id, channelById.value.id)
+                val messagesList = messagesService.getChannelMessages(testUserInfo.id, channelById.value.id)
                 when (messagesList) {
                     is Either.Left -> fail("Unexpected $messagesList")
                     is Either.Right -> {
@@ -69,7 +69,7 @@ class MessageServiceTests: ServiceTests() {
 
         // when: storing a public channel
         val channelName = newTestChannelName()
-        val channelModel = ChannelModel(channelName, testUser.id, Type.PUBLIC)
+        val channelModel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
         val channelId = channelsService.createChannel(channelModel)
 
         // then: the channel creation is successful
@@ -89,13 +89,13 @@ class MessageServiceTests: ServiceTests() {
         }
 
         // then: getting the channel messages
-        val channelById = channelsService.getChannelById(testUser.id, channelId.value)
+        val channelById = channelsService.getChannelById(testUserInfo.id, channelId.value)
         assertNotNull(channelById)
 
         when (channelById) {
             is Either.Left -> fail("Unexpected $channelById")
             is Either.Right -> {
-                val messagesList = messagesService.getChannelMessages(testUser.id, channelById.value.id)
+                val messagesList = messagesService.getChannelMessages(testUserInfo.id, channelById.value.id)
                 when (messagesList) {
                     is Either.Left -> fail("Unexpected $messagesList")
                     is Either.Right -> {
@@ -110,7 +110,11 @@ class MessageServiceTests: ServiceTests() {
         }
 
         // and: deleting the message
-        val deleteMessageResult = messagesService.deleteMessageFromChannel(testUser.id, messageId.value, channelId.value)
+        val deleteMessageResult = messagesService.deleteMessageFromChannel(
+            testUserInfo.id,
+            messageId.value,
+            channelId.value
+        )
 
         // then: the message deletion is successful
         when (deleteMessageResult) {
@@ -119,7 +123,7 @@ class MessageServiceTests: ServiceTests() {
         }
 
         // then: getting the channel messages
-        val messagesList = messagesService.getChannelMessages(testUser.id, channelById.value.id)
+        val messagesList = messagesService.getChannelMessages(testUserInfo.id, channelById.value.id)
         when (messagesList) {
             is Either.Left -> fail("Unexpected $messagesList")
             is Either.Right -> assertTrue(messagesList.value.isEmpty())

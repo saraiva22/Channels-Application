@@ -19,12 +19,12 @@ class JdbiMessagesRepositoryTests: RepositoryTests() {
 
             // when: storing a public channel
             val channelName = newTestChannelName()
-            val channelModel = ChannelModel(channelName, testUser.id, Type.PUBLIC)
+            val channelModel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
             val channelId = channelsRepo.createChannel(channelModel)
 
             // and: creating a message in the channel
             val messageText = newMessageText()
-            val messageId = messagesRepo.createMessage(channelId, testUser.id, messageText, Instant.DISTANT_PAST)
+            val messageId = messagesRepo.createMessage(channelId, testUserInfo.id, messageText, Instant.DISTANT_PAST)
 
             // then: the message id is greater than 0
             assertTrue(messageId > 0)
@@ -53,12 +53,12 @@ class JdbiMessagesRepositoryTests: RepositoryTests() {
 
             // when: storing a public channel
             val channelName = newTestChannelName()
-            val channelModel = ChannelModel(channelName, testUser.id, Type.PUBLIC)
+            val channelModel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
             val channelId = channelsRepo.createChannel(channelModel)
 
             // and: creating a message in the channel
             val messageText = newMessageText()
-            val messageId = messagesRepo.createMessage(channelId, testUser.id, messageText, Instant.DISTANT_PAST)
+            val messageId = messagesRepo.createMessage(channelId, testUserInfo.id, messageText, Instant.DISTANT_PAST)
 
             // then: the message id is greater than 0
             assertTrue(messageId > 0)

@@ -21,7 +21,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // when: storing a public channel
             val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUser.id, Type.PUBLIC)
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
             val channelId = repo.createChannel(channel)
 
             // and: searching for the channel by name
@@ -70,7 +70,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // when: storing a public channel
             val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUser.id, Type.PRIVATE)
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PRIVATE)
             val channelId = repo.createChannel(channel)
 
             // and: searching for the channel by name
@@ -120,7 +120,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // when: storing a public channel owned by another user
             val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUser2.id, Type.PUBLIC)
+            val channel = ChannelModel(channelName, testUserInfo2.id, Type.PUBLIC)
             repo.createChannel(channel)
 
             // and: searching for the channel by name
@@ -128,13 +128,13 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             val createdChannel = retrievedChannel[0]
 
             // when: asking if user is the owner of the channel
-            val isOwner = repo.isOwnerChannel(createdChannel.id, testUser.id)
+            val isOwner = repo.isOwnerChannel(createdChannel.id, testUserInfo.id)
 
             // then: response is false
             assertFalse(isOwner)
 
             // when: getting the channels owned by the user
-            val ownedChannels = repo.getUserOwnedChannels(testUser.id, null)
+            val ownedChannels = repo.getUserOwnedChannels(testUserInfo.id, null)
 
             // then: the channel is not in the list
             assertFalse(ownedChannels.contains(createdChannel))
@@ -143,13 +143,13 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             assertFalse(ownedChannels.isEmpty())
 
             // when: asking if user2 is the owner of the channel
-            val isOwner2 = repo.isOwnerChannel(createdChannel.id, testUser2.id)
+            val isOwner2 = repo.isOwnerChannel(createdChannel.id, testUserInfo2.id)
 
             // then: response is true
             assertTrue(isOwner2)
 
             // when: getting the channels owned by the user2
-            val ownedChannels2 = repo.getUserOwnedChannels(testUser2.id, null)
+            val ownedChannels2 = repo.getUserOwnedChannels(testUserInfo2.id, null)
 
             // then: the channel is in the list
             assertTrue(ownedChannels2.contains(createdChannel))
@@ -164,12 +164,12 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // when: storing a public channel
             val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUser.id, Type.PUBLIC)
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
             val channelId = repo.createChannel(channel)
 
             // when: storing a private channel
             val channelName2 = newTestChannelName()
-            val channel2 = ChannelModel(channelName2, testUser.id, Type.PRIVATE)
+            val channel2 = ChannelModel(channelName2, testUserInfo.id, Type.PRIVATE)
             val channelId2 = repo.createChannel(channel2)
 
             // and: searching for the channels by id
@@ -195,7 +195,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: a public channel
             val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUser.id, Type.PUBLIC)
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
             repo.createChannel(channel)
 
             // and: getting the channel by id
@@ -226,11 +226,11 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: a public channel
             val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUser.id, Type.PUBLIC)
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
             val channelId = repo.createChannel(channel)
 
             // when: user joins the channel
-            repo.joinChannel(testUser2.id, channelId)
+            repo.joinChannel(testUserInfo2.id, channelId)
 
             // and: getting the channel by id
             val retrievedChannel: Channel? = repo.getChannelById(channelId)
@@ -251,14 +251,14 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: a public channel
             val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUser.id, Type.PUBLIC)
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
             val channelId = repo.createChannel(channel)
 
             // and: user joins the channel
-            repo.joinChannel(testUser2.id, channelId)
+            repo.joinChannel(testUserInfo2.id, channelId)
 
             // when: user leaves the channel
-            repo.leaveChannel(testUser2.id, channelId)
+            repo.leaveChannel(testUserInfo2.id, channelId)
 
             // and: getting the channel by id
             val retrievedChannel: Channel? = repo.getChannelById(channelId)
@@ -279,7 +279,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: a private channel
             val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUser.id, Type.PRIVATE)
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PRIVATE)
             val channelId = repo.createChannel(channel)
 
             // when: creating an invitation for the channel
@@ -288,10 +288,10 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: sending the invite to the user
             val privacy = 1
-            repo.sendInvitePrivateChannel(testUser2.id, channelId, inviteId, privacy)
+            repo.sendInvitePrivateChannel(testUserInfo2.id, channelId, inviteId, privacy)
 
             // and: user joins the channel
-            repo.joinMemberInChannelPrivate(testUser2.id, channelId, code)
+            repo.joinMemberInChannelPrivate(testUserInfo2.id, channelId, code)
 
             // and: getting the channel by id
             val retrievedChannel: Channel? = repo.getChannelById(channelId)
@@ -312,7 +312,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: a private channel
             val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUser.id, Type.PRIVATE)
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PRIVATE)
             val channelId = repo.createChannel(channel)
 
             // when: creating an invitation for the channel
@@ -321,20 +321,20 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: sending the invite to the user
             val privacy = 1
-            val inviteSent = repo.sendInvitePrivateChannel(testUser2.id, channelId, inviteId, privacy)
+            val inviteSent = repo.sendInvitePrivateChannel(testUserInfo2.id, channelId, inviteId, privacy)
 
             // then: the invite is sent
             assertTrue(inviteSent > 0)
 
             // when: getting the type of the invite
-            val inviteType = repo.getTypeInvitePrivateChannel(testUser2.id, channelId)
+            val inviteType = repo.getTypeInvitePrivateChannel(testUserInfo2.id, channelId)
 
             // then: the invite type is correct
             assertNotNull(inviteType)
             assertEquals(inviteType, Privacy.READ_WRITE)
 
             // when: checking if the invite code is valid
-            val validInvite = repo.isPrivateChannelInviteCodeValid(testUser2.id, channelId, code, false)
+            val validInvite = repo.isPrivateChannelInviteCodeValid(testUserInfo2.id, channelId, code, false)
 
             // then: the invite is valid
             assertNotNull(validInvite)
@@ -350,7 +350,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: a private channel
             val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUser.id, Type.PRIVATE)
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PRIVATE)
             val channelId = repo.createChannel(channel)
 
             // when: creating an invitation for the channel
@@ -359,20 +359,20 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: sending the invite to the user
             val privacy = 0
-            val inviteSent = repo.sendInvitePrivateChannel(testUser2.id, channelId, inviteId, privacy)
+            val inviteSent = repo.sendInvitePrivateChannel(testUserInfo2.id, channelId, inviteId, privacy)
 
             // then: the invite is sent
             assertTrue(inviteSent > 0)
 
             // when: getting the type of the invite
-            val inviteType = repo.getTypeInvitePrivateChannel(testUser2.id, channelId)
+            val inviteType = repo.getTypeInvitePrivateChannel(testUserInfo2.id, channelId)
 
             // then: the invite type is correct
             assertNotNull(inviteType)
             assertEquals(inviteType, Privacy.READ_ONLY)
 
             // when: checking if the invite code is valid
-            val validInvite = repo.isPrivateChannelInviteCodeValid(testUser2.id, channelId, code, false)
+            val validInvite = repo.isPrivateChannelInviteCodeValid(testUserInfo2.id, channelId, code, false)
 
             // then: the invite is valid
             assertNotNull(validInvite)
@@ -388,7 +388,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: a private channel
             val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUser.id, Type.PRIVATE)
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PRIVATE)
             val channelId = repo.createChannel(channel)
 
             // and: creating an invitation for the channel
@@ -397,13 +397,13 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: sending the invite to the user
             val privacy = 0
-            repo.sendInvitePrivateChannel(testUser2.id, channelId, inviteId, privacy)
+            repo.sendInvitePrivateChannel(testUserInfo2.id, channelId, inviteId, privacy)
 
             // and: user joins the channel
-            repo.joinMemberInChannelPrivate(testUser2.id, channelId, code)
+            repo.joinMemberInChannelPrivate(testUserInfo2.id, channelId, code)
 
             // when: user leaves the channel
-            repo.leaveChannel(testUser2.id, channelId)
+            repo.leaveChannel(testUserInfo2.id, channelId)
 
             // and: getting the channel by id
             val retrievedChannel: Channel? = repo.getChannelById(channelId)

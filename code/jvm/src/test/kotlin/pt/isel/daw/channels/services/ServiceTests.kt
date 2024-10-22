@@ -12,6 +12,7 @@ import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.messages.MessageDomain
 import pt.isel.daw.channels.domain.token.Sha256TokenEncoder
 import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.domain.user.UserInfo
 import pt.isel.daw.channels.domain.user.UsersDomain
 import pt.isel.daw.channels.domain.user.UsersDomainConfig
 import pt.isel.daw.channels.repository.jdbi.JdbiTransactionManager
@@ -58,14 +59,23 @@ open class ServiceTests: ApplicationTests() {
         private val channelServices = createChannelService()
 
         lateinit var testUser: User
-        lateinit var testUser2: User
-        lateinit var randomUser: User
+        private lateinit var testUser2: User
+        private lateinit var randomUser: User
+
+        lateinit var testUserInfo: UserInfo
+        lateinit var testUserInfo2: UserInfo
 
         @JvmStatic
         @BeforeAll
         fun setupDB() {
+            val hasUsers = channelServices.dbHasUsers()
+            if (hasUsers) {
+                randomUser = userServices.getRandomUser() ?: fail("No random user found")
+            }
             testUser = createUser()
             testUser2 = createUser()
+            testUserInfo = UserInfo(testUser.id, testUser.username, testUser.email)
+            testUserInfo2 = UserInfo(testUser2.id, testUser2.username, testUser2.email)
         }
 
         private fun createUser(): User {
@@ -78,15 +88,13 @@ open class ServiceTests: ApplicationTests() {
         }
 
         fun generateInvitationCode(): String? {
-            if (!::randomUser.isInitialized) {
-                val hasUsers = channelServices.dbHasUsers()
-                if (hasUsers) {
-                    randomUser = userServices.getRandomUser() ?: createUser()
-                } else {
-                    return null
-                }
+            return if (::randomUser.isInitialized) {
+                userServices.createRegisterInvite(randomUser.id)
+            } else if (!::testUser.isInitialized) {
+                null
+            } else {
+                userServices.createRegisterInvite(testUser.id)
             }
-            return userServices.createRegisterInvite(randomUser.id)
         }
 
         fun createUserInService(
@@ -119,7 +127,7 @@ open class ServiceTests: ApplicationTests() {
             clearData(jdbi, "dbo.Messages", "user_id", testUser2.id)
             clearInvitationChannelsData(jdbi, testUser.id)
             clearInvitationChannelsData(jdbi, testUser2.id)
-            clearInvitationChannelsData(jdbi, randomUser.id)
+            if (::randomUser.isInitialized) clearInvitationChannelsData(jdbi, randomUser.id)
             clearChannelsDataByType(jdbi, "dbo.Public_Channels", testUser.id)
             clearChannelsDataByType(jdbi, "dbo.Public_Channels", testUser2.id)
             clearChannelsDataByType(jdbi, "dbo.Private_Channels", testUser.id)

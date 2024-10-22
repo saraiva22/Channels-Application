@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Type
-import pt.isel.daw.channels.repository.jdbi.RepositoryTests.Companion.testUserInfo
-import pt.isel.daw.channels.repository.jdbi.RepositoryTests.Companion.testUserInfo2
 import pt.isel.daw.channels.utils.Either
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -23,7 +21,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: creating a channel
         val channelName = newTestChannelName()
-        val channelModel = ChannelModel(channelName, testUser.id, Type.PUBLIC)
+        val channelModel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
         val createChannelResult = service.createChannel(channelModel)
 
         // then: the creation is successful
@@ -33,7 +31,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: using the id
-        val getChannelByIdResult = service.getChannelById(testUser.id, createChannelResult.value)
+        val getChannelByIdResult = service.getChannelById(testUserInfo.id, createChannelResult.value)
 
         // then: the return is successful and has the same id, name, owner and empty members list
         when (getChannelByIdResult) {
@@ -48,7 +46,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: using the name
-        val getChannelByNameResult = service.getChannelByName(testUser.id, channelName, null)
+        val getChannelByNameResult = service.getChannelByName(testUserInfo.id, channelName, null)
 
         // then: the return is successful and has the same id, name, owner and empty members list
         assertTrue(getChannelByNameResult.size == 1)
@@ -77,7 +75,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: creating a channel
         val channelName = newTestChannelName()
-        val channelModel = ChannelModel(channelName, testUser.id, Type.PRIVATE)
+        val channelModel = ChannelModel(channelName, testUserInfo.id, Type.PRIVATE)
         val createChannelResult = service.createChannel(channelModel)
 
         // then: the creation is successful
@@ -87,7 +85,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: using the id
-        val getChannelByIdResult = service.getChannelById(testUser.id, createChannelResult.value)
+        val getChannelByIdResult = service.getChannelById(testUserInfo.id, createChannelResult.value)
 
         // then: the return is successful and has the same id, name, owner and empty members list
         when (getChannelByIdResult) {
@@ -102,7 +100,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: using the name
-        val getChannelByNameResult = service.getChannelByName(testUser.id, channelName, null)
+        val getChannelByNameResult = service.getChannelByName(testUserInfo.id, channelName, null)
 
         // then: the return is successful and has the same id, name, owner and empty members list
         assertTrue(getChannelByNameResult.size == 1)
@@ -130,7 +128,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: creating a public channel
         val publicChannelName = newTestChannelName()
-        val publicChannelModel = ChannelModel(publicChannelName, testUser.id, Type.PUBLIC)
+        val publicChannelModel = ChannelModel(publicChannelName, testUserInfo.id, Type.PUBLIC)
         val createPublicChannelResult = service.createChannel(publicChannelModel)
 
         // then: the creation is successful
@@ -141,7 +139,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: creating a private channel
         val privateChannelName = newTestChannelName()
-        val privateChannelModel = ChannelModel(privateChannelName, testUser.id, Type.PRIVATE)
+        val privateChannelModel = ChannelModel(privateChannelName, testUserInfo.id, Type.PRIVATE)
         val createPrivateChannelResult = service.createChannel(privateChannelModel)
 
         // then: the creation is successful
@@ -151,11 +149,11 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: getting the list of channels owned by the user
-        val ownedChannels = service.getUserOwnedChannels(testUser.id, null)
+        val ownedChannels = service.getUserOwnedChannels(testUserInfo.id, null)
 
         // and: getting the channels by id
-        val publicChannel = service.getChannelById(testUser.id, createPublicChannelResult.value)
-        val privateChannel = service.getChannelById(testUser.id, createPrivateChannelResult.value)
+        val publicChannel = service.getChannelById(testUserInfo.id, createPublicChannelResult.value)
+        val privateChannel = service.getChannelById(testUserInfo.id, createPrivateChannelResult.value)
 
         // then: the get is successful and the list contains the public and private channels
         when (publicChannel) {
@@ -177,7 +175,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: creating a public channel
         val publicChannelName = newTestChannelName()
-        val publicChannelModel = ChannelModel(publicChannelName, testUser.id, Type.PUBLIC)
+        val publicChannelModel = ChannelModel(publicChannelName, testUserInfo.id, Type.PUBLIC)
         val createPublicChannelResult = service.createChannel(publicChannelModel)
 
         // then: the creation is successful
@@ -188,7 +186,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: creating a private channel
         val privateChannelName = newTestChannelName()
-        val privateChannelModel = ChannelModel(privateChannelName, testUser.id, Type.PRIVATE)
+        val privateChannelModel = ChannelModel(privateChannelName, testUserInfo.id, Type.PRIVATE)
         val createPrivateChannelResult = service.createChannel(privateChannelModel)
 
         // then: the creation is successful
@@ -201,8 +199,8 @@ class ChannelsServiceTests: ServiceTests() {
         val publicChannels = service.getPublicChannels(null)
 
         // and: getting the channels by id
-        val publicChannel = service.getChannelById(testUser.id, createPublicChannelResult.value)
-        val privateChannel = service.getChannelById(testUser.id, createPrivateChannelResult.value)
+        val publicChannel = service.getChannelById(testUserInfo.id, createPublicChannelResult.value)
+        val privateChannel = service.getChannelById(testUserInfo.id, createPrivateChannelResult.value)
 
         // then: the get is successful and the list contains the public channel
         when (publicChannel) {
@@ -224,7 +222,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: creating a channel
         val channelName = newTestChannelName()
-        val channelModel = ChannelModel(channelName, testUser.id, Type.PUBLIC)
+        val channelModel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
         val createChannelResult = service.createChannel(channelModel)
 
         // then: the creation is successful
@@ -235,7 +233,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: updating the channel name
         val newChannelName = newTestChannelName()
-        val updateChannelResult = service.updateNameChannel(newChannelName, createChannelResult.value, testUser.id)
+        val updateChannelResult = service.updateNameChannel(newChannelName, createChannelResult.value, testUserInfo.id)
 
         // then: the update is successful
         when (updateChannelResult) {
@@ -251,7 +249,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: getting the channel by id
-        val getChannelByIdResult = service.getChannelById(testUser.id, createChannelResult.value)
+        val getChannelByIdResult = service.getChannelById(testUserInfo.id, createChannelResult.value)
 
         // then: the return is successful and has the new name
         when (getChannelByIdResult) {
@@ -260,7 +258,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: getting the channel by name
-        val getChannelByNameResult = service.getChannelByName(testUser.id, newChannelName, null)
+        val getChannelByNameResult = service.getChannelByName(testUserInfo.id, newChannelName, null)
 
         // then: the return is successful and has the new name
         assertTrue(getChannelByNameResult.size == 1)
@@ -275,7 +273,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: creating a public channel
         val publicChannelName = newTestChannelName()
-        val publicChannelModel = ChannelModel(publicChannelName, testUser.id, Type.PUBLIC)
+        val publicChannelModel = ChannelModel(publicChannelName, testUserInfo.id, Type.PUBLIC)
         val createPublicChannelResult = service.createChannel(publicChannelModel)
 
         // then: the creation is successful
@@ -285,7 +283,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: user joins the public channel
-        val joinChannelResult = service.joinUsersInPublicChannel(testUser2.id, createPublicChannelResult.value)
+        val joinChannelResult = service.joinUsersInPublicChannel(testUserInfo2.id, createPublicChannelResult.value)
 
         // then: the join is successful
         when (joinChannelResult) {
@@ -301,7 +299,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: getting the channel by id
-        val getChannelByIdResult = service.getChannelById(testUser.id, createPublicChannelResult.value)
+        val getChannelByIdResult = service.getChannelById(testUserInfo.id, createPublicChannelResult.value)
 
         // then: the return is successful and has the new member
         when (getChannelByIdResult) {
@@ -317,7 +315,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: getting the channel by name
-        val getChannelByNameResult = service.getChannelByName(testUser.id, publicChannelName, null)
+        val getChannelByNameResult = service.getChannelByName(testUserInfo.id, publicChannelName, null)
 
         // then: the return is successful and has the new member
         assertTrue(getChannelByNameResult.size == 1)
@@ -333,7 +331,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: creating a public channel
         val publicChannelName = newTestChannelName()
-        val publicChannelModel = ChannelModel(publicChannelName, testUser.id, Type.PUBLIC)
+        val publicChannelModel = ChannelModel(publicChannelName, testUserInfo.id, Type.PUBLIC)
         val createPublicChannelResult = service.createChannel(publicChannelModel)
 
         // then: the creation is successful
@@ -343,7 +341,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: user joins the public channel
-        val joinChannelResult = service.joinUsersInPublicChannel(testUser2.id, createPublicChannelResult.value)
+        val joinChannelResult = service.joinUsersInPublicChannel(testUserInfo2.id, createPublicChannelResult.value)
 
         // then: the join is successful
         when (joinChannelResult) {
@@ -359,7 +357,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: user leaves the public channel
-        val leaveChannelResult = service.leaveChannel(testUser2.id, createPublicChannelResult.value)
+        val leaveChannelResult = service.leaveChannel(testUserInfo2.id, createPublicChannelResult.value)
 
         // then: the leave is successful
         when (leaveChannelResult) {
@@ -368,7 +366,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: getting the channel by id
-        val getChannelByIdResult = service.getChannelById(testUser.id, createPublicChannelResult.value)
+        val getChannelByIdResult = service.getChannelById(testUserInfo.id, createPublicChannelResult.value)
 
         // then: the return is successful and has the new member
         when (getChannelByIdResult) {
@@ -391,7 +389,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: creating a private channel
         val privateChannelName = newTestChannelName()
-        val privateChannelModel = ChannelModel(privateChannelName, testUser.id, Type.PRIVATE)
+        val privateChannelModel = ChannelModel(privateChannelName, testUserInfo.id, Type.PRIVATE)
         val createPrivateChannelResult = service.createChannel(privateChannelModel)
 
         // then: the creation is successful
@@ -403,8 +401,8 @@ class ChannelsServiceTests: ServiceTests() {
         // when: creating a code for the private channel
         val code = service.invitePrivateChannel(
             createPrivateChannelResult.value,
-            testUser.id,
-            testUser2.username,
+            testUserInfo.id,
+            testUserInfo2.username,
             Privacy.READ_WRITE
         )
 
@@ -416,7 +414,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: user joins the private channel
         val joinChannelResult = service.joinUsersInPrivateChannel(
-            testUser2.id,
+            testUserInfo2.id,
             createPrivateChannelResult.value,
             code.value
         )
@@ -435,7 +433,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: getting the channel by id
-        val getChannelByIdResult = service.getChannelById(testUser.id, createPrivateChannelResult.value)
+        val getChannelByIdResult = service.getChannelById(testUserInfo.id, createPrivateChannelResult.value)
 
         // then: the return is successful and has the new member
         when (getChannelByIdResult) {
@@ -458,7 +456,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: creating a private channel
         val privateChannelName = newTestChannelName()
-        val privateChannelModel = ChannelModel(privateChannelName, testUser.id, Type.PRIVATE)
+        val privateChannelModel = ChannelModel(privateChannelName, testUserInfo.id, Type.PRIVATE)
         val createPrivateChannelResult = service.createChannel(privateChannelModel)
 
         // then: the creation is successful
@@ -470,8 +468,8 @@ class ChannelsServiceTests: ServiceTests() {
         // when: creating a code for the private channel
         val code = service.invitePrivateChannel(
             createPrivateChannelResult.value,
-            testUser.id,
-            testUser2.username,
+            testUserInfo.id,
+            testUserInfo2.username,
             Privacy.READ_WRITE
         )
 
@@ -483,7 +481,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: user joins the private channel
         val joinChannelResult = service.joinUsersInPrivateChannel(
-            testUser2.id,
+            testUserInfo2.id,
             createPrivateChannelResult.value,
             code.value
         )
@@ -502,7 +500,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: user leaves the private channel
-        val leaveChannelResult = service.leaveChannel(testUser2.id, createPrivateChannelResult.value)
+        val leaveChannelResult = service.leaveChannel(testUserInfo2.id, createPrivateChannelResult.value)
 
         // then: the leave is successful
         when (leaveChannelResult) {
@@ -511,7 +509,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: getting the channel by id
-        val getChannelByIdResult = service.getChannelById(testUser.id, createPrivateChannelResult.value)
+        val getChannelByIdResult = service.getChannelById(testUserInfo.id, createPrivateChannelResult.value)
 
         // then: the return is successful and has the new member
         when (getChannelByIdResult) {

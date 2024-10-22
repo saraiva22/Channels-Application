@@ -1,7 +1,5 @@
 package pt.isel.daw.channels.http.model.channel
 
-import pt.isel.daw.channels.domain.channels.Type
-import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.domain.user.UserInfo
 
 data class ChannelOutputModel (

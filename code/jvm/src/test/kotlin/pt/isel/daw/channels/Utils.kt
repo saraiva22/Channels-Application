@@ -57,3 +57,22 @@ fun clearInvitationChannelsData(jdbi: Jdbi, value: Int) {
         }
     })
 }
+
+fun clearInvitationRegisterData(jdbi: Jdbi, value: String) {
+    runWithHandle(jdbi, { handle ->
+        run {
+            val inviteId = handle.createQuery(
+                """
+                select invite_id 
+                from dbo.Invitation_Register
+                where cod_hash = :value
+            """
+            )
+                .bind("value", value)
+                .mapTo(Int::class.java)
+                .one()
+
+            clearData(jdbi, "dbo.Invitation_Register", "id", inviteId)
+        }
+    })
+}

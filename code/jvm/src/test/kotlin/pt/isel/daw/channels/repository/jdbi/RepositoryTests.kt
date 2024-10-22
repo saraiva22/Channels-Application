@@ -18,12 +18,11 @@ open class RepositoryTests: ApplicationTests() {
     companion object {
         val channelsDomain = ChannelsDomain()
 
-        lateinit var testUser: User
-        lateinit var testUser2: User
+        private lateinit var testUser: User
+        private lateinit var testUser2: User
 
         lateinit var testUserInfo: UserInfo
         lateinit var testUserInfo2: UserInfo
-
 
 
         @JvmStatic

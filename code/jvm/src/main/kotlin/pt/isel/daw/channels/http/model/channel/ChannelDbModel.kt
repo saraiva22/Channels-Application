@@ -2,7 +2,6 @@ package pt.isel.daw.channels.http.model.channel
 
 import org.jdbi.v3.core.mapper.Nested
 import pt.isel.daw.channels.domain.channels.Channel
-import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.domain.user.UserInfo
 
 data class ChannelDbModel (
