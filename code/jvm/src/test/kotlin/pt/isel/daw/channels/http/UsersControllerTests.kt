@@ -41,6 +41,50 @@ class UsersControllerTests {
             .returnResult()
             .responseBody!!
 
+        // when: create an user invalid
+        // then: the response is a 400 with the proper problem
+        client.post().uri("/users")
+            .bodyValue(
+                mapOf(
+                    "username" to "asd",
+                    "password" to password,
+                    "email" to newTestEmail(),
+                    "inviteCode" to invite.code
+                ),
+            )
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectHeader().contentType("application/problem+json")
+
+        // when: create an user invalid
+        // then: the response is a 400 with the proper problem
+        client.post().uri("/users")
+            .bodyValue(
+                mapOf(
+                    "username" to username,
+                    "password" to "asd",
+                    "email" to newTestEmail(),
+                    "inviteCode" to invite.code
+                ),
+            )
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectHeader().contentType("application/problem+json")
+
+        // when: create an user invalid
+        // then: the response is a 400 with the proper problem
+        client.post().uri("/users")
+            .bodyValue(
+                mapOf(
+                    "username" to username,
+                    "password" to password,
+                    "email" to "asd",
+                    "inviteCode" to invite.code
+                ),
+            )
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectHeader().contentType("application/problem+json")
 
         // when: creating an user
         // then: the response is a 201 with a proper Location header
@@ -58,6 +102,23 @@ class UsersControllerTests {
             .expectHeader().value("location") {
                 assertTrue(it.startsWith("/api/users/"))
             }
+
+        // when: create an user invalid
+        // then: the response is a 400 with the proper problem
+        client.post().uri("/users")
+            .bodyValue(
+                mapOf(
+                    "username" to username,
+                    "password" to password,
+                    "email" to newTestEmail(),
+                    "inviteCode" to invite.code
+                ),
+            )
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectHeader().contentType("application/problem+json")
+
+
     }
 
 

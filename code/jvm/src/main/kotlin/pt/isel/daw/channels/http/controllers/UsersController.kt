@@ -2,6 +2,7 @@ package pt.isel.daw.channels.http.controllers
 
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.http.Uris
@@ -23,7 +24,7 @@ import pt.isel.daw.channels.utils.Success
 class UsersController(private val userService: UsersService) {
     @PostMapping(Uris.Users.CREATE)
     fun create(
-        @RequestBody input: UserCreateInputModel
+        @Validated @RequestBody input: UserCreateInputModel
     ): ResponseEntity<*> {
         val instance = Uris.Users.register()
         val user = userService.createUser(input.username, input.email, input.password, input.inviteCode)

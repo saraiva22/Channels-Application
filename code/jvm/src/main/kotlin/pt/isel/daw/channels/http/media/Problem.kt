@@ -5,6 +5,15 @@ import org.springframework.http.ResponseEntity
 import org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE
 import java.net.URI
 
+/**
+ *  Represents a problem in the API
+ *  @param typeUri: URI of the problem
+ *  @param title: Title of the problem
+ *  @param status: Status of the problem
+ *  @param detail: Detail of the problem
+ *  @param instance: Instance of the problem
+ */
+
 class Problem(
     val typeUri: URI,
     val title: String,
