@@ -72,12 +72,11 @@ create table dbo.Invite_Private_Channels
 
 create table dbo.Messages
 (
-    id         int generated always as identity,
+    id         int generated always as identity primary key,
     channel_id serial references dbo.Channels (id),
     user_id    int references dbo.Users (id),
     text       VARCHAR(64) not null,
-    create_at  bigint      not null,
-    primary key(id, channel_id, user_id)
+    create_at  bigint      not null
 );
 
 create or replace function insert_invite_private_channels()

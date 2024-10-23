@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.returnResult
 import pt.isel.daw.channels.domain.channels.Type
 import pt.isel.daw.channels.http.model.ChannelInviteResponse
 import pt.isel.daw.channels.http.model.TokenResponse
@@ -270,7 +271,7 @@ class ChannelsControllerTests {
             .responseBody!!.channels
 
 
-        val channel = res.first{it.id ==channelId}
+        val channel = res.last()
 
         assertEquals(channelId, channel.id)
         assertEquals(channelPublicName, channel.name)
@@ -299,7 +300,7 @@ class ChannelsControllerTests {
         assertEquals(2, channelJoin.members.size)
         assertEquals(USERNAME_TEST1, channelJoin.members[1].username)
 
-
+        // when: get public
 
         //when: leave user random channel
         //then: the response is a 200
@@ -327,7 +328,7 @@ class ChannelsControllerTests {
             .returnResult()
             .responseBody!!.channels
 
-        val channel2 = res2.first{it.id ==channelId}
+        val channel2 = res2.last()
         assertEquals(channelId, channel2.id)
         assertEquals(channelPublicName, channel2.name)
         assertEquals(USERNAME_TEST, channel2.owner.username)
