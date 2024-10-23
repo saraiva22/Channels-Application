@@ -2,6 +2,7 @@ package pt.isel.daw.channels.http.controllers
 
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.http.Uris
