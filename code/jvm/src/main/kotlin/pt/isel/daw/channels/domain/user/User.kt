@@ -8,5 +8,7 @@ data class User(
 ) {
     init {
         require(id > 0)
+        require(email.isNotBlank())
+        require(username.isNotBlank())
     }
 }

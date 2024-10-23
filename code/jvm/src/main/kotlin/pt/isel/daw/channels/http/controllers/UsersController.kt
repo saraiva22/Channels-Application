@@ -23,7 +23,7 @@ import pt.isel.daw.channels.utils.Success
 class UsersController(private val userService: UsersService) {
     @PostMapping(Uris.Users.CREATE)
     fun create(
-        @RequestBody input: UserCreateInputModel
+        @Validated @RequestBody input: UserCreateInputModel
     ): ResponseEntity<*> {
         val instance = Uris.Users.register()
         val user = userService.createUser(input.username, input.email, input.password, input.inviteCode)
