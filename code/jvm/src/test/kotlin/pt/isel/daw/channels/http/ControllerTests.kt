@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
-import pt.isel.daw.channels.ApplicationTests
 import pt.isel.daw.channels.domain.channels.Type
 import pt.isel.daw.channels.http.model.channel.ChannelOutputModel
 import pt.isel.daw.channels.http.model.user.UserHomeOutputModel
@@ -31,7 +30,7 @@ class ControllerTests: ServiceTests() {
                     "username" to username,
                     "email" to email,
                     "password" to password,
-                    "code" to code
+                    "inviteCode" to code
                 )
             )
             .exchange()

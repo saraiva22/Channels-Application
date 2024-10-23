@@ -63,10 +63,10 @@ fun clearInvitationRegisterData(jdbi: Jdbi, value: String) {
         run {
             val inviteId = handle.createQuery(
                 """
-                select invite_id 
-                from dbo.Invitation_Register
-                where cod_hash = :value
-            """
+                    select id 
+                    from dbo.Invitation_Register
+                    where cod_hash = :value
+                """
             )
                 .bind("value", value)
                 .mapTo(Int::class.java)
