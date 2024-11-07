@@ -73,6 +73,7 @@ class ChannelsController(
                         res.value.id,
                         res.value.name,
                         res.value.owner,
+                        res.value.type,
                         res.value.members
                     )
                 )
@@ -141,6 +142,7 @@ class ChannelsController(
                             updateChannel.value.id,
                             updateChannel.value.name,
                             updateChannel.value.owner,
+                            updateChannel.value.type,
                             updateChannel.value.members
                         )
                     )
@@ -180,6 +182,7 @@ class ChannelsController(
                         channel.value.id,
                         channel.value.name,
                         channel.value.owner,
+                        channel.value.type,
                         channel.value.members
                     )
                 )
@@ -214,6 +217,7 @@ class ChannelsController(
                         channel.value.id,
                         channel.value.name,
                         channel.value.owner,
+                        channel.value.type,
                         channel.value.members
                     )
                 )

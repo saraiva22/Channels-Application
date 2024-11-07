@@ -8,9 +8,9 @@ create schema dbo;
 create table dbo.Users
 (
     id                  int generated always as identity primary key,
-    username            VARCHAR(64) unique not null,
-    email               VARCHAR(64) unique not null,
-    password_validation VARCHAR(256)       not null
+    username            varchar(64) unique not null,
+    email               varchar(64) unique not null,
+    password_validation varchar(256)       not null
 );
 
 create table dbo.Tokens
@@ -25,21 +25,16 @@ create table dbo.Invitation_Register
 (
     id       int generated always as identity primary key,
     user_id  int references dbo.Users (id) on delete cascade on update cascade,
-    cod_hash VARCHAR(64) unique not null,
+    cod_hash varchar(64) unique not null,
     expired  boolean
 );
 
 create table dbo.Channels
 (
     id       int generated always as identity primary key,
-    name     VARCHAR(64) unique not null,
-    owner_id int references dbo.Users (id) on delete cascade on update cascade
-);
-
-create table dbo.Public_Channels
-(
-    channel_id serial references dbo.Channels (id) on delete cascade on update cascade,
-    primary key (channel_id)
+    name     varchar(64) unique not null,
+    owner_id int references dbo.Users (id) on delete cascade on update cascade,
+    type     int not null check (type in (0, 1))
 );
 
 create table dbo.Join_Channels
@@ -48,25 +43,19 @@ create table dbo.Join_Channels
     ch_id   serial references dbo.Channels (id)
 );
 
-create table dbo.Private_Channels
-(
-    channel_id serial unique references dbo.Channels (id),
-    primary key (channel_id)
-);
-
 create table dbo.Invitation_Channels
 (
     id       int generated always as identity primary key,
-    cod_hash VARCHAR(64) unique not null,
+    cod_hash varchar(64) unique not null,
     expired  boolean
 );
 
 create table dbo.Invite_Private_Channels
 (
     user_id    int references dbo.Users (id),
-    private_ch serial references dbo.Private_Channels (channel_id),
+    private_ch serial references dbo.Channels (id),
     invite_id  serial references dbo.Invitation_Channels (id),
-    privacy    int not null,
+    privacy    int not null check (privacy in (0, 1)),
     primary key (user_id, private_ch, invite_id)
 );
 
@@ -87,17 +76,21 @@ declare
     new_invite_id    int;
     channel_owner_id int;
 begin
-    select owner_id
+    select owner_id, type
     into channel_owner_id
     from dbo.Channels
-    where id = NEW.channel_id;
+    where id = NEW.id and type = 0;
+
+    if channel_owner_id is null then
+        return NEW;
+    end if;
 
     insert into dbo.Invitation_Channels (cod_hash,expired)
     values (md5(random()::text),false)
     returning id into new_invite_id;
 
     insert into dbo.Invite_Private_Channels (user_id, private_ch, invite_id, privacy)
-    values (channel_owner_id, new.channel_id, new_invite_id, 1);
+    values (channel_owner_id, new.id, new_invite_id, 1);
 
     return new;
 end;
@@ -105,7 +98,7 @@ $$ language plpgsql;
 
 create trigger trg_insert_invite_private_channels
     after insert
-    on dbo.Private_Channels
+    on dbo.Channels
     for each row
 execute function insert_invite_private_channels();
 
@@ -125,4 +118,3 @@ create trigger trg_insert_owner_into_join_channels
     on dbo.Channels
     for each row
 execute function insert_owner_into_join_channels();
-
