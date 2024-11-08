@@ -124,7 +124,6 @@ class ChannelsControllerTests {
         // given: an HTTP client
         val client = WebTestClient.bindToServer().baseUrl("http://localhost:$port/api").build()
 
-
         // and a random channel private
         val channelPrivateName = newTestChannelName()
         val typePrivate = private
@@ -143,7 +142,6 @@ class ChannelsControllerTests {
             .expectBody(UserInviteResponse::class.java)
             .returnResult()
             .responseBody!!
-
 
         // when: creating a token new user
         // then: the response is a 200
@@ -183,16 +181,12 @@ class ChannelsControllerTests {
             .returnResult()
             .responseBody!!
 
+        val code = inviteResponse.codHash.split("/").last()
 
         // when: join in private channel
-        // then: the response is a 201 with a proper Location header
-        val channel = client.post().uri("/channels/${channelId}/private")
+        // then: the response is a 200 with a proper Location header
+        val channel = client.post().uri("/channels/${channelId}/private/${code}")
             .header("Authorization", "Bearer ${resultNewUser.token}")
-            .bodyValue(
-                mapOf(
-                    "codHash" to inviteResponse.codHash
-                ),
-            )
             .exchange()
             .expectStatus().isOk
             .expectBody(ChannelOutputModel::class.java)
@@ -215,18 +209,11 @@ class ChannelsControllerTests {
 
         // when: try join a channel
         // then: the response is a 400
-        client.post().uri("/channels/${channelId}/private")
+        client.post().uri("/channels/${channelId}/private/${code}")
             .header("Authorization", "Bearer ${resultNewUser.token}")
-            .bodyValue(
-                mapOf(
-                    "inviteCode" to inviteResponse.codHash
-                ),
-            )
             .exchange()
             .expectStatus().isBadRequest
             .expectHeader().contentType("application/problem+json")
-
-
     }
 
 
@@ -284,7 +271,6 @@ class ChannelsControllerTests {
 
         // when: join in public channel
         // then: the response is a 200 with a proper Location header
-
         val channelJoin = client.post().uri("/channels/${channelId}/public")
             .header("Authorization", "Bearer ${resultUserRandom.token}")
             .exchange()
@@ -298,8 +284,6 @@ class ChannelsControllerTests {
         assertEquals(USERNAME_TEST, channelJoin.owner.username)
         assertEquals(2, channelJoin.members.size)
         assertEquals(USERNAME_TEST1, channelJoin.members[1].username)
-
-
 
         //when: leave user random channel
         //then: the response is a 200

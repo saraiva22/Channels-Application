@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import pt.isel.daw.channels.ApplicationTests
 import pt.isel.daw.channels.TestClock
-import pt.isel.daw.channels.clearChannelsDataByType
 import pt.isel.daw.channels.clearData
 import pt.isel.daw.channels.clearInvitationChannelsData
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
@@ -128,10 +127,6 @@ open class ServiceTests: ApplicationTests() {
             clearInvitationChannelsData(jdbi, testUser.id)
             clearInvitationChannelsData(jdbi, testUser2.id)
             if (::randomUser.isInitialized) clearInvitationChannelsData(jdbi, randomUser.id)
-            clearChannelsDataByType(jdbi, "dbo.Public_Channels", testUser.id)
-            clearChannelsDataByType(jdbi, "dbo.Public_Channels", testUser2.id)
-            clearChannelsDataByType(jdbi, "dbo.Private_Channels", testUser.id)
-            clearChannelsDataByType(jdbi, "dbo.Private_Channels", testUser2.id)
             clearData(jdbi, "dbo.Join_Channels", "user_id", testUser.id)
             clearData(jdbi, "dbo.Join_Channels", "user_id", testUser2.id)
             clearData(jdbi, "dbo.Channels", "owner_id", testUser.id)

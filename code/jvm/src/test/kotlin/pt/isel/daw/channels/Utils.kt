@@ -18,22 +18,6 @@ fun clearData(jdbi: Jdbi, tableName: String, attributeName: String, value: Int) 
     })
 }
 
-fun clearChannelsDataByType(jdbi: Jdbi, tableName: String, value: Int) {
-    runWithHandle(jdbi, { handle ->
-        handle.createUpdate(
-            """
-                delete from $tableName
-                where channel_id in (
-                    select id from dbo.Channels
-                    where owner_id = :value
-                )
-            """
-        )
-            .bind("value", value)
-            .execute()
-    })
-}
-
 fun clearInvitationChannelsData(jdbi: Jdbi, value: Int) {
     runWithHandle(jdbi, { handle ->
         run {

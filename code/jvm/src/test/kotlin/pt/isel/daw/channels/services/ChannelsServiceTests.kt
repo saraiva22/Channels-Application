@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Type
+import pt.isel.daw.channels.http.model.channel.RegisterPrivateInviteInputModel
 import pt.isel.daw.channels.utils.Either
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -399,24 +400,28 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: creating a code for the private channel
-        val code = service.invitePrivateChannel(
+        val invite = RegisterPrivateInviteInputModel(
             createPrivateChannelResult.value,
             testUserInfo.id,
             testUserInfo2.username,
             Privacy.READ_WRITE
         )
+        val inviteLink = service.invitePrivateChannel(invite)
 
         // then: the creation is successful
-        when (code) {
-            is Either.Left -> fail("Unexpected $code")
-            is Either.Right -> assertTrue(code.value.isNotEmpty())
+        when (inviteLink) {
+            is Either.Left -> fail("Unexpected $inviteLink")
+            is Either.Right -> assertTrue(inviteLink.value.isNotEmpty())
         }
+
+        // then: getting the invitation code
+        val code = inviteLink.value.split("/").last()
 
         // when: user joins the private channel
         val joinChannelResult = service.joinUsersInPrivateChannel(
             testUserInfo2.id,
             createPrivateChannelResult.value,
-            code.value
+            code
         )
 
         // then: the join is successful
@@ -466,24 +471,28 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: creating a code for the private channel
-        val code = service.invitePrivateChannel(
+        val invite = RegisterPrivateInviteInputModel(
             createPrivateChannelResult.value,
             testUserInfo.id,
             testUserInfo2.username,
             Privacy.READ_WRITE
         )
+        val inviteLink = service.invitePrivateChannel(invite)
 
         // then: the creation is successful
-        when (code) {
-            is Either.Left -> fail("Unexpected $code")
-            is Either.Right -> assertTrue(code.value.isNotEmpty())
+        when (inviteLink) {
+            is Either.Left -> fail("Unexpected $inviteLink")
+            is Either.Right -> assertTrue(inviteLink.value.isNotEmpty())
         }
+
+        // then: getting the invitation code
+        val code = inviteLink.value.split("/").last()
 
         // when: user joins the private channel
         val joinChannelResult = service.joinUsersInPrivateChannel(
             testUserInfo2.id,
             createPrivateChannelResult.value,
-            code.value
+            code
         )
 
         // then: the join is successful

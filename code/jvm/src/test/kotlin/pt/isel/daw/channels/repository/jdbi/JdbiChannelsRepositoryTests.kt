@@ -283,7 +283,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             val channelId = repo.createChannel(channel)
 
             // when: creating an invitation for the channel
-            val code = channelsDomain.generateInvitation()
+            val code = channelsDomain.generateInvitation(channelId)
             val inviteId = repo.createPrivateInvite(code, false)
 
             // and: sending the invite to the user
@@ -316,7 +316,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             val channelId = repo.createChannel(channel)
 
             // when: creating an invitation for the channel
-            val code = channelsDomain.generateInvitation()
+            val code = channelsDomain.generateInvitation(channelId)
             val inviteId = repo.createPrivateInvite(code, false)
 
             // and: sending the invite to the user
@@ -354,7 +354,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             val channelId = repo.createChannel(channel)
 
             // when: creating an invitation for the channel
-            val code = channelsDomain.generateInvitation()
+            val code = channelsDomain.generateInvitation(channelId)
             val inviteId = repo.createPrivateInvite(code, false)
 
             // and: sending the invite to the user
@@ -392,7 +392,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             val channelId = repo.createChannel(channel)
 
             // and: creating an invitation for the channel
-            val code = channelsDomain.generateInvitation()
+            val code = channelsDomain.generateInvitation(channelId)
             val inviteId = repo.createPrivateInvite(code, false)
 
             // and: sending the invite to the user

@@ -1,7 +1,6 @@
 package pt.isel.daw.channels.http
 
 import org.junit.jupiter.api.Test
-import pt.isel.daw.channels.clearChannelsDataByType
 import pt.isel.daw.channels.clearData
 import pt.isel.daw.channels.clearInvitationRegisterData
 import pt.isel.daw.channels.domain.channels.Type
@@ -56,7 +55,6 @@ class MessagesControllerTests: ControllerTests() {
 
         if (code != null) clearInvitationRegisterData(jdbi, code)
         clearData(jdbi, "dbo.Messages", "id", createMessage)
-        clearChannelsDataByType(jdbi, "dbo.Public_Channels", user.id)
         clearData(jdbi, "dbo.Join_Channels", "ch_id", channelId)
         clearData(jdbi, "dbo.Channels", "id", channelId)
         clearData(jdbi, "dbo.Users", "id", user.id)
@@ -97,7 +95,6 @@ class MessagesControllerTests: ControllerTests() {
             .exchange()
             .expectStatus().isNotFound
 
-        clearChannelsDataByType(jdbi, "dbo.Public_Channels", user.id)
         clearData(jdbi, "dbo.Join_Channels", "ch_id", channelId)
         clearData(jdbi, "dbo.Channels", "id", channelId)
         clearData(jdbi, "dbo.Users", "id", user.id)

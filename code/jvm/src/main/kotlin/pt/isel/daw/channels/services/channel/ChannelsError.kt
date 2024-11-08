@@ -47,7 +47,7 @@ typealias UpdateNameChannelResult = Either<UpdateNameChannelError, Channel>
 sealed class JoinUserInChannelPublicError{
     data object UserAlreadyInChannel : JoinUserInChannelPublicError()
     data object ChannelNotFound : JoinUserInChannelPublicError()
-    data object IsPrivateChannel : JoinUserInChannelPublicError()
+    data object ChannelIsPrivate : JoinUserInChannelPublicError()
 }
 
 typealias JoinUserInChannelPublicResult = Either<JoinUserInChannelPublicError, Channel>
@@ -64,7 +64,7 @@ typealias JoinUserInChannelPrivateResult = Either<JoinUserInChannelPrivateError,
 sealed class InvitePrivateChannelError{
     data object UserAlreadyInChannel : InvitePrivateChannelError()
     data object UserNotInChannel : InvitePrivateChannelError()
-    data object UserNotPermissionsType : InvitePrivateChannelError()
+    data object UserPermissionsDeniedType : InvitePrivateChannelError()
     data object ChannelIsPublic : InvitePrivateChannelError()
     data object PrivacyTypeNotFound : InvitePrivateChannelError()
     data object ChannelNotFound : InvitePrivateChannelError()

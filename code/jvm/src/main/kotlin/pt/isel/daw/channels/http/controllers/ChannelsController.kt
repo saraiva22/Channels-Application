@@ -105,7 +105,7 @@ class ChannelsController(
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val userId = authenticatedUser.user.id
-        val sortParam = sort?.let { Sort.fromString(sort) }
+        val sortParam = Sort.fromString(sort ?: "")
         val res = channelsService.getUserOwnedChannels(userId, sortParam)
         return ResponseEntity
             .status(200)
@@ -174,7 +174,9 @@ class ChannelsController(
         userAuthenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.joinPublicChannel(id)
-        return when (val channel = channelsService.joinUsersInPublicChannel(userAuthenticatedUser.user.id, id)) {
+        return when (
+            val channel = channelsService.joinUsersInPublicChannel(userAuthenticatedUser.user.id, id)
+        ) {
             is Success -> ResponseEntity
                 .status(200)
                 .body(
@@ -194,7 +196,7 @@ class ChannelsController(
                 )
 
                 JoinUserInChannelPublicError.ChannelNotFound -> Problem.channelNotFound(id, instance)
-                JoinUserInChannelPublicError.IsPrivateChannel -> Problem.isPrivateChannel(id, instance)
+                JoinUserInChannelPublicError.ChannelIsPrivate -> Problem.channelIsPrivate(id, instance)
             }
         }
 
@@ -247,16 +249,18 @@ class ChannelsController(
     ): ResponseEntity<*> {
         val instance = Uris.Channels.invitePrivateChannel(id)
         val channelPrivate = channelsService.invitePrivateChannel(
-            id,
-            authenticatedUser.user.id,
-            input.username,
-            input.privacy
+            RegisterPrivateInviteInputModel(
+                id,
+                authenticatedUser.user.id,
+                input.username,
+                input.privacy
+            )
         )
         return when (channelPrivate) {
             is Success -> ResponseEntity
                 .status(201)
                 .body(
-                    RegisterPrivateInviteModel(
+                    RegisterPrivateInviteOutputModel(
                         channelPrivate.value
                     )
                 )
@@ -272,7 +276,7 @@ class ChannelsController(
                     instance
                 )
 
-                InvitePrivateChannelError.UserNotPermissionsType -> Problem.userNotPermissionsType(
+                InvitePrivateChannelError.UserPermissionsDeniedType -> Problem.userPermissionsDeniedType(
                     authenticatedUser.user.username,
                     instance
                 )

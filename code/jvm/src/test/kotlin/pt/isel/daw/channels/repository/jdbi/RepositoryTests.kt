@@ -2,9 +2,7 @@ package pt.isel.daw.channels.repository.jdbi
 
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.TestInstance
 import pt.isel.daw.channels.ApplicationTests
-import pt.isel.daw.channels.clearChannelsDataByType
 import pt.isel.daw.channels.clearData
 import pt.isel.daw.channels.clearInvitationChannelsData
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
@@ -52,10 +50,6 @@ open class RepositoryTests: ApplicationTests() {
             clearData(jdbi, "dbo.Messages", "user_id", testUser2.id)
             clearInvitationChannelsData(jdbi, testUser.id)
             clearInvitationChannelsData(jdbi, testUser2.id)
-            clearChannelsDataByType(jdbi, "dbo.Public_Channels", testUser.id)
-            clearChannelsDataByType(jdbi, "dbo.Public_Channels", testUser2.id)
-            clearChannelsDataByType(jdbi, "dbo.Private_Channels", testUser.id)
-            clearChannelsDataByType(jdbi, "dbo.Private_Channels", testUser2.id)
             clearData(jdbi, "dbo.Join_Channels", "user_id", testUser.id)
             clearData(jdbi, "dbo.Join_Channels", "user_id", testUser2.id)
             clearData(jdbi, "dbo.Channels", "owner_id", testUser.id)

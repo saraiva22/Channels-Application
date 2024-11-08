@@ -3,7 +3,9 @@ package pt.isel.daw.channels.http.media
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE
+import pt.isel.daw.channels.domain.token.Token
 import java.net.URI
+import kotlin.reflect.jvm.internal.impl.renderer.DescriptorRenderer.ValueParametersHandler.DEFAULT
 
 /**
  *  Represents a problem in the API
@@ -34,48 +36,49 @@ class Problem(
 
         const val MEDIA_TYPE = APPLICATION_PROBLEM_JSON_VALUE
         private const val BASE_URL = "https://github.com/isel-leic-daw/2024-daw-leic51d-g10-1/blob/main/docs/problems/"
-
+        private const val DEFAULT_FOLDER = BASE_URL + "default/"
+        private const val USER_FOLDER = BASE_URL + "user/"
+        private const val TOKEN_FOLDER = BASE_URL + "token/"
+        private const val CHANNEL_FOLDER = BASE_URL + "channel/"
+        private const val MESSAGE_FOLDER = BASE_URL + "message/"
 
         //Default
-        val internalServerError = URI("${BASE_URL}internal-server-error")
-        val badRequest = URI("${BASE_URL}bad-request")
-        val invalidRequestContent = URI("${BASE_URL}invalid-request-content")
+        val internalServerError = URI("${DEFAULT_FOLDER}internal-server-error")
+        val badRequest = URI("${DEFAULT_FOLDER}bad-request")
+        val invalidRequestContent = URI("${DEFAULT_FOLDER}invalid-request-content")
 
         // User
-        private val usernameAlreadyExists = URI("${BASE_URL}username-already-exists")
-        private val emailAlreadyExists = URI("${BASE_URL}email-already-exists")
-        private val invalidInviteCode = URI("${BASE_URL}invalid-register-code")
-        private val userNotFound = URI("${BASE_URL}user-not-found")
-        private val usernameNotFound = URI("${BASE_URL}username-not-found")
-        private val invalidEmail = URI("${BASE_URL}invalid-email")
-        private val insecurePassword = URI("${BASE_URL}insecure-password")
-        private val userOrPasswordAreInvalid = URI("${BASE_URL}user-or-password-are-invalid")
-
+        private val usernameAlreadyExists = URI("${USER_FOLDER}username-already-exists")
+        private val emailAlreadyExists = URI("${USER_FOLDER}email-already-exists")
+        private val invalidInviteCode = URI("${USER_FOLDER}invalid-register-code")
+        private val userNotFound = URI("${USER_FOLDER}user-not-found")
+        private val usernameNotFound = URI("${USER_FOLDER}username-not-found")
+        private val invalidEmail = URI("${USER_FOLDER}invalid-email")
+        private val insecurePassword = URI("${USER_FOLDER}insecure-password")
+        private val userOrPasswordAreInvalid = URI("${USER_FOLDER}user-or-password-are-invalid")
 
         //Token
-        private val invalidToken = URI("${BASE_URL}user-not-found")
-        private val tokenNotRevoked = URI("${BASE_URL}token-not-revoked")
-        val unauthorized = URI("${BASE_URL}unauthorized")
-
+        private val invalidToken = URI("${TOKEN_FOLDER}user-not-found")
+        private val tokenNotRevoked = URI("${TOKEN_FOLDER}token-not-revoked")
+        val unauthorized = URI("${TOKEN_FOLDER}unauthorized")
 
         // Channel
-        private val channelNotFound = URI("${BASE_URL}channel-not-found")
-        private val channelNameNotFound = URI("${BASE_URL}channel-name-not-found")
-        private val channelAlreadyExists = URI("${BASE_URL}channel-already-exists")
-        private val invalidChannelType = URI("${BASE_URL}invalid-channel-type")
-        private val userNotInChannel = URI("${BASE_URL}user-not-in-channel")
-        private val userAlreadyInChannel = URI("${BASE_URL}user-already-in-channel")
-        private val channelNameAlreadyExists = URI("${BASE_URL}channel-name-already-exists")
-        private val userNotPermissionsType = URI("${BASE_URL}user-not-permissions-type")
-        private val codeInvalidOrExpiredChannel = URI("${BASE_URL}code-invalid-or-expired-channel")
-        private val isPrivateChannel = URI("${BASE_URL}is-private-channel")
-        private val channelIsPublic = URI("${BASE_URL}channel-is-public")
-        private val privacyTypeInvalid = URI("${BASE_URL}privacy-type-invalid")
-        private val errorLeavingChannel = URI("${BASE_URL}error-leaving-channel")
+        private val channelNotFound = URI("${CHANNEL_FOLDER}channel-not-found")
+        private val channelAlreadyExists = URI("${CHANNEL_FOLDER}channel-already-exists")
+        private val invalidChannelType = URI("${CHANNEL_FOLDER}invalid-channel-type")
+        private val userNotInChannel = URI("${CHANNEL_FOLDER}user-not-in-channel")
+        private val userAlreadyInChannel = URI("${CHANNEL_FOLDER}user-already-in-channel")
+        private val channelNameAlreadyExists = URI("${CHANNEL_FOLDER}channel-name-already-exists")
+        private val userPermissionsDeniedType = URI("${CHANNEL_FOLDER}user-permissions-denied-type")
+        private val codeInvalidOrExpiredChannel = URI("${CHANNEL_FOLDER}code-invalid-or-expired-channel")
+        private val channelIsPrivate = URI("${CHANNEL_FOLDER}channel-is-private")
+        private val channelIsPublic = URI("${CHANNEL_FOLDER}channel-is-public")
+        private val privacyTypeInvalid = URI("${CHANNEL_FOLDER}privacy-type-invalid")
+        private val errorLeavingChannel = URI("${CHANNEL_FOLDER}error-leaving-channel")
 
         // Message
-        private val messageNotFound = URI("${BASE_URL}message-not-found")
-        private val userPrivacyTypeReadOnly = URI("${BASE_URL}user-privacy-type-read-only")
+        private val messageNotFound = URI("${MESSAGE_FOLDER}message-not-found")
+        private val userPrivacyTypeReadOnly = URI("${MESSAGE_FOLDER}user-privacy-type-read-only")
 
         fun internalServerError(
             instance: URI?
@@ -163,14 +166,6 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun channelNameNotFound(name: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = channelNotFound,
-            title = "Channel not found",
-            status = HttpStatus.NOT_FOUND.value(),
-            detail = "Channel $name not found",
-            instance = instance
-        ).toResponse()
-
         fun insecurePassword(instance: URI?): ResponseEntity<*> = Problem(
             typeUri = insecurePassword,
             title = "Insecure password",
@@ -251,8 +246,8 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun userNotPermissionsType(username: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = userNotPermissionsType,
+        fun userPermissionsDeniedType(username: String, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = userPermissionsDeniedType,
             title = "User not permissions type",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "User $username not permissions type",
@@ -267,8 +262,8 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun isPrivateChannel(channelId: Int, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = isPrivateChannel,
+        fun channelIsPrivate(channelId: Int, instance: URI?): ResponseEntity<*> = Problem(
+            typeUri = channelIsPrivate,
             title = "Is private channel",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Channel $channelId is private",
