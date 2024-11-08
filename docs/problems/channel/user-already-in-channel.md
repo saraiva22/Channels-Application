@@ -1,0 +1,1 @@
+Given user is already in the channel
