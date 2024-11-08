@@ -251,7 +251,7 @@ class JdbiChannelsRepository(
     override fun createPrivateInvite(codPrivate: String, expired: Boolean): Int {
         return handle.createUpdate(
             """
-                insert into dbo.Invitation_Channels(cod_hash,expired) values (:codPrivate,:expired)
+                insert into dbo.Invitation_Channels(cod_hash, expired) values (:codPrivate,:expired)
             """
         )
             .bind("codPrivate", codPrivate)

@@ -29,7 +29,7 @@ object Uris {
     object Channels {
         const val CREATE = "$PREFIX/channels/create"
         const val JOIN_PUBLIC_CHANNELS = "$PREFIX/channels/{id}/public"
-        const val JOIN_PRIVATE_CHANNELS = "$PREFIX/channels/{id}/private"
+        const val JOIN_PRIVATE_CHANNELS = "$PREFIX/channels/{id}/private/{code}"
         const val UPDATE = "$PREFIX/channels/{id}"
         const val GET_BY_ID = "$PREFIX/channels/{id}"
         const val GET_BY_NAME = "$PREFIX/channels"
@@ -48,7 +48,7 @@ object Uris {
 
         fun joinPublicChannel(id: Int): URI = UriTemplate(JOIN_PUBLIC_CHANNELS).expand(id)
 
-        fun joinPrivateChannel(id: Int): URI = UriTemplate(JOIN_PRIVATE_CHANNELS).expand(id)
+        fun joinPrivateChannel(id: Int, code: String): URI = UriTemplate(JOIN_PRIVATE_CHANNELS).expand(id, code)
 
         fun invitePrivateChannel(id: Int): URI = UriTemplate(CREATE_PRIVATE_INVITE).expand(id)
 

@@ -1,15 +1,16 @@
 package pt.isel.daw.channels.domain.channels
 
 import org.springframework.stereotype.Component
+import org.springframework.web.util.UriTemplate
+import pt.isel.daw.channels.http.Uris
 import java.util.*
 
 @Component
 class ChannelsDomain {
 
-    fun generateInvitation(): String {
-        val part1 = UUID.randomUUID().toString().take(5)
-        val part2 = UUID.randomUUID().toString().take(5)
-        return "$part1-$part2"
+    fun generateInvitation(id: Int): String {
+        val code = UUID.randomUUID().toString()
+        return UriTemplate(Uris.Channels.JOIN_PRIVATE_CHANNELS).expand(id, code).toString()
     }
 
     fun isUserMember(userId: Int, channel: Channel): Boolean =

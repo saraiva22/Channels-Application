@@ -118,7 +118,7 @@ class ChannelsService(
         channelId: Int,
         userId: Int,
         guestName: String,
-        privacy: Privacy
+        inviteType: Privacy
     ): InvitePrivateChannelResult {
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(channelId)
@@ -137,16 +137,16 @@ class ChannelsService(
 
             val isOwner = channelsDomain.isOwner(userId, channel)
             if (isOwner) {
-                createInvite(it, guestUser.id, channel.id, privacy)
+                createInvite(it, guestUser.id, channel.id, inviteType)
             } else {
                 if (channelsDomain.isUserMember(userId, channel)) {
-                    val typeInvite =
+                    val guestPermission =
                         it.channelsRepository.getTypeInvitePrivateChannel(userId, channel.id)
                             ?: return@run failure(InvitePrivateChannelError.PrivacyTypeNotFound)
-                    if (typeInvite == Privacy.READ_WRITE) {
-                        createInvite(it, guestUser.id, channel.id, privacy)
-                    } else if (typeInvite == Privacy.READ_ONLY && privacy == Privacy.READ_ONLY) {
-                        createInvite(it, guestUser.id, channel.id, privacy)
+                    if (guestPermission == Privacy.READ_WRITE) {
+                        createInvite(it, guestUser.id, channel.id, inviteType)
+                    } else if (guestPermission == Privacy.READ_ONLY && inviteType == Privacy.READ_ONLY) {
+                        createInvite(it, guestUser.id, channel.id, inviteType)
                     } else {
                         return@run failure(InvitePrivateChannelError.UserNotPermissionsType)
                     }
@@ -163,11 +163,12 @@ class ChannelsService(
         channelId: Int,
         privacy: Privacy
     ): Either.Right<String> {
-        val codHash = channelsDomain.generateInvitation()
-        val register = RegisterPrivateInviteModel(codHash)
+        val inviteLink = channelsDomain.generateInvitation(channelId)
+        val inviteCode = inviteLink.split("/").last()
+        val register = RegisterPrivateInviteModel(inviteCode)
         val inviteId = it.channelsRepository.createPrivateInvite(register.codHash, false)
         it.channelsRepository.sendInvitePrivateChannel(userId, channelId, inviteId, privacy.ordinal)
-        return success(register.codHash)
+        return success(inviteLink)
     }
 
 
