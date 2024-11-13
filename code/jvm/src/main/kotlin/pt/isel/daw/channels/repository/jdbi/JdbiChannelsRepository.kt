@@ -6,8 +6,7 @@ import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Sort
-import pt.isel.daw.channels.domain.channels.Type
-import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.domain.channels.Status
 import pt.isel.daw.channels.domain.user.UserInfo
 import pt.isel.daw.channels.http.model.channel.ChannelDbModel
 import pt.isel.daw.channels.repository.ChannelsRepository
@@ -69,7 +68,7 @@ class JdbiChannelsRepository(
                 where lower(channels.name) like lower(:name)
             """
 
-        val withSortQuery = builtSortQuery(sort, queryString)
+        val withSortQuery = buildSortQuery(sort, queryString)
 
         val searchChannel = "%$channelName%"
 
@@ -96,7 +95,7 @@ class JdbiChannelsRepository(
                 where users.id = :userId
             """
 
-        val withSortQuery = builtSortQuery(sort, queryString)
+        val withSortQuery = buildSortQuery(sort, queryString)
 
         val channelDbModelList =
             handle.createQuery(withSortQuery)
@@ -120,7 +119,7 @@ class JdbiChannelsRepository(
                 left join dbo.Users as users on channels.owner_id = users.id
             """
 
-        val withSortQuery = builtSortQuery(sort, queryString)
+        val withSortQuery = buildSortQuery(sort, queryString)
 
         val channelDbModelList =
             handle.createQuery(withSortQuery)
@@ -153,32 +152,9 @@ class JdbiChannelsRepository(
         return channelDbModel.copy(members = members).toChannel()
     }
 
-    override fun joinMemberInChannelPrivate(userId: Int, channelId: Int, codHas: String): Channel {
+    override fun joinMemberInChannelPrivate(userId: Int, channelId: Int, codHash: String): Channel {
         insertUserIntoChannel(userId, channelId)
-
-        val inviteId = handle.createQuery(
-            """
-                select invite_id
-                from dbo.invite_private_channels as ipc
-                join dbo.invitation_channels as ic on ipc.invite_id = ic.id
-                where ipc.user_id = :userId and ipc.private_ch = :channelId and ic.cod_hash = :codHash
-            """
-        )
-            .bind("userId", userId)
-            .bind("channelId", channelId)
-            .bind("codHash", codHas)
-            .mapTo<Int>()
-            .single()
-
-        handle.createUpdate(
-            """
-            update dbo.invitation_channels set expired = :updateExpired where id = :inviteId
-        """
-        )
-            .bind("inviteId", inviteId)
-            .bind("updateExpired", true)
-            .bind("userId", userId)
-            .execute()
+        updateInviteStatus(Status.ACCEPT, codHash)
 
         val channelDbModel = secureGetChannelById(channelId)
         val members = getChannelMembers(channelId)
@@ -202,7 +178,7 @@ class JdbiChannelsRepository(
                 where channels.type = 0
             """
 
-        val withSortQuery = builtSortQuery(sort, queryString)
+        val withSortQuery = buildSortQuery(sort, queryString)
 
         val channelDbModelList =
             handle.createQuery(withSortQuery)
@@ -248,82 +224,66 @@ class JdbiChannelsRepository(
         return channelDbModel.copy(members = members).toChannel()
     }
 
-    override fun createPrivateInvite(codPrivate: String, expired: Boolean): Int {
-        return handle.createUpdate(
-            """
-                insert into dbo.Invitation_Channels(cod_hash, expired) values (:codPrivate,:expired)
-            """
-        )
-            .bind("codPrivate", codPrivate)
-            .bind("expired", expired)
-            .executeAndReturnGeneratedKeys()
-            .mapTo<Int>()
-            .one()
-    }
-
-    override fun sendInvitePrivateChannel(userId: Int, channelId: Int, inviteId: Int, privacy: Int): Int {
-        return handle.createUpdate(
-            """
-                insert into dbo.Invite_Private_Channels(user_id, private_ch, invite_id, privacy) 
-                values (:userId, :channelId, :inviteId, :privacy)
-            """
-        )
-            .bind("userId", userId)
-            .bind("channelId", channelId)
-            .bind("inviteId", inviteId)
-            .bind("privacy", privacy)
-            .executeAndReturnGeneratedKeys()
-            .mapTo<Int>()
-            .one()
-    }
-
-    override fun getTypeInvitePrivateChannel(userId: Int, channelId: Int): Privacy? {
-        val privacyValue = handle.createQuery(
-            """
-                select privacy from dbo.Invite_Private_Channels where user_id = :userId and private_ch = :channelId
-            """
-        )
-            .bind("userId", userId)
-            .bind("channelId", channelId)
-            .mapTo<Int>()
-            .one()
-
-        return Privacy.fromInt(privacyValue)
-    }
-
-    override fun isPrivateChannelInviteCodeValid(
+    override fun createPrivateInvite(
+        codPrivate: String,
         userId: Int,
         channelId: Int,
-        inviteId: String,
-        expired: Boolean
-    ): Channel? {
-        val channelDbModel = handle.createQuery(
+        privacy: Int
+    ): Int {
+        return handle.createUpdate(
             """
-                select c.id, c.name, c.type,
-                u.id as owner_id, u.email as owner_email, 
-                u.username as owner_username, u.password_validation as owner_passwordValidation
-                from dbo.invite_private_channels as ipc
-                join dbo.invitation_channels as ic on ipc.invite_id = ic.id
-                join dbo.channels as c on c.id = ipc.private_ch
-                join dbo.users as u on u.id = c.owner_id
-                where ic.cod_hash = :inviteId and 
-                ipc.user_id = :userId and 
-                ipc.private_ch = :channelId and 
-                ic.expired = :expired;
+                insert into dbo.Invitation_Channels(cod_hash, privacy, status, user_id, private_ch) 
+                values (:code, :privacy, :status, :userId, :privateCh)
             """
         )
-            .bind("inviteId", inviteId)
+            .bind("code", codPrivate)
+            .bind("privacy", privacy)
+            .bind("status", Status.PENDING.ordinal)
+            .bind("userId", userId)
+            .bind("privateCh", channelId)
+            .execute()
+    }
+
+    override fun getMemberPermissions(userId: Int, channelId: Int): Privacy {
+        val privacyValue = handle.createQuery(
+            """
+                select privacy 
+                from dbo.Invitation_Channels 
+                where user_id = :userId and 
+                      private_ch = :channelId and
+                      status = :status
+            """
+        )
             .bind("userId", userId)
             .bind("channelId", channelId)
-            .bind("expired", expired)
-            .mapTo<ChannelDbModel>()
-            .singleOrNull()
+            .bind("status", Status.ACCEPT.ordinal)
+            .mapTo<Int>()
+            .one()
 
-        if (channelDbModel == null) return channelDbModel
+        return Privacy.fromDBInt(privacyValue)
+    }
 
-        val members = getChannelMembers(channelDbModel.id)
+    override fun isInviteCodeValid(userId: Int, channelId: Int, codHash: String): Boolean {
+        return handle.createQuery(
+            """
+                select count(*)
+                from dbo.invitation_channels as ic 
+                where ic.cod_hash = :codHash and 
+                      ic.user_id = :userId and 
+                      ic.private_ch = :channelId and
+                      ic.status = :status;
+            """
+        )
+            .bind("codHash", codHash)
+            .bind("userId", userId)
+            .bind("channelId", channelId)
+            .bind("status", Status.PENDING.ordinal)
+            .mapTo<Int>()
+            .single() == 1
+    }
 
-        return channelDbModel.copy(members = members).toChannel()
+    override fun channelInviteRejected(userId: Int, channelId: Int, codHash: String) {
+        updateInviteStatus(Status.REJECT, codHash)
     }
 
     private fun getChannelMembers(channelId: Int) =
@@ -354,10 +314,20 @@ class JdbiChannelsRepository(
             .mapTo<ChannelDbModel>()
             .single()
 
-    private fun builtSortQuery(sort: Sort?, queryString: String): String =
+    private fun buildSortQuery(sort: Sort?, queryString: String): String =
         if (sort != null && sort.value == "name") {
             "$queryString order by channels.name"
         } else {
             queryString
         }
+
+    private fun updateInviteStatus(status: Status, codHash: String) =
+        handle.createUpdate(
+            """
+               update dbo.Invitation_Channels set status = :status where cod_Hash = :codHash
+            """
+        )
+            .bind("status", status.ordinal)
+            .bind("codHash", codHash)
+            .execute()
 }

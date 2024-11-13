@@ -34,8 +34,7 @@ class MessagesController(
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Messages.create(id)
-        val message = messagesService.createMessage(id, authenticatedUser.user, input.text)
-        return when (message) {
+        return when (val message = messagesService.createMessage(id, authenticatedUser.user, input.text)) {
             is Success -> ResponseEntity.status(201)
                 .header(
                     "Location",

@@ -23,7 +23,7 @@ interface ChannelsRepository {
 
     fun joinChannel(userId: Int, channelId: Int): Channel
 
-    fun joinMemberInChannelPrivate(userId: Int, channelId: Int, codHas: String): Channel
+    fun joinMemberInChannelPrivate(userId: Int, channelId: Int, codHash: String): Channel
 
     fun getPublicChannels(sort: Sort?): List<Channel>
 
@@ -33,16 +33,11 @@ interface ChannelsRepository {
 
     fun leaveChannel(userId: Int, channelId: Int): Boolean
 
-    fun createPrivateInvite(codPrivate: String, expired: Boolean): Int
+    fun createPrivateInvite(codPrivate: String, userId: Int, channelId: Int, privacy: Int): Int
 
-    fun sendInvitePrivateChannel(userId: Int, channelId: Int, inviteId: Int, privacy: Int): Int
+    fun getMemberPermissions(userId: Int, channelId: Int): Privacy
 
-    fun getTypeInvitePrivateChannel(userId: Int, channelId: Int): Privacy?
+    fun isInviteCodeValid(userId: Int, channelId: Int, codHash: String): Boolean
 
-    fun isPrivateChannelInviteCodeValid(
-        userId: Int,
-        channelId: Int,
-        inviteId: String,
-        expired: Boolean
-    ): Channel?
+    fun channelInviteRejected(userId: Int, channelId: Int, codHash: String)
 }

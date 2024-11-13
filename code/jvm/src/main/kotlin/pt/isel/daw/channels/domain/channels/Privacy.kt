@@ -5,8 +5,8 @@ enum class Privacy(private val value: Int) {
 
 
     companion object {
-        fun fromInt(value: Int): Privacy? {
-            return entries.find { it.value == value }
+        fun fromDBInt(value: Int): Privacy {
+            return entries[value]
         }
     }
 }

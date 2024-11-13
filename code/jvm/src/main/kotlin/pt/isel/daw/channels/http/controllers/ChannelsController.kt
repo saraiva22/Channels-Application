@@ -207,11 +207,17 @@ class ChannelsController(
     fun joinPrivateChannel(
         @PathVariable id: Int,
         @PathVariable code: String,
+        @RequestBody status: JoinPrivateChannelInputModel,
         userAuthenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.joinPrivateChannel(id, code)
         return when (
-            val channel = channelsService.joinUsersInPrivateChannel(userAuthenticatedUser.user.id, id, code)
+            val channel = channelsService.joinUsersInPrivateChannel(
+                userAuthenticatedUser.user.id,
+                id,
+                code,
+                status.status
+            )
         ) {
             is Success -> ResponseEntity
                 .status(200)
@@ -231,12 +237,14 @@ class ChannelsController(
                     instance
                 )
 
-                JoinUserInChannelPrivateError.CodeInvalidOrExpired -> Problem.codeInvalidOrExpiredChannel(
+                JoinUserInChannelPrivateError.InvalidCode -> Problem.codeInvalidOrExpiredChannel(
                     code,
                     instance
                 )
 
                 JoinUserInChannelPrivateError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+
+                JoinUserInChannelPrivateError.InviteRejected -> ResponseEntity.status(200).build<Unit>()
             }
         }
     }

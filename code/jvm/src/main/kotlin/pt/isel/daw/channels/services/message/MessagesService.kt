@@ -1,8 +1,6 @@
 package pt.isel.daw.channels.services.message
 
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.channels.Privacy
@@ -30,7 +28,7 @@ class MessagesService(
                 return@run failure(CreateMessageError.UserNotMemberInChannel)
 
             val canCreateMessage = channelRep.isChannelPublic(channel) ||
-                    (channelRep.getTypeInvitePrivateChannel(user.id, channelId) == Privacy.READ_WRITE)
+                    (channelRep.getMemberPermissions(user.id, channelId) == Privacy.READ_WRITE)
 
             if (canCreateMessage) {
                 val now = clock.now()

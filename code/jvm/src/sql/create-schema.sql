@@ -45,18 +45,11 @@ create table dbo.Join_Channels
 
 create table dbo.Invitation_Channels
 (
-    id       int generated always as identity primary key,
-    cod_hash varchar(64) unique not null,
-    expired  boolean
-);
-
-create table dbo.Invite_Private_Channels
-(
-    user_id    int references dbo.Users (id),
-    private_ch serial references dbo.Channels (id),
-    invite_id  serial references dbo.Invitation_Channels (id),
-    privacy    int not null check (privacy in (0, 1)),
-    primary key (user_id, private_ch, invite_id)
+    cod_hash    varchar(64) primary key,
+    privacy     int not null check (privacy in (0, 1)),
+    status      int not null check (status in (0, 1, 2)),
+    user_id     int references dbo.Users (id),
+    private_ch  serial references dbo.Channels (id)
 );
 
 create table dbo.Messages
@@ -69,6 +62,7 @@ create table dbo.Messages
     primary key(id, channel_id, user_id)
 );
 
+/*
 create or replace function insert_invite_private_channels()
     returns trigger as
 $$
@@ -101,7 +95,7 @@ create trigger trg_insert_invite_private_channels
     on dbo.Channels
     for each row
 execute function insert_invite_private_channels();
-
+ */
 
 create or replace function insert_owner_into_join_channels()
     returns trigger as

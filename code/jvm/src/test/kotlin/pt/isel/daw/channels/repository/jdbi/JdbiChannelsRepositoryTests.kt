@@ -327,14 +327,14 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             assertTrue(inviteSent > 0)
 
             // when: getting the type of the invite
-            val inviteType = repo.getTypeInvitePrivateChannel(testUserInfo2.id, channelId)
+            val inviteType = repo.getMemberPermissions(testUserInfo2.id, channelId)
 
             // then: the invite type is correct
             assertNotNull(inviteType)
             assertEquals(inviteType, Privacy.READ_WRITE)
 
             // when: checking if the invite code is valid
-            val validInvite = repo.isPrivateChannelInviteCodeValid(testUserInfo2.id, channelId, code, false)
+            val validInvite = repo.isInviteCodeValid(testUserInfo2.id, channelId, code, false)
 
             // then: the invite is valid
             assertNotNull(validInvite)
@@ -365,14 +365,14 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             assertTrue(inviteSent > 0)
 
             // when: getting the type of the invite
-            val inviteType = repo.getTypeInvitePrivateChannel(testUserInfo2.id, channelId)
+            val inviteType = repo.getMemberPermissions(testUserInfo2.id, channelId)
 
             // then: the invite type is correct
             assertNotNull(inviteType)
             assertEquals(inviteType, Privacy.READ_ONLY)
 
             // when: checking if the invite code is valid
-            val validInvite = repo.isPrivateChannelInviteCodeValid(testUserInfo2.id, channelId, code, false)
+            val validInvite = repo.isInviteCodeValid(testUserInfo2.id, channelId, code, false)
 
             // then: the invite is valid
             assertNotNull(validInvite)
