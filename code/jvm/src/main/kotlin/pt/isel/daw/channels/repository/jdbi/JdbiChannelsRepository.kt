@@ -153,7 +153,6 @@ class JdbiChannelsRepository(
     }
 
     override fun joinMemberInChannelPrivate(userId: Int, channelId: Int, codHash: String): Channel {
-        insertUserIntoChannel(userId, channelId)
         updateInviteStatus(Status.ACCEPT, codHash)
 
         val channelDbModel = secureGetChannelById(channelId)
@@ -226,20 +225,22 @@ class JdbiChannelsRepository(
 
     override fun createPrivateInvite(
         codPrivate: String,
-        userId: Int,
-        channelId: Int,
-        privacy: Int
+        privacy: Int,
+        inviterId: Int,
+        guestId: Int,
+        channelId: Int
     ): Int {
         return handle.createUpdate(
             """
-                insert into dbo.Invitation_Channels(cod_hash, privacy, status, user_id, private_ch) 
-                values (:code, :privacy, :status, :userId, :privateCh)
+                insert into dbo.Invitation_Channels(cod_hash, privacy, status, inviter_id, guest_id, private_ch) 
+                values (:code, :privacy, :status, :inviterId, :guestId, :privateCh)
             """
         )
             .bind("code", codPrivate)
             .bind("privacy", privacy)
             .bind("status", Status.PENDING.ordinal)
-            .bind("userId", userId)
+            .bind("inviterId", inviterId)
+            .bind("guestId", guestId)
             .bind("privateCh", channelId)
             .execute()
     }
@@ -269,13 +270,13 @@ class JdbiChannelsRepository(
                 select count(*)
                 from dbo.invitation_channels as ic 
                 where ic.cod_hash = :codHash and 
-                      ic.user_id = :userId and 
+                      ic.guest_id = :guestId and 
                       ic.private_ch = :channelId and
                       ic.status = :status;
             """
         )
             .bind("codHash", codHash)
-            .bind("userId", userId)
+            .bind("guestId", userId)
             .bind("channelId", channelId)
             .bind("status", Status.PENDING.ordinal)
             .mapTo<Int>()

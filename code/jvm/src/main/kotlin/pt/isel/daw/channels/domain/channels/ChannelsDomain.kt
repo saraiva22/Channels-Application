@@ -18,6 +18,4 @@ class ChannelsDomain {
 
     fun isOwner(userId: Int, channel: Channel): Boolean =
         channel.owner.id == userId
-
-
 }

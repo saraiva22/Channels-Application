@@ -33,7 +33,7 @@ interface ChannelsRepository {
 
     fun leaveChannel(userId: Int, channelId: Int): Boolean
 
-    fun createPrivateInvite(codPrivate: String, userId: Int, channelId: Int, privacy: Int): Int
+    fun createPrivateInvite(codPrivate: String, privacy: Int, inviterId: Int, guestId: Int, channelId: Int): Int
 
     fun getMemberPermissions(userId: Int, channelId: Int): Privacy
 

@@ -89,7 +89,7 @@ class ChannelsService(
     }
 
     fun joinUsersInPrivateChannel(
-        userId: Int,
+        guestId: Int,
         channelId: Int,
         codInvite: String,
         status: Status
@@ -98,25 +98,26 @@ class ChannelsService(
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(JoinUserInChannelPrivateError.ChannelNotFound)
 
-            if (channelsDomain.isOwner(userId, channel)) {
-                if (channelsDomain.isUserMember(userId, channel)) {
+            if (channelsDomain.isOwner(guestId, channel)) {
+                if (channelsDomain.isUserMember(guestId, channel)) {
                     return@run failure(JoinUserInChannelPrivateError.UserAlreadyInChannel)
                 }
-                val joinChannel = it.channelsRepository.joinChannel(userId, channel.id)
+                val joinChannel = it.channelsRepository.joinChannel(guestId, channel.id)
                 return@run success(joinChannel)
             }
 
-            if (channelsDomain.isUserMember(userId, channel))
+            if (channelsDomain.isUserMember(guestId, channel))
                 return@run failure(JoinUserInChannelPrivateError.UserAlreadyInChannel)
 
-            if (!it.channelsRepository.isInviteCodeValid(userId, channelId, codInvite))
+            if (!it.channelsRepository.isInviteCodeValid(guestId, channelId, codInvite))
                 return@run failure(JoinUserInChannelPrivateError.InvalidCode)
 
             if (status == Status.ACCEPT) {
-                val joinChannel = it.channelsRepository.joinMemberInChannelPrivate(userId, channelId, codInvite)
+                println("in2")
+                val joinChannel = it.channelsRepository.joinMemberInChannelPrivate(guestId, channelId, codInvite)
                 return@run success(joinChannel)
             } else {
-                it.channelsRepository.channelInviteRejected(userId, channelId, codInvite)
+                it.channelsRepository.channelInviteRejected(guestId, channelId, codInvite)
                 return@run failure(JoinUserInChannelPrivateError.InviteRejected)
             }
         }
@@ -130,10 +131,17 @@ class ChannelsService(
             val channel = it.channelsRepository.getChannelById(inviteModel.channelId)
                 ?: return@run failure(InvitePrivateChannelError.ChannelNotFound)
 
+            if (!channelsDomain.isUserMember(inviteModel.inviterId, channel)) {
+                return@run failure(InvitePrivateChannelError.UserNotInChannel)
+            }
+
             val guestUser = it.usersRepository.getUserByUsername(inviteModel.guestName)
                 ?: return@run failure(InvitePrivateChannelError.GuestNotFound)
 
+            println(guestUser.id)
+            println(channelsDomain.isUserMember(guestUser.id, channel))
             if (channelsDomain.isUserMember(guestUser.id, channel)) {
+                println("in")
                 return@run failure(InvitePrivateChannelError.UserAlreadyInChannel)
             }
 
@@ -141,23 +149,10 @@ class ChannelsService(
                 return@run failure(InvitePrivateChannelError.ChannelIsPublic)
             }
 
-            val isOwner = channelsDomain.isOwner(inviteModel.userId, channel)
-            if (isOwner) {
-                success(createInvite(it, guestUser.id, channel.id, inviteModel.inviteType))
+            if (isUserAuthorizedToInvite(it, inviteModel.inviterId, channel, inviteModel.inviteType)) {
+                success(createInvite(it, inviteModel.inviterId, guestUser.id, channel.id, inviteModel.inviteType))
             } else {
-                if (channelsDomain.isUserMember(inviteModel.userId, channel)) {
-                    val guestPermission =
-                        it.channelsRepository.getMemberPermissions(inviteModel.userId, channel.id)
-                    if (guestPermission == Privacy.READ_WRITE) {
-                        success(createInvite(it, guestUser.id, channel.id, inviteModel.inviteType))
-                    } else if (guestPermission == Privacy.READ_ONLY && inviteModel.inviteType == Privacy.READ_ONLY) {
-                        success(createInvite(it, guestUser.id, channel.id, inviteModel.inviteType))
-                    } else {
-                        return@run failure(InvitePrivateChannelError.UserPermissionsDeniedType)
-                    }
-                } else {
-                    return@run failure(InvitePrivateChannelError.UserNotInChannel)
-                }
+                failure(InvitePrivateChannelError.UserPermissionsDeniedType)
             }
         }
     }
@@ -203,10 +198,32 @@ class ChannelsService(
         }
     }
 
-    private fun createInvite(it: Transaction, userId: Int, channelId: Int, privacy: Privacy): String {
+    private fun isUserAuthorizedToInvite(
+        transaction: Transaction,
+        inviterId: Int,
+        channel: Channel,
+        inviteType: Privacy
+    ): Boolean {
+        return if (channelsDomain.isOwner(inviterId, channel)) {
+            true
+        } else {
+            val guestPermission = transaction.channelsRepository.getMemberPermissions(inviterId, channel.id)
+            guestPermission ==
+                    Privacy.READ_WRITE ||
+                    (guestPermission == Privacy.READ_ONLY && inviteType == Privacy.READ_ONLY)
+        }
+    }
+
+    private fun createInvite(
+        transaction : Transaction,
+        inviterId: Int,
+        guestId: Int,
+        channelId: Int,
+        privacy: Privacy
+    ): String {
         val inviteLink = channelsDomain.generateInvitation(channelId)
         val inviteCode = inviteLink.split("/").last()
-        it.channelsRepository.createPrivateInvite(inviteCode, userId, channelId, privacy.ordinal)
+        transaction.channelsRepository.createPrivateInvite(inviteCode, privacy.ordinal, inviterId, guestId, channelId)
         return inviteLink
     }
 }
