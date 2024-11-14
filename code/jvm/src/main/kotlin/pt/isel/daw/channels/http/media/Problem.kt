@@ -3,20 +3,18 @@ package pt.isel.daw.channels.http.media
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE
-import pt.isel.daw.channels.domain.token.Token
 import java.net.URI
-import kotlin.reflect.jvm.internal.impl.renderer.DescriptorRenderer.ValueParametersHandler.DEFAULT
 
 /**
  *  Represents a problem in the API
- *  @param typeUri: URI of the problem
+ *  @param type: URI of the problem
  *  @param title: Title of the problem
  *  @param status: Status of the problem
  *  @param detail: Detail of the problem
  *  @param instance: Instance of the problem
  */
 class Problem(
-    val typeUri: URI,
+    val type: URI,
     val title: String,
     val status: Int,
     val detail: String,
@@ -83,7 +81,7 @@ class Problem(
         fun internalServerError(
             instance: URI?
         ): ResponseEntity<*> = Problem(
-            typeUri = internalServerError,
+            type = internalServerError,
             title = "Internal server error",
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             detail = "An internal server error occurred",
@@ -92,7 +90,7 @@ class Problem(
 
 
         fun invalidRequestContent(): Problem = Problem(
-            typeUri = invalidRequestContent,
+            type = invalidRequestContent,
             title = "Invalid request content",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "The request content is invalid",
@@ -101,7 +99,7 @@ class Problem(
 
 
         fun usernameAlreadyExists(username: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = usernameAlreadyExists,
+            type = usernameAlreadyExists,
             title = "UserName already exists",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Give username $username already exists",
@@ -109,7 +107,7 @@ class Problem(
         ).toResponse()
 
         fun emailAlreadyExists(email: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = emailAlreadyExists,
+            type = emailAlreadyExists,
             title = "Email already exists",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Give emails $email already exists",
@@ -118,7 +116,7 @@ class Problem(
 
 
         fun userNotFound(id: Int, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = userNotFound,
+            type = userNotFound,
             title = "User not found",
             status = HttpStatus.NOT_FOUND.value(),
             detail = "User with given id: $id not found",
@@ -126,7 +124,7 @@ class Problem(
         ).toResponse()
 
         fun usernameNotFound(username: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = usernameNotFound,
+            type = usernameNotFound,
             title = "Username not found",
             status = HttpStatus.NOT_FOUND.value(),
             detail = "Username $username not found",
@@ -135,7 +133,7 @@ class Problem(
 
 
         fun invalidEmail(email: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = invalidEmail,
+            type = invalidEmail,
             title = "Invalid email",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Email is invalid",
@@ -143,7 +141,7 @@ class Problem(
         ).toResponse()
 
         fun channelAlreadyExists(instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = channelAlreadyExists,
+            type = channelAlreadyExists,
             title = "Channel already exists",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Channel already exists",
@@ -151,7 +149,7 @@ class Problem(
         ).toResponse()
 
         fun invalidChannelType(instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = invalidChannelType,
+            type = invalidChannelType,
             title = "Invalid channel type",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Invalid channel type",
@@ -159,7 +157,7 @@ class Problem(
         ).toResponse()
 
         fun channelNotFound(id: Int, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = channelNotFound,
+            type = channelNotFound,
             title = "Channel not found",
             status = HttpStatus.NOT_FOUND.value(),
             detail = "Channel $id not found",
@@ -167,7 +165,7 @@ class Problem(
         ).toResponse()
 
         fun insecurePassword(instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = insecurePassword,
+            type = insecurePassword,
             title = "Insecure password",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Password is insecure",
@@ -175,7 +173,7 @@ class Problem(
         ).toResponse()
 
         fun invalidToken(instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = invalidToken,
+            type = invalidToken,
             title = "Invalid token",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Invalid token",
@@ -183,7 +181,7 @@ class Problem(
         ).toResponse()
 
         fun tokenNotRevoked(instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = tokenNotRevoked,
+            type = tokenNotRevoked,
             title = "Token not revoked",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Token not revoked",
@@ -191,7 +189,7 @@ class Problem(
         ).toResponse()
 
         fun userOrPasswordAreInvalid(instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = userOrPasswordAreInvalid,
+            type = userOrPasswordAreInvalid,
             title = "User or password are invalid",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "User or password are invalid",
@@ -199,7 +197,7 @@ class Problem(
         ).toResponse()
 
         fun unauthorized(instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = unauthorized,
+            type = unauthorized,
             title = "Unauthorized",
             status = HttpStatus.UNAUTHORIZED.value(),
             detail = "The request has not been applied because it lacks valid authentication credentials for the target resource.",
@@ -207,7 +205,7 @@ class Problem(
         ).toResponse()
 
         fun userNotInChannel(username: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = userNotInChannel,
+            type = userNotInChannel,
             title = "User not in channel",
             status = HttpStatus.NOT_FOUND.value(),
             detail = "User $username not in channel",
@@ -215,7 +213,7 @@ class Problem(
         ).toResponse()
 
         fun channelNameAlreadyExists(name: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = channelNameAlreadyExists,
+            type = channelNameAlreadyExists,
             title = "Channel name already exists",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Channel name $name already exists",
@@ -223,7 +221,7 @@ class Problem(
         ).toResponse()
 
         fun badRequest(instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = badRequest,
+            type = badRequest,
             title = "Bad request",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "The request could not be understood by the server due to malformed syntax",
@@ -231,7 +229,7 @@ class Problem(
         ).toResponse()
 
         fun userAlreadyInChannel(username: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = userAlreadyInChannel,
+            type = userAlreadyInChannel,
             title = "User already in channel",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "User $username already in channel",
@@ -239,7 +237,7 @@ class Problem(
         ).toResponse()
 
         fun invalidInviteRegister(instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = invalidInviteCode,
+            type = invalidInviteCode,
             title = "Invitation code is invalid",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Invitation code is invalid, please provide a valid invitation code",
@@ -247,7 +245,7 @@ class Problem(
         ).toResponse()
 
         fun userPermissionsDeniedType(username: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = userPermissionsDeniedType,
+            type = userPermissionsDeniedType,
             title = "User not permissions type",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "User $username not permissions type",
@@ -255,7 +253,7 @@ class Problem(
         ).toResponse()
 
         fun codeInvalidOrExpiredChannel(code: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = codeInvalidOrExpiredChannel,
+            type = codeInvalidOrExpiredChannel,
             title = "Code invalid channel",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Code $code is invalid or expired",
@@ -263,7 +261,7 @@ class Problem(
         ).toResponse()
 
         fun channelIsPrivate(channelId: Int, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = channelIsPrivate,
+            type = channelIsPrivate,
             title = "Is private channel",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Channel $channelId is private",
@@ -271,7 +269,7 @@ class Problem(
         ).toResponse()
 
         fun channelIsPublic(channelId: Int, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = channelIsPublic,
+            type = channelIsPublic,
             title = "Channel is public",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Channel $channelId is public",
@@ -279,7 +277,7 @@ class Problem(
         ).toResponse()
 
         fun privacyTypeInvalid(privacy: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = privacyTypeInvalid,
+            type = privacyTypeInvalid,
             title = "Privacy type invalid",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Privacy type $privacy invalid",
@@ -287,7 +285,7 @@ class Problem(
         ).toResponse()
 
         fun userPrivacyTypeReadOnly(username: String, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = userPrivacyTypeReadOnly,
+            type = userPrivacyTypeReadOnly,
             title = "User privacy type read only",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "User $username privacy type read only",
@@ -295,7 +293,7 @@ class Problem(
         ).toResponse()
 
         fun errorLeavingChannel(channelId: Int, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = errorLeavingChannel,
+            type = errorLeavingChannel,
             title = "Error leaving channel",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Error leaving channel $channelId",
@@ -303,7 +301,7 @@ class Problem(
         ).toResponse()
 
         fun messageNotFound(messageId: Int, instance: URI?): ResponseEntity<*> = Problem(
-            typeUri = messageNotFound,
+            type = messageNotFound,
             title = "Message not found",
             status = HttpStatus.NOT_FOUND.value(),
             detail = "Message with id $messageId not found",

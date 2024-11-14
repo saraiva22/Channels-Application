@@ -15,7 +15,8 @@ object Uris {
         const val LOGOUT = "$PREFIX/logout"
         const val GET_BY_ID = "$PREFIX/users/{id}"
         const val INVITE = "$PREFIX/users/invite"
-        const val HOME = "$PREFIX/me"
+        const val HOME = "$PREFIX/home"
+        const val NOTIFICATIONS = "$PREFIX/users/notifications"
 
         fun byId(id: Int): URI = UriTemplate(GET_BY_ID).expand(id)
 
@@ -30,7 +31,7 @@ object Uris {
         const val CREATE = "$PREFIX/channels/create"
         const val JOIN_PUBLIC_CHANNELS = "$PREFIX/channels/{id}/public"
         const val JOIN_PRIVATE_CHANNELS = "$PREFIX/channels/{id}/private/{code}"
-        const val UPDATE = "$PREFIX/channels/{id}"
+        const val UPDATE = "$PREFIX/channels/{id}/name"
         const val GET_BY_ID = "$PREFIX/channels/{id}"
         const val GET_BY_NAME = "$PREFIX/channels"
         const val GET_USER_OWNED_CHANNELS = "$PREFIX/channels/owner"
@@ -38,6 +39,7 @@ object Uris {
         const val GET_PUBLIC_CHANNELS = "$PREFIX/channels/public"
         const val CREATE_PRIVATE_INVITE = "$PREFIX/channels/{id}/private-invite"
         const val LEAVE_CHANNEL = "$PREFIX/channels/{id}/leave"
+        const val CHANNEL_INVITE = "$PREFIX/channels/invite"
 
 
         fun byId(id: Int): URI = UriTemplate(GET_BY_ID).expand(id)
@@ -52,18 +54,20 @@ object Uris {
 
         fun invitePrivateChannel(id: Int): URI = UriTemplate(CREATE_PRIVATE_INVITE).expand(id)
 
+
         fun leaveChannel(id: Int): URI = UriTemplate(LEAVE_CHANNEL).expand(id)
     }
 
     object Messages {
         const val CREATE = "$PREFIX/channels/{id}/messages"
-        const val GET_BY_CHANNEL = "$PREFIX/channels/{id}/messages"
+        const val GET_MESSAGES = "$PREFIX/channels/{id}/messages"
         const val DELETE = "$PREFIX/channels/{channelId}/messages/{id}"
         const val GET_BY_ID = "$PREFIX/channels/{channelId}/messages/{id}"
 
+
         fun register(): URI = URI(CREATE)
 
-        fun byChannel(id: Int): URI = UriTemplate(GET_BY_CHANNEL).expand(id)
+        fun byChannel(id: Int): URI = UriTemplate(GET_MESSAGES).expand(id)
 
         fun byId(channelId: Int, id: Int): URI = UriTemplate(GET_BY_ID).expand(channelId, id)
 

@@ -1,0 +1,190 @@
+### Variables 
+@apiurl = http://localhost:8080/api
+@tokenUserTest= MFOQKi1vZRbdWsuZvwoWZVuUh6PV8i3d5A97z36d3Ig=
+@tokenUserAdmin = HtgvnANDMvaU-CfnKZ-hyNz1G895AZEyifgYVnSt2b8=
+
+
+### USER 
+
+### Create Token Test
+POST {{apiurl}}/users/token HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "test",
+    "password": "12345"
+}
+
+
+### Create Token Admin
+POST {{apiurl}}/users/token HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "admin"
+}
+
+
+### Listen User
+GET {{apiurl}}/users/listen HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+
+### Create User Francisco
+@inviteCode = 
+POST {{apiurl}}/users  HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "Francisco",
+    "email":"email",
+    "password": "12345",
+    "inviteCode": {{inviteCode}}
+}
+
+
+### User Details
+@id = 1
+@inviteCode = 
+GET {{apiurl}}/users/{{id}}  HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+{
+    "username": "Francisco",
+    "email":"email",
+    "password": "12345",
+    "inviteCode": {{inviteCode}}
+}
+
+### HOME Test
+GET {{apiurl}}/me HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+
+### Invite User
+POST {{apiurl}}/users/invite  HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+
+### Logout User Test
+POST {{apiurl}}/logout  HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+### Logout User Admin
+POST {{apiurl}}/logout  HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserAdmin}}
+
+
+
+
+### Channels
+
+### Create Channel 
+POST {{apiurl}}/channels/create HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+{
+    "name":"Channel DAW",
+    "type":0
+}
+
+### Search channels (Sort Name) 
+@sort=name
+GET {{apiurl}}/channels?sort={{sort}} HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+
+### Channel by Id
+
+GET {{apiurl}}/channels/7 HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+
+### Search channels by name
+@name = Channel
+@sort = name
+GET {{apiurl}}/channels?name={{name}}&sort={{sort}} HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+
+### Channels owned by user 
+@id = 1
+GET {{apiurl}}/channels/user/{{id}} HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+
+### Channels user is member 
+@sort = name
+GET {{apiurl}}/channels/member={{name}}?sort={{sort}} HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+
+### Update Name Channel
+@id = 1
+@name = "Channel ISEL"
+PUT {{apiurl}}/channels/{{id}}/name HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+{
+    "name": {{name}}
+}
+
+
+### Join Public Channel 
+@id = 7
+POST {{apiurl}}/channels/7/public HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserAdmin}}
+
+
+### Leave Channel
+@id = 1
+POST {{apiurl}}/channels/{{id}}/leave HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+
+
+### Message
+
+### Create/Send Message
+@channelId = 4
+POST {{apiurl}}/channels/7/messages HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+{
+    "text":"DAW"
+}
+
+
+### View Messages
+@id = 1
+GET {{apiurl}}/channels/{{id}}/messages HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+
+###  Delete Message
+@channelId = 
+@messageId= 
+DELETE  {{apiurl}}/channels/{{channelId}}/messages/{{messageId}} HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserTest}}
+
+
+

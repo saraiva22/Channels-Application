@@ -1,6 +1,5 @@
 package pt.isel.daw.channels.http.controllers
 
-import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -57,7 +56,7 @@ class MessagesController(
         }
     }
 
-    @GetMapping(Uris.Messages.GET_BY_CHANNEL)
+    @GetMapping(Uris.Messages.GET_MESSAGES)
     fun getMessagesByChannel(
         @PathVariable id: Int,
         authenticatedUser: AuthenticatedUser
@@ -108,4 +107,16 @@ class MessagesController(
             }
         }
     }
+
+    /*
+    @GetMapping(Uris.Messages.LISTEN)
+    fun listenMessage(
+        @PathVariable id: Int,
+        authenticatedUser: AuthenticatedUser
+    ): SseEmitter {
+        val sseEmitter = SseEmitter(TimeUnit.HOURS.toMillis(1))
+
+
+    }
+     */
 }

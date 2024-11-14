@@ -7,23 +7,11 @@ values ('alice', 'alice@gmail.com', '$2a$10$rfB5mueMNJFZlFA1RTZbNOUy48WJn27gK8JI
        ('random','random1@gmail.com','$2a$10$f8fEfZ7iPA3A./v4CmaBWOj08Du591h.cyLtWDlvkYQp6aCq.LkV2');
 
 
-insert into dbo.channels(name, owner_id)
-values ('Channel 1', 1),
-       ('Channel 2', 2),
-       ('Channel 3', 3);
+insert into dbo.channels(name, owner_id,type)
+values ('Channel 1', 1,0),
+       ('Channel 2', 2,0),
+       ('Channel 3', 3,0);
 
-insert into dbo.public_channels(channel_id)
-values (1),
-       (2),
-       (3);
 
-insert into dbo.join_channels(user_id, ch_id)
-values (2, 3);
-
-insert into dbo.messages(channel_id, user_id, text, create_at)
-values (3,4,'HELLO WORD!',1729106384);
-
-insert into dbo.invitation_register(user_id,cod_hash,expired)
-values (4,'0503-c5da',false);
 
 

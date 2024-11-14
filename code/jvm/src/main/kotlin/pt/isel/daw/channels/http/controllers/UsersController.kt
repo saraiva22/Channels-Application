@@ -22,6 +22,9 @@ import pt.isel.daw.channels.utils.Success
 
 @RestController
 class UsersController(private val userService: UsersService) {
+
+
+
     @PostMapping(Uris.Users.CREATE)
     fun create(
         @Validated @RequestBody input: UserCreateInputModel
@@ -62,11 +65,13 @@ class UsersController(private val userService: UsersService) {
         }
     }
 
+
+
     @PostMapping(Uris.Users.LOGOUT)
     fun logout(
         user: AuthenticatedUser,
     ) {
-        userService.revokeToken(user.token)
+        userService.revokeToken(user.user.id,user.token)
     }
 
     @GetMapping(Uris.Users.GET_BY_ID)

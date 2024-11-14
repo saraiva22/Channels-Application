@@ -1,7 +1,7 @@
 package pt.isel.daw.channels.services.message
 
+import jakarta.inject.Named
 import kotlinx.datetime.Clock
-import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.messages.Message
@@ -12,11 +12,12 @@ import pt.isel.daw.channels.utils.Either
 import pt.isel.daw.channels.utils.failure
 import pt.isel.daw.channels.utils.success
 
-@Component
+@Named
 class MessagesService(
     private val transactionManager: TransactionManager,
     private val channelsDomain: ChannelsDomain,
     private val messagesDomain: MessageDomain,
+    private val chatService: ChatService,
     private val clock: Clock,
 ) {
     fun createMessage(channelId: Int, user: User, text: String): CreateMessageResult {
@@ -33,6 +34,12 @@ class MessagesService(
             if (canCreateMessage) {
                 val now = clock.now()
                 val messageId = it.messagesRepository.createMessage(channelId, user.id, text, now)
+                chatService.sendMessage(
+                    messageId,
+                    channelId,
+                    user.username,
+                    text,
+                    channel.members.map { userId -> userId.id })
                 success(messageId)
             } else {
                 failure(CreateMessageError.PrivacyIsNotReadWrite)

@@ -125,6 +125,8 @@ class ChannelsController(
             .body(ChannelsListOutputModel(res))
     }
 
+
+
     @PutMapping(Uris.Channels.UPDATE)
     fun updateNameChannel(
         @PathVariable id: Int,
@@ -302,6 +304,8 @@ class ChannelsController(
             }
         }
     }
+
+
 
     @PostMapping(Uris.Channels.LEAVE_CHANNEL)
     fun leaveChannel(

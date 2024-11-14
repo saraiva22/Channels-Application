@@ -1,5 +1,6 @@
 package pt.isel.daw.channels.services.channel
 
+import jakarta.inject.Named
 import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
@@ -13,7 +14,7 @@ import pt.isel.daw.channels.repository.TransactionManager
 import pt.isel.daw.channels.utils.failure
 import pt.isel.daw.channels.utils.success
 
-@Component
+@Named
 class ChannelsService(
     private val transactionManager: TransactionManager,
     private val channelsDomain: ChannelsDomain

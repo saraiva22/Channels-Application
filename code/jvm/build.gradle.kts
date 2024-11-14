@@ -30,6 +30,9 @@ dependencies {
 	// for Spring validation
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 
+	// To get the DI annotation
+	implementation("jakarta.inject:jakarta.inject-api:2.0.1")
+
 	// for JDBI
 	implementation("org.jdbi:jdbi3-core:3.37.1")
 	implementation("org.jdbi:jdbi3-kotlin:3.37.1")

@@ -1,22 +1,28 @@
 package pt.isel.daw.channels.services.user
 
+import jakarta.inject.Named
 import kotlinx.datetime.Clock
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import pt.isel.daw.channels.domain.token.Token
 import pt.isel.daw.channels.http.model.user.RegisterModel
 import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.domain.user.UsersDomain
+import pt.isel.daw.channels.http.util.SseEmitterBasedEventEmitter
 import pt.isel.daw.channels.repository.TransactionManager
+import pt.isel.daw.channels.services.message.ChatService
 import pt.isel.daw.channels.utils.Either
 import pt.isel.daw.channels.utils.failure
 import pt.isel.daw.channels.utils.success
+import java.util.concurrent.TimeUnit
 
 
-@Component
+@Named
 class UsersService(
     private val transactionManager: TransactionManager,
     private val usersDomain: UsersDomain,
+    private val chatService: ChatService,
     private val clock: Clock
 ) {
     fun createUser(
@@ -119,10 +125,11 @@ class UsersService(
     }
 
 
-    fun revokeToken(token: String): Boolean {
+    fun revokeToken(userId: Int, token: String): Boolean {
         val tokenValidationInfo = usersDomain.createTokenValidationInformation(token)
         return transactionManager.run {
             it.usersRepository.removeTokenByValidationInfo(tokenValidationInfo)
+            chatService.disconnectListener(userId, token)
             logger.info("Token Revoked")
             true
         }
