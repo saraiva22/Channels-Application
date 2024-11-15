@@ -5,6 +5,10 @@ import org.springframework.web.util.UriTemplate
 import pt.isel.daw.channels.http.Uris
 import java.util.*
 
+
+/**
+ * Domain class for Channels
+ */
 @Component
 class ChannelsDomain {
 

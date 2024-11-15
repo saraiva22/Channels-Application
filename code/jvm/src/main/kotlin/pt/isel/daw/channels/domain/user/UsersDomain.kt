@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.token.Token
 import pt.isel.daw.channels.domain.token.TokenEncoder
 import pt.isel.daw.channels.domain.token.TokenValidationInfo
+import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.*
 
@@ -16,6 +17,8 @@ class UsersDomain(
     private val tokenEncoder: TokenEncoder,
     private val config: UsersDomainConfig,
 ) {
+
+
     fun generateTokenValue(): String =
         ByteArray(config.tokenSizeInBytes).let { byteArray ->
             SecureRandom.getInstanceStrong().nextBytes(byteArray)
@@ -61,14 +64,42 @@ class UsersDomain(
     fun createTokenValidationInformation(token: String): TokenValidationInfo =
         tokenEncoder.createValidationInformation(token)
 
-    // TODO it could be better
-    fun isSafePassword(password: String) = password.length > 4
+
+    /**
+     * Checks if the password is safe.
+     * A safe password must have at least one lowercase letter, one uppercase letter, one digit, one special character
+     * and must have a length between [MIN_PASSWORD_SIZE] and [MAX_PASSWORD_SIZE].
+     */
+    fun isSafePassword(password: String): Boolean {
+        val regex =
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\$@\$!%*?_&#])[A-Za-z\\d\$@\$!%*?_&#]{$MIN_PASSWORD_SIZE,$MAX_PASSWORD_SIZE}\$"
+        return password.matches(regex.toRegex())
+    }
 
     val maxNumberOfTokensPerUser = config.maxTokensPerUser
 
+    fun isValidInvite(invite: String): Boolean {
+        val hashedInvite = hashInvite(invite)
+        return checkInvite(invite, hashedInvite)
+    }
+
+    fun hashInvite(invite: String): String {
+        val md = MessageDigest.getInstance("SHA-256")
+        val hashedBytes = md.digest(invite.toByteArray())
+        return hashedBytes.joinToString("") { "%02x".format(it) }
+    }
+
+
     fun generateInvitation(): String {
-        val part1 = UUID.randomUUID().toString().take(4)
-        val part2 = UUID.randomUUID().toString().take(4)
+        val part1 = UUID.randomUUID().toString().take(5)
+        val part2 = UUID.randomUUID().toString().take(5)
         return "$part1-$part2"
+    }
+
+    private fun checkInvite(invite: String, hash: String) = hashInvite(invite) == hash
+
+    companion object {
+        private const val MIN_PASSWORD_SIZE = 6
+        private const val MAX_PASSWORD_SIZE = 32
     }
 }

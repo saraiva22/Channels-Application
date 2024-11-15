@@ -3,19 +3,15 @@ package pt.isel.daw.channels.services.user
 import jakarta.inject.Named
 import kotlinx.datetime.Clock
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import pt.isel.daw.channels.domain.token.Token
 import pt.isel.daw.channels.http.model.user.RegisterModel
 import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.domain.user.UsersDomain
-import pt.isel.daw.channels.http.util.SseEmitterBasedEventEmitter
 import pt.isel.daw.channels.repository.TransactionManager
 import pt.isel.daw.channels.services.message.ChatService
 import pt.isel.daw.channels.utils.Either
 import pt.isel.daw.channels.utils.failure
 import pt.isel.daw.channels.utils.success
-import java.util.concurrent.TimeUnit
 
 
 @Named
@@ -42,10 +38,12 @@ class UsersService(
                 val id = usersRepository.storeUser(username, email, passwordValidationInfo)
                 return@run success(id)
             }
-            if (inviteCode == null) {
+            if (inviteCode == null || !usersDomain.isValidInvite(inviteCode)) {
                 return@run failure(UserCreationError.InvalidInviteCode)
             }
-            val codeValidation = usersRepository.codeValidation(inviteCode)
+
+            val codHas = usersDomain.hashInvite(inviteCode)
+            val codeValidation = usersRepository.codeValidation(codHas)
 
             when {
                 usersRepository.isUserStoredByUsername(username) ->
@@ -59,7 +57,7 @@ class UsersService(
             }
 
             val id = usersRepository.storeUser(username, email, passwordValidationInfo)
-            usersRepository.invalidateCode(inviteCode)
+            usersRepository.invalidateCode(codHas)
             success(id)
         }
     }
@@ -136,11 +134,12 @@ class UsersService(
     }
 
     fun createRegisterInvite(userId: Int): String {
-        val codHash = usersDomain.generateInvitation()
+        val inviteCod = usersDomain.generateInvitation()
+        val codHash = usersDomain.hashInvite(inviteCod)
         val register = RegisterModel(userId, codHash, false)
         return transactionManager.run {
             it.usersRepository.createRegisterInvite(register)
-            codHash
+            inviteCod
         }
     }
 

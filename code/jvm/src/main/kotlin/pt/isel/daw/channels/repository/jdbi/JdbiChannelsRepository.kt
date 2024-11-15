@@ -261,7 +261,7 @@ class JdbiChannelsRepository(
             .mapTo<Int>()
             .one()
 
-        return Privacy.fromDBInt(privacyValue)
+        return Privacy.fromInt(privacyValue)
     }
 
     override fun isInviteCodeValid(userId: Int, channelId: Int, codHash: String): Boolean {

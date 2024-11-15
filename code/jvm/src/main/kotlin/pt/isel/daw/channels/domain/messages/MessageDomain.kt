@@ -2,6 +2,9 @@ package pt.isel.daw.channels.domain.messages
 
 import org.springframework.stereotype.Component
 
+/**
+ * Represents a Message Domain
+ */
 @Component
 class MessageDomain {
 

@@ -9,5 +9,5 @@ import java.sql.SQLException
 class TypeMapper: ColumnMapper<Type> {
     @Throws(SQLException::class)
     override fun map(rs: ResultSet, columnNumber: Int, ctx: StatementContext): Type? =
-        Type.fromDBInt(rs.getInt(columnNumber))
+        Type.fromInt(rs.getInt(columnNumber))
 }

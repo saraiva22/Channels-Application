@@ -1,11 +1,16 @@
 package pt.isel.daw.channels.domain.channels
 
-enum class Privacy(private val value: Int) {
-    READ_ONLY(0), READ_WRITE(1);
 
+/**
+ * Enum class for Privacy
+ * READ_ONLY(0) - Represents a read only channel
+ * READ_WRITE(1) - Represents a read write channel
+ */
+enum class Privacy {
+    READ_ONLY, READ_WRITE;
 
     companion object {
-        fun fromDBInt(value: Int): Privacy {
+        fun fromInt(value: Int): Privacy {
             return entries[value]
         }
     }

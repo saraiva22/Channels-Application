@@ -18,7 +18,7 @@ data class ChannelDbModel (
                 id,
                 name,
                 owner,
-                Type.fromDBInt(type),
+                Type.fromInt(type),
                 members
             )
 }

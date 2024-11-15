@@ -53,9 +53,8 @@ class ChatService : NeedsShutdown {
         }
 
 
-    fun disconnectListener(userId: Int, token: String) = lock.withLock {
-        removeListener(userId, token)
-    }
+    fun disconnectListener(userId: Int, token: String) = removeListener(userId, token)
+
 
     private fun removeListener(userId: Int, token: String) = lock.withLock {
         logger.info("removing listener")

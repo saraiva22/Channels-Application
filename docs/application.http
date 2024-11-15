@@ -1,6 +1,6 @@
 ### Variables 
 @apiurl = http://localhost:8080/api
-@tokenUserTest= MFOQKi1vZRbdWsuZvwoWZVuUh6PV8i3d5A97z36d3Ig=
+@tokenUserTest= 93Bz7sv6L7Owdm7lVCHWH3hYEi9NtyID8UrkrxbyPM4=
 @tokenUserAdmin = HtgvnANDMvaU-CfnKZ-hyNz1G895AZEyifgYVnSt2b8=
 
 
@@ -33,15 +33,15 @@ Authorization: Bearer {{tokenUserTest}}
 
 
 ### Create User Francisco
-@inviteCode = 
+@inviteCodeUser = "072f-8ba2"
 POST {{apiurl}}/users  HTTP/1.1
 Content-Type: application/json
 
 {
-    "username": "Francisco",
-    "email":"email",
-    "password": "12345",
-    "inviteCode": {{inviteCode}}
+    "username": "Rita199",
+    "email":"rita99@gmail.com",
+    "password": "Rita_99",
+    "inviteCode": {{inviteCodeUser}}
 }
 
 
@@ -97,10 +97,12 @@ Authorization: Bearer {{tokenUserTest}}
 }
 
 ### Search channels (Sort Name) 
-@sort=name
-GET {{apiurl}}/channels?sort={{sort}} HTTP/1.1
+@Sort="name"
+GET {{apiurl}}/channels?sort={{Sort}}HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{tokenUserTest}}
+
+
 
 
 ### Channel by Id

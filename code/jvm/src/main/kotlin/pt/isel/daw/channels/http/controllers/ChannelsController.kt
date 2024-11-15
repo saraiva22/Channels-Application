@@ -19,10 +19,17 @@ import pt.isel.daw.channels.services.channel.*
 import pt.isel.daw.channels.utils.Failure
 import pt.isel.daw.channels.utils.Success
 
+
 @RestController
 class ChannelsController(
     private val channelsService: ChannelsService
 ) {
+
+    companion object {
+        private const val DEFAULT_LIMIT = 10
+        private const val DEFAULT_OFFSET = 0
+    }
+
     @PostMapping(Uris.Channels.CREATE)
     fun createChannel(
         @RequestBody input: ChannelCreateInputModel,
@@ -49,8 +56,12 @@ class ChannelsController(
     @GetMapping(Uris.Channels.GET_PUBLIC_CHANNELS)
     fun getPublicChannels(
         @RequestParam sort: String?,
+        @RequestParam(required = false) limit: Int?,
+        @RequestParam(required = false) offset: Int?,
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
+        val setLimit = limit ?: DEFAULT_LIMIT
+        val setOffset = offset ?: DEFAULT_OFFSET
         val sortParam = sort?.let { Sort.fromString(sort) }
         val res = channelsService.getPublicChannels(sortParam)
         return ResponseEntity
@@ -124,7 +135,6 @@ class ChannelsController(
             .status(200)
             .body(ChannelsListOutputModel(res))
     }
-
 
 
     @PutMapping(Uris.Channels.UPDATE)
@@ -304,7 +314,6 @@ class ChannelsController(
             }
         }
     }
-
 
 
     @PostMapping(Uris.Channels.LEAVE_CHANNEL)

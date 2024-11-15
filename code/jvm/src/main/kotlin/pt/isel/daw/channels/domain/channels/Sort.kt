@@ -1,5 +1,9 @@
 package pt.isel.daw.channels.domain.channels
 
+/**
+ * Enum class for Sort
+ * NAME - Represents a sort by name
+ */
 enum class Sort(val value: String) {
     NAME("name");
 

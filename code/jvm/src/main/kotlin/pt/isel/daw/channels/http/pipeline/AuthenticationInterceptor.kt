@@ -33,7 +33,6 @@ class AuthenticationInterceptor(
                 response.addHeader(NAME_WWW_AUTHENTICATE_HEADER, RequestTokenProcessor.SCHEME)
                 false
             } else {
-                logger.info("AUTHENTICATION")
                 AuthenticatedUserArgumentResolver.addUserTo(user, request)
                 true
             }
