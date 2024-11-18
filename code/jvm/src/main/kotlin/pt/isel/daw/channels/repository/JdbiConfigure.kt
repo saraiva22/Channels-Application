@@ -9,6 +9,7 @@ import pt.isel.daw.channels.domain.channels.Type
 import pt.isel.daw.channels.domain.token.TokenValidationInfo
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
 import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.http.model.channel.PrivateInviteOutputModel
 import pt.isel.daw.channels.repository.mappers.*
 
 fun Jdbi.configureWithAppRequirements(): Jdbi {
@@ -22,6 +23,7 @@ fun Jdbi.configureWithAppRequirements(): Jdbi {
 
     registerRowMapper(User::class.java, UserMapper())
     registerRowMapper(Channel::class.java, ChannelMapper(UserInfoMapper(), TypeMapper()))
+    registerRowMapper(PrivateInviteOutputModel::class.java, PrivateInviteChannelMapper())
 
     return this
 }

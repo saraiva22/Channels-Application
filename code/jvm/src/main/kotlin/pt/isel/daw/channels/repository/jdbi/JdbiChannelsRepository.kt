@@ -9,6 +9,7 @@ import pt.isel.daw.channels.domain.channels.Sort
 import pt.isel.daw.channels.domain.channels.Status
 import pt.isel.daw.channels.domain.user.UserInfo
 import pt.isel.daw.channels.http.model.channel.ChannelDbModel
+import pt.isel.daw.channels.http.model.channel.PrivateInviteOutputModel
 import pt.isel.daw.channels.repository.ChannelsRepository
 
 class JdbiChannelsRepository(
@@ -285,6 +286,38 @@ class JdbiChannelsRepository(
 
     override fun channelInviteRejected(userId: Int, channelId: Int, codHash: String) {
         updateInviteStatus(Status.REJECT, codHash)
+    }
+
+    override fun getReceivedChannelInvites(userId: Int, limit: Int, offSet: Int): List<PrivateInviteOutputModel> {
+        return handle.createQuery(
+            """
+              select ic.cod_hash, ic.privacy, ic.status, users.id,users.username,users.email, ic.private_ch,ch.name from dbo.invitation_channels as ic join dbo.channels ch on ic.private_ch=ch.id 
+               join dbo.users as users on users.id = ic.inviter_id where  ic.guest_id = :userId
+                order by ic.private_ch
+                limit :limit
+                offset :offSet
+            """.trimIndent()
+        ).bind("userId", userId)
+            .bind("limit", limit)
+            .bind("offSet", offSet)
+            .mapTo<PrivateInviteOutputModel>()
+            .list()
+    }
+
+    override fun getSentChannelInvites(userId: Int, limit: Int, offSet: Int): List<PrivateInviteOutputModel> {
+        return handle.createQuery(
+            """
+              select ic.cod_hash, ic.privacy, ic.status, users.id,users.username,users.email, ic.private_ch,ch.name from dbo.invitation_channels as ic join dbo.channels ch on ic.private_ch=ch.id 
+               join dbo.users as users on users.id = ic.guest_id where  ic.inviter_id = :userId
+                order by ic.private_ch
+                limit :limit
+                offset :offSet
+            """.trimIndent()
+        ).bind("userId", userId)
+            .bind("limit", limit)
+            .bind("offSet", offSet)
+            .mapTo<PrivateInviteOutputModel>()
+            .list()
     }
 
     private fun getChannelMembers(channelId: Int) =

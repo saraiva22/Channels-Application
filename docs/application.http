@@ -1,8 +1,7 @@
 ### Variables 
 @apiurl = http://localhost:8080/api
-@tokenUserTest= 93Bz7sv6L7Owdm7lVCHWH3hYEi9NtyID8UrkrxbyPM4=
-@tokenUserAdmin = HtgvnANDMvaU-CfnKZ-hyNz1G895AZEyifgYVnSt2b8=
-
+@tokenUserTest= XMwqYX6BBUo79Xjqrrefet3tu4UfdQAV6EI6U-9d9U0=
+@tokenUserAdmin = brEe0zHwtD5kElECZq6Efdqp7z0V_OkcAGrOvkwtR6w=
 
 ### USER 
 
@@ -92,8 +91,8 @@ Content-Type: application/json
 Authorization: Bearer {{tokenUserTest}}
 
 {
-    "name":"Channel DAW",
-    "type":0
+    "name":"Channel TESTE 5",
+    "type":1
 }
 
 ### Search channels (Sort Name) 
@@ -107,7 +106,7 @@ Authorization: Bearer {{tokenUserTest}}
 
 ### Channel by Id
 
-GET {{apiurl}}/channels/7 HTTP/1.1
+GET {{apiurl}}/channels/5 HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{tokenUserTest}}
 
@@ -153,11 +152,36 @@ Content-Type: application/json
 Authorization: Bearer {{tokenUserAdmin}}
 
 
-### Leave Channel
-@id = 1
-POST {{apiurl}}/channels/{{id}}/leave HTTP/1.1
+### Create Private Invite
+@channelId = 5
+POST {{apiurl}}/channels/8/private-invite HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{tokenUserTest}}
+
+{
+    "privacy":"READ_ONLY",
+    "username":"Rita99"
+}
+
+
+### GET Invitations Received
+GET {{apiurl}}/channels/invites/received HTTP/1.1
+Content-Type: applicatio/json
+Authorization: Bearer {{tokenUserAdmin}}  
+
+
+### GET Invitations Sent
+GET {{apiurl}}/channels/invites/sent?offset=2&limit=2 HTTP/1.1
+Content-Type: applicatio/json
+Authorization: Bearer {{tokenUserTest}}  
+
+
+
+### Leave Channel
+@id = 5
+POST {{apiurl}}/channels/4/leave HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserAdmin}}
 
 
 

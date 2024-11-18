@@ -1,13 +1,13 @@
 package pt.isel.daw.channels.services.channel
 
 import jakarta.inject.Named
-import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Sort
 import pt.isel.daw.channels.domain.channels.Status
+import pt.isel.daw.channels.http.model.channel.PrivateInviteOutputModel
 import pt.isel.daw.channels.http.model.channel.RegisterPrivateInviteInputModel
 import pt.isel.daw.channels.repository.Transaction
 import pt.isel.daw.channels.repository.TransactionManager
@@ -195,6 +195,18 @@ class ChannelsService(
     fun dbHasUsers(): Boolean {
         return transactionManager.run {
             it.usersRepository.hasUsers()
+        }
+    }
+
+    fun getReceivedChannelInvites(userId: Int, limit:Int, offSet:Int) : List<PrivateInviteOutputModel>{
+        return transactionManager.run {
+            it.channelsRepository.getReceivedChannelInvites(userId,limit,offSet)
+        }
+    }
+
+    fun getSentChannelInvites(userId: Int, limit:Int, offSet:Int) : List<PrivateInviteOutputModel>{
+        return transactionManager.run {
+            it.channelsRepository.getSentChannelInvites(userId,limit,offSet)
         }
     }
 

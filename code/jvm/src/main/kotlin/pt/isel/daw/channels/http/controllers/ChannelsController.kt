@@ -343,4 +343,77 @@ class ChannelsController(
         }
 
     }
+
+
+    @GetMapping(Uris.Channels.RECEIVED_CHANNEL_INVITES)
+    fun getReceivedChannelInvites(
+        authenticatedUser: AuthenticatedUser,
+        @RequestParam(required = false) limit: Int?,
+        @RequestParam(required = false) offset: Int?,
+    ): ResponseEntity<*> {
+        val setLimit = limit ?: DEFAULT_LIMIT
+        val setOffset = offset ?: DEFAULT_OFFSET
+        val res = channelsService.getReceivedChannelInvites(authenticatedUser.user.id, setLimit, setOffset)
+        return ResponseEntity
+            .status(200)
+            .body(PrivateInviteOutputModelList(res.map { elem ->
+                PrivateInviteOutputModel(
+                    elem.codHash,
+                    elem.privacy,
+                    elem.status,
+                    elem.userInfo,
+                    elem.channelId,
+                    elem.channelName
+                )
+            }))
+    }
+
+    @GetMapping(Uris.Channels.SENT_CHANNEL_INVITES)
+    fun getSentChannelInvites(
+        authenticatedUser: AuthenticatedUser,
+        @RequestParam(required = false) limit: Int?,
+        @RequestParam(required = false) offset: Int?,
+    ): ResponseEntity<*>{
+        val setLimit = limit ?: DEFAULT_LIMIT
+        val setOffset = offset ?: DEFAULT_OFFSET
+        val res = channelsService.getSentChannelInvites(authenticatedUser.user.id, setLimit, setOffset)
+        return ResponseEntity
+            .status(200)
+            .body(PrivateInviteOutputModelList(res.map { elem ->
+                PrivateInviteOutputModel(
+                    elem.codHash,
+                    elem.privacy,
+                    elem.status,
+                    elem.userInfo,
+                    elem.channelId,
+                    elem.channelName
+                )
+            }))
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

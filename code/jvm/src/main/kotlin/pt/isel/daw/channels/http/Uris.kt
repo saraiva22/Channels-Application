@@ -39,8 +39,8 @@ object Uris {
         const val GET_PUBLIC_CHANNELS = "$PREFIX/channels/public"
         const val CREATE_PRIVATE_INVITE = "$PREFIX/channels/{id}/private-invite"
         const val LEAVE_CHANNEL = "$PREFIX/channels/{id}/leave"
-        const val CHANNEL_INVITE = "$PREFIX/channels/invite"
-
+        const val RECEIVED_CHANNEL_INVITES = "$PREFIX/channels/invites/received"
+        const val SENT_CHANNEL_INVITES = "$PREFIX/channels/invites/sent"
 
         fun byId(id: Int): URI = UriTemplate(GET_BY_ID).expand(id)
 
@@ -54,9 +54,9 @@ object Uris {
 
         fun invitePrivateChannel(id: Int): URI = UriTemplate(CREATE_PRIVATE_INVITE).expand(id)
 
-
         fun leaveChannel(id: Int): URI = UriTemplate(LEAVE_CHANNEL).expand(id)
     }
+
 
     object Messages {
         const val CREATE = "$PREFIX/channels/{id}/messages"

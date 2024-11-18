@@ -7,7 +7,8 @@ package pt.isel.daw.channels.domain.channels
  * READ_WRITE(1) - Represents a read write channel
  */
 enum class Privacy {
-    READ_ONLY, READ_WRITE;
+    READ_ONLY,
+    READ_WRITE;
 
     companion object {
         fun fromInt(value: Int): Privacy {

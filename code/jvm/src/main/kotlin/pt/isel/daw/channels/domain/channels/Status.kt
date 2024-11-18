@@ -10,4 +10,10 @@ enum class Status {
     PENDING,
     ACCEPT,
     REJECT;
+
+    companion object {
+        fun fromInt(value: Int): Status {
+            return Status.entries[value]
+        }
+    }
 }

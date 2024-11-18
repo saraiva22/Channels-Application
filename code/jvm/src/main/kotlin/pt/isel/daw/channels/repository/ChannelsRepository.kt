@@ -4,6 +4,7 @@ import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Sort
+import pt.isel.daw.channels.http.model.channel.PrivateInviteOutputModel
 
 interface ChannelsRepository {
 
@@ -40,4 +41,8 @@ interface ChannelsRepository {
     fun isInviteCodeValid(userId: Int, channelId: Int, codHash: String): Boolean
 
     fun channelInviteRejected(userId: Int, channelId: Int, codHash: String)
+
+    fun getReceivedChannelInvites(userId: Int, limit: Int, offSet: Int): List<PrivateInviteOutputModel>
+
+    fun getSentChannelInvites(userId: Int, limit: Int, offSet: Int): List<PrivateInviteOutputModel>
 }
