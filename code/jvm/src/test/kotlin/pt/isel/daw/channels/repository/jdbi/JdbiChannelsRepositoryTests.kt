@@ -204,7 +204,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // when: updating the channel name
             val newChannelName = newTestChannelName()
-            repo.updateChannelName(createdChannel.id, newChannelName)
+            repo.updateChannel(createdChannel.id, newChannelName)
 
             // and: searching for the channel by name
             val updatedChannel: List<Channel> = repo.searchChannelsByName(newChannelName, null)

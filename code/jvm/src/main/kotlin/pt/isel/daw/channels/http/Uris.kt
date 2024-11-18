@@ -31,7 +31,7 @@ object Uris {
         const val CREATE = "$PREFIX/channels/create"
         const val JOIN_PUBLIC_CHANNELS = "$PREFIX/channels/{id}/public"
         const val JOIN_PRIVATE_CHANNELS = "$PREFIX/channels/{id}/private/{code}"
-        const val UPDATE = "$PREFIX/channels/{id}/name"
+        const val UPDATE = "$PREFIX/channels/{id}/update"
         const val GET_BY_ID = "$PREFIX/channels/{id}"
         const val GET_BY_NAME = "$PREFIX/channels"
         const val GET_USER_OWNED_CHANNELS = "$PREFIX/channels/owner"

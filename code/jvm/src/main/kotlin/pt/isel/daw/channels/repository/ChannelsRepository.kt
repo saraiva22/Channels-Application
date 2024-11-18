@@ -5,6 +5,7 @@ import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Sort
 import pt.isel.daw.channels.http.model.channel.PrivateInviteOutputModel
+import pt.isel.daw.channels.http.model.channel.ChannelUpdateInputModel
 
 interface ChannelsRepository {
 
@@ -28,7 +29,7 @@ interface ChannelsRepository {
 
     fun getPublicChannels(sort: Sort?): List<Channel>
 
-    fun updateChannelName(channelId: Int, name: String): Channel
+    fun updateChannel(channelId: Int, updateInputModel: ChannelUpdateInputModel): Channel
 
     fun isChannelPublic(channel: Channel): Boolean
 
@@ -36,7 +37,7 @@ interface ChannelsRepository {
 
     fun createPrivateInvite(codPrivate: String, privacy: Int, inviterId: Int, guestId: Int, channelId: Int): Int
 
-    fun getMemberPermissions(userId: Int, channelId: Int): Privacy
+    fun getMemberPermissions(guestId: Int, channelId: Int): Privacy?
 
     fun isInviteCodeValid(userId: Int, channelId: Int, codHash: String): Boolean
 

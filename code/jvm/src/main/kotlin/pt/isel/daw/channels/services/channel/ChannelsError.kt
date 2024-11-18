@@ -36,13 +36,14 @@ sealed class GetUserChannelsError {
 
 typealias GetUserChannelsResult = Either<GetUserChannelsError, List<Channel>>
 
-sealed class UpdateNameChannelError {
-    data object UserNotInChannel : UpdateNameChannelError()
-    data object ChannelNameAlreadyExists : UpdateNameChannelError()
-    data object ChannelNotFound : UpdateNameChannelError()
+sealed class UpdateChannelError {
+    data object UserNotInChannel : UpdateChannelError()
+    data object UserNotChannelOwner : UpdateChannelError()
+    data object ChannelNameAlreadyExists : UpdateChannelError()
+    data object ChannelNotFound : UpdateChannelError()
 }
 
-typealias UpdateNameChannelResult = Either<UpdateNameChannelError, Channel>
+typealias UpdateChannelResult = Either<UpdateChannelError, Channel>
 
 sealed class JoinUserInChannelPublicError{
     data object UserAlreadyInChannel : JoinUserInChannelPublicError()

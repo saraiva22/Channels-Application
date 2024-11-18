@@ -8,6 +8,7 @@ import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Sort
 import pt.isel.daw.channels.domain.channels.Status
 import pt.isel.daw.channels.http.model.channel.PrivateInviteOutputModel
+import pt.isel.daw.channels.http.model.channel.ChannelUpdateInputModel
 import pt.isel.daw.channels.http.model.channel.RegisterPrivateInviteInputModel
 import pt.isel.daw.channels.repository.Transaction
 import pt.isel.daw.channels.repository.TransactionManager
@@ -141,7 +142,6 @@ class ChannelsService(
             println(guestUser.id)
             println(channelsDomain.isUserMember(guestUser.id, channel))
             if (channelsDomain.isUserMember(guestUser.id, channel)) {
-                println("in")
                 return@run failure(InvitePrivateChannelError.UserAlreadyInChannel)
             }
 
@@ -157,21 +157,31 @@ class ChannelsService(
         }
     }
 
-    fun updateNameChannel(nameChannel: String, channelId: Int, userId: Int): UpdateNameChannelResult {
+    fun updateChannel(
+        updateInputModel: ChannelUpdateInputModel,
+        channelId: Int,
+        userId: Int
+    ): UpdateChannelResult {
         return transactionManager.run {
             val channelsRepository = it.channelsRepository
             val channel = channelsRepository.getChannelById(channelId)
-                ?: return@run failure(UpdateNameChannelError.ChannelNotFound)
+                ?: return@run failure(UpdateChannelError.ChannelNotFound)
 
-            if (channelsDomain.isOwner(userId, channel) || channelsDomain.isUserMember(userId, channel)) {
-                if (channelsRepository.isChannelStoredByName(nameChannel)) {
-                    return@run failure(UpdateNameChannelError.ChannelNameAlreadyExists)
+            if (!channelsDomain.isUserMember(userId, channel)) {
+                return@run failure(UpdateChannelError.UserNotInChannel)
+            }
+
+            if (channelsDomain.isOwner(userId, channel)) {
+                if (updateInputModel.name != null) {
+                    if (channelsRepository.isChannelStoredByName(updateInputModel.name)) {
+                        return@run failure(UpdateChannelError.ChannelNameAlreadyExists)
+                    }
                 }
 
-                val newChannel = channelsRepository.updateChannelName(channelId, nameChannel)
-                return@run success(newChannel)
+                val updatedChannel = channelsRepository.updateChannel(channelId, updateInputModel)
+                return@run success(updatedChannel)
             } else {
-                return@run failure(UpdateNameChannelError.UserNotInChannel)
+                return@run failure(UpdateChannelError.UserNotChannelOwner)
             }
         }
     }
@@ -185,10 +195,10 @@ class ChannelsService(
             if (!channelsDomain.isUserMember(userId, channel)) {
                 return@run failure(LeaveChannelResultError.UserNotInChannel)
             }
+
             if (!channelsRepository.leaveChannel(userId, channelId))
                 failure(LeaveChannelResultError.ErrorLeavingChannel)
             success(Unit)
-
         }
     }
 

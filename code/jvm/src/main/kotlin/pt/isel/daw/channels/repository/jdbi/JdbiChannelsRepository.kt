@@ -10,6 +10,7 @@ import pt.isel.daw.channels.domain.channels.Status
 import pt.isel.daw.channels.domain.user.UserInfo
 import pt.isel.daw.channels.http.model.channel.ChannelDbModel
 import pt.isel.daw.channels.http.model.channel.PrivateInviteOutputModel
+import pt.isel.daw.channels.http.model.channel.ChannelUpdateInputModel
 import pt.isel.daw.channels.repository.ChannelsRepository
 
 class JdbiChannelsRepository(
@@ -207,13 +208,17 @@ class JdbiChannelsRepository(
             .execute() == 1
     }
 
-    override fun updateChannelName(channelId: Int, name: String): Channel {
+    override fun updateChannel(channelId: Int, updateInputModel: ChannelUpdateInputModel): Channel {
         handle.createUpdate(
             """
-                update dbo.Channels set name = :name where id = :id
+                update dbo.Channels 
+                set name = coalesce(:name, name),
+                    type = coalesce(:type, type)
+                where id = :id
             """
         )
-            .bind("name", name)
+            .bind("name", updateInputModel.name)
+            .bind("type", updateInputModel.type?.ordinal)
             .bind("id", channelId)
             .execute()
 
@@ -246,23 +251,23 @@ class JdbiChannelsRepository(
             .execute()
     }
 
-    override fun getMemberPermissions(userId: Int, channelId: Int): Privacy {
+    override fun getMemberPermissions(guestId: Int, channelId: Int): Privacy? {
         val privacyValue = handle.createQuery(
             """
                 select privacy 
                 from dbo.Invitation_Channels 
-                where user_id = :userId and 
+                where guest_id = :guestId and 
                       private_ch = :channelId and
                       status = :status
             """
         )
-            .bind("userId", userId)
+            .bind("guestId", guestId)
             .bind("channelId", channelId)
             .bind("status", Status.ACCEPT.ordinal)
             .mapTo<Int>()
-            .one()
+            .singleOrNull()
 
-        return Privacy.fromInt(privacyValue)
+        return if (privacyValue != null) Privacy.fromInt(privacyValue) else null
     }
 
     override fun isInviteCodeValid(userId: Int, channelId: Int, codHash: String): Boolean {
@@ -291,8 +296,10 @@ class JdbiChannelsRepository(
     override fun getReceivedChannelInvites(userId: Int, limit: Int, offSet: Int): List<PrivateInviteOutputModel> {
         return handle.createQuery(
             """
-              select ic.cod_hash, ic.privacy, ic.status, users.id,users.username,users.email, ic.private_ch,ch.name from dbo.invitation_channels as ic join dbo.channels ch on ic.private_ch=ch.id 
-               join dbo.users as users on users.id = ic.inviter_id where  ic.guest_id = :userId
+                select ic.cod_hash, ic.privacy, ic.status, users.id, users.username, users.email, 
+                ic.private_ch, ch.name 
+                from dbo.invitation_channels as ic join dbo.channels ch on ic.private_ch=ch.id 
+                join dbo.users as users on users.id = ic.inviter_id where  ic.guest_id = :userId
                 order by ic.private_ch
                 limit :limit
                 offset :offSet
@@ -307,8 +314,10 @@ class JdbiChannelsRepository(
     override fun getSentChannelInvites(userId: Int, limit: Int, offSet: Int): List<PrivateInviteOutputModel> {
         return handle.createQuery(
             """
-              select ic.cod_hash, ic.privacy, ic.status, users.id,users.username,users.email, ic.private_ch,ch.name from dbo.invitation_channels as ic join dbo.channels ch on ic.private_ch=ch.id 
-               join dbo.users as users on users.id = ic.guest_id where  ic.inviter_id = :userId
+                select ic.cod_hash, ic.privacy, ic.status, users.id, users.username, users.email, 
+                ic.private_ch, ch.name 
+                from dbo.invitation_channels as ic join dbo.channels ch on ic.private_ch=ch.id 
+                join dbo.users as users on users.id = ic.guest_id where  ic.inviter_id = :userId
                 order by ic.private_ch
                 limit :limit
                 offset :offSet

@@ -25,11 +25,13 @@ class MessagesService(
             val channelRep = it.channelsRepository
             val channel = channelRep.getChannelById(channelId)
                 ?: return@run failure(CreateMessageError.ChannelNotFound)
+
             if (!channelsDomain.isUserMember(user.id, channel))
                 return@run failure(CreateMessageError.UserNotMemberInChannel)
 
             val canCreateMessage = channelRep.isChannelPublic(channel) ||
-                    (channelRep.getMemberPermissions(user.id, channelId) == Privacy.READ_WRITE)
+                    (channelRep.getMemberPermissions(user.id, channelId) == Privacy.READ_WRITE) ||
+                    channelsDomain.isOwner(user.id, channel)
 
             if (canCreateMessage) {
                 val now = clock.now()
@@ -51,8 +53,10 @@ class MessagesService(
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(GetMessageError.ChannelNotFound)
+
             if (!channelsDomain.isUserMember(userId, channel))
                 return@run failure(GetMessageError.PermissionDenied)
+
             val messageList = it.messagesRepository.getChannelMessages(channel)
             success(messageList)
         }
@@ -62,13 +66,16 @@ class MessagesService(
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(DeleteMessageError.ChannelNotFound)
+
             if (!channelsDomain.isUserMember(userId, channel))
                 return@run failure(DeleteMessageError.PermissionDenied)
+
             val messagesOfChannel = getChannelMessages(userId, channelId)
             if (messagesOfChannel is Either.Right<List<Message>> &&
                 !messagesDomain.isMessageInList(messageId, messagesOfChannel.value)) {
                 return@run failure(DeleteMessageError.MessageNotFound)
             }
+
             it.messagesRepository.deleteMessageFromChannel(messageId, channelId)
             success(true)
         }

@@ -2,9 +2,9 @@ package pt.isel.daw.channels.http.controllers
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -136,16 +136,15 @@ class ChannelsController(
             .body(ChannelsListOutputModel(res))
     }
 
-
-    @PutMapping(Uris.Channels.UPDATE)
-    fun updateNameChannel(
+    @PatchMapping(Uris.Channels.UPDATE)
+    fun updateChannel(
         @PathVariable id: Int,
-        @RequestBody input: ChannelUpdateInputModel,
+        @RequestBody updateInput: ChannelUpdateInputModel,
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.update(id)
         val userId = authenticatedUser.user.id
-        return when (val updateChannel = channelsService.updateNameChannel(input.name, id, userId)) {
+        return when (val updateChannel = channelsService.updateChannel(updateInput, id, userId)) {
             is Success ->
                 ResponseEntity
                     .status(200)
@@ -161,17 +160,22 @@ class ChannelsController(
 
             is Failure -> {
                 when (updateChannel.value) {
-                    UpdateNameChannelError.UserNotInChannel -> Problem.userNotInChannel(
+                    UpdateChannelError.UserNotInChannel -> Problem.userNotInChannel(
                         authenticatedUser.user.username,
                         instance
                     )
 
-                    UpdateNameChannelError.ChannelNameAlreadyExists -> Problem.channelNameAlreadyExists(
-                        input.name,
+                    UpdateChannelError.UserNotChannelOwner -> Problem.userIsNotChannelOwner(
+                        authenticatedUser.user.username,
                         instance
                     )
 
-                    UpdateNameChannelError.ChannelNotFound -> Problem.channelNotFound(
+                    UpdateChannelError.ChannelNameAlreadyExists -> Problem.channelNameAlreadyExists(
+                        updateInput.name ?: "null",
+                        instance
+                    )
+
+                    UpdateChannelError.ChannelNotFound -> Problem.channelNotFound(
                         id,
                         instance
                     )

@@ -65,6 +65,7 @@ class Problem(
         private val channelAlreadyExists = URI("${CHANNEL_FOLDER}channel-already-exists")
         private val invalidChannelType = URI("${CHANNEL_FOLDER}invalid-channel-type")
         private val userNotInChannel = URI("${CHANNEL_FOLDER}user-not-in-channel")
+        private val userIsNotChannelOwner = URI("${CHANNEL_FOLDER}user-is-not-channel-owner")
         private val userAlreadyInChannel = URI("${CHANNEL_FOLDER}user-already-in-channel")
         private val channelNameAlreadyExists = URI("${CHANNEL_FOLDER}channel-name-already-exists")
         private val userPermissionsDeniedType = URI("${CHANNEL_FOLDER}user-permissions-denied-type")
@@ -209,6 +210,14 @@ class Problem(
             title = "User not in channel",
             status = HttpStatus.NOT_FOUND.value(),
             detail = "User $username not in channel",
+            instance = instance
+        ).toResponse()
+
+        fun userIsNotChannelOwner(username: String, instance: URI?) : ResponseEntity<*> = Problem(
+            type = userIsNotChannelOwner,
+            title = "User is not channel owner",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "User $username is not channel owner",
             instance = instance
         ).toResponse()
 

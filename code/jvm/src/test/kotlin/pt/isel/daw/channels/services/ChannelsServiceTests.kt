@@ -234,7 +234,7 @@ class ChannelsServiceTests: ServiceTests() {
 
         // when: updating the channel name
         val newChannelName = newTestChannelName()
-        val updateChannelResult = service.updateNameChannel(newChannelName, createChannelResult.value, testUserInfo.id)
+        val updateChannelResult = service.updateChannel(newChannelName, createChannelResult.value, testUserInfo.id)
 
         // then: the update is successful
         when (updateChannelResult) {
