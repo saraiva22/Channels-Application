@@ -11,7 +11,8 @@ data class ChannelDbModel (
     @Nested("owner")
     val owner: UserInfo,
     val type: Int,
-    val members: List<UserInfo> = emptyList()
+    val members: List<UserInfo> = emptyList(),
+    val bannedMembers: List<UserInfo> = emptyList()
 ) {
     fun toChannel() =
             Channel(
@@ -19,6 +20,7 @@ data class ChannelDbModel (
                 name,
                 owner,
                 Type.fromInt(type),
-                members
+                members,
+                bannedMembers
             )
 }

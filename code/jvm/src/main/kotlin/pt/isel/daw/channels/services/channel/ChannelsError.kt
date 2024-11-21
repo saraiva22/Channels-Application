@@ -49,6 +49,7 @@ sealed class JoinUserInChannelPublicError{
     data object UserAlreadyInChannel : JoinUserInChannelPublicError()
     data object ChannelNotFound : JoinUserInChannelPublicError()
     data object ChannelIsPrivate : JoinUserInChannelPublicError()
+    data object UserIsBanned : JoinUserInChannelPublicError()
 }
 
 typealias JoinUserInChannelPublicResult = Either<JoinUserInChannelPublicError, Channel>
@@ -59,6 +60,7 @@ sealed class JoinUserInChannelPrivateError{
     data object InvalidCode : JoinUserInChannelPrivateError()
     data object ChannelNotFound : JoinUserInChannelPrivateError()
     data object InviteRejected : JoinUserInChannelPrivateError()
+    data object GuestIsBanned : JoinUserInChannelPrivateError()
 }
 
 typealias JoinUserInChannelPrivateResult = Either<JoinUserInChannelPrivateError, Channel>
@@ -71,6 +73,7 @@ sealed class InvitePrivateChannelError{
     data object PrivacyTypeNotFound : InvitePrivateChannelError()
     data object ChannelNotFound : InvitePrivateChannelError()
     data object GuestNotFound : InvitePrivateChannelError()
+    data object GuestIsBanned : InvitePrivateChannelError()
 }
 
 typealias InvitePrivateChannelResult = Either<InvitePrivateChannelError, String>
@@ -83,3 +86,24 @@ sealed class LeaveChannelResultError{
 }
 
 typealias LeaveChannelResult = Either<LeaveChannelResultError, Unit>
+
+sealed class BanUserResultError {
+    data object UsernameNotFound : BanUserResultError()
+    data object UserAlreadyBanned : BanUserResultError()
+    data object UserNotInChannel : BanUserResultError()
+    data object UserIsNotOwner : BanUserResultError()
+    data object ChannelNotFound : BanUserResultError()
+    data object OwnerNotBanned : BanUserResultError()
+}
+
+typealias BanUserResult = Either<BanUserResultError, Channel>
+
+sealed class UnbanUserResultError {
+    data object UsernameNotFound : UnbanUserResultError()
+    data object UserIsNotBanned : UnbanUserResultError()
+    data object UserIsNotOwner : UnbanUserResultError()
+    data object ChannelNotFound : UnbanUserResultError()
+    data object OwnerNotBanned : UnbanUserResultError()
+}
+
+typealias UnbanUserResult = Either<UnbanUserResultError, Channel>

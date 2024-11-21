@@ -40,7 +40,8 @@ create table dbo.Channels
 create table dbo.Join_Channels
 (
     user_id int references dbo.Users (id),
-    ch_id   serial references dbo.Channels (id)
+    ch_id   int references dbo.Channels (id),
+    state   int not null check (state in (0, 1))
 );
 
 create table dbo.Invitation_Channels
@@ -67,8 +68,8 @@ create or replace function insert_owner_into_join_channels()
     returns trigger as
 $$
 begin
-    insert into dbo.Join_Channels (user_id, ch_id)
-    values (NEW.owner_id, NEW.id);
+    insert into dbo.Join_Channels (user_id, ch_id, state)
+    values (NEW.owner_id, NEW.id, 0);
     return NEW;
 end;
 $$ language plpgsql;
@@ -79,12 +80,13 @@ create trigger trg_insert_owner_into_join_channels
     for each row
 execute function insert_owner_into_join_channels();
 
+
 create or replace function insert_new_member_into_private_channel()
     returns trigger as
 $$
 begin
-    insert into dbo.Join_Channels (user_id, ch_id)
-    values (NEW.guest_id, NEW.private_ch);
+    insert into dbo.Join_Channels (user_id, ch_id, state)
+    values (NEW.guest_id, NEW.private_ch, 0);
     return NEW;
 end;
 $$ language plpgsql;

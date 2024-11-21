@@ -6,6 +6,7 @@ import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Sort
+import pt.isel.daw.channels.domain.channels.State
 import pt.isel.daw.channels.domain.channels.Status
 import pt.isel.daw.channels.http.model.channel.PrivateInviteOutputModel
 import pt.isel.daw.channels.http.model.channel.ChannelUpdateInputModel
@@ -37,14 +38,15 @@ class ChannelsService(
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(GetChannelByIdError.ChannelNotFound)
             if (!it.channelsRepository.isChannelPublic(channel) &&
-                !channelsDomain.isUserMember(userId, channel)
+                !channelsDomain.isUserMember(userId, channel) &&
+                channelsDomain.isUserBanned(userId, channel)
             )
                 return@run failure(GetChannelByIdError.PermissionDenied)
             success(channel)
         }
     }
 
-    fun getChannelByName(userId: Int, channelName: String, sort: Sort?): List<Channel> {
+    fun searchChannelsByName(userId: Int, channelName: String, sort: Sort?): List<Channel> {
         return transactionManager.run {
             val channelsList = it.channelsRepository.searchChannelsByName(channelName, sort)
 
@@ -70,7 +72,10 @@ class ChannelsService(
     fun getUserMemberChannels(userId: Int, sort: Sort?): List<Channel> {
         return transactionManager.run {
             val channels = it.channelsRepository.getAllChannels(sort)
-            channels.filter { channel -> channelsDomain.isUserMember(userId, channel) }
+            channels.filter { channel ->
+                channelsDomain.isUserMember(userId, channel) &&
+                !channelsDomain.isUserBanned(userId, channel)
+            }
         }
     }
 
@@ -78,8 +83,12 @@ class ChannelsService(
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(JoinUserInChannelPublicError.ChannelNotFound)
+
             if (!it.channelsRepository.isChannelPublic(channel))
                 return@run failure(JoinUserInChannelPublicError.ChannelIsPrivate)
+
+            if (channelsDomain.isUserBanned(userId, channel))
+                return@run failure(JoinUserInChannelPublicError.UserIsBanned)
 
             if (channelsDomain.isUserMember(userId, channel))
                 return@run failure(JoinUserInChannelPublicError.UserAlreadyInChannel)
@@ -99,6 +108,9 @@ class ChannelsService(
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(JoinUserInChannelPrivateError.ChannelNotFound)
 
+            if (channelsDomain.isUserBanned(guestId, channel))
+                return@run failure(JoinUserInChannelPrivateError.GuestIsBanned)
+
             if (channelsDomain.isOwner(guestId, channel)) {
                 if (channelsDomain.isUserMember(guestId, channel)) {
                     return@run failure(JoinUserInChannelPrivateError.UserAlreadyInChannel)
@@ -114,7 +126,6 @@ class ChannelsService(
                 return@run failure(JoinUserInChannelPrivateError.InvalidCode)
 
             if (status == Status.ACCEPT) {
-                println("in2")
                 val joinChannel = it.channelsRepository.joinMemberInChannelPrivate(guestId, channelId, codInvite)
                 return@run success(joinChannel)
             } else {
@@ -139,8 +150,10 @@ class ChannelsService(
             val guestUser = it.usersRepository.getUserByUsername(inviteModel.guestName)
                 ?: return@run failure(InvitePrivateChannelError.GuestNotFound)
 
-            println(guestUser.id)
-            println(channelsDomain.isUserMember(guestUser.id, channel))
+            if (channelsDomain.isUserBanned(guestUser.id, channel)) {
+                return@run failure(InvitePrivateChannelError.GuestIsBanned)
+            }
+
             if (channelsDomain.isUserMember(guestUser.id, channel)) {
                 return@run failure(InvitePrivateChannelError.UserAlreadyInChannel)
             }
@@ -217,6 +230,62 @@ class ChannelsService(
     fun getSentChannelInvites(userId: Int, limit:Int, offSet:Int) : List<PrivateInviteOutputModel>{
         return transactionManager.run {
             it.channelsRepository.getSentChannelInvites(userId,limit,offSet)
+        }
+    }
+
+    fun banUserFromChannel(ownerId: Int, userName: String, channelId: Int): BanUserResult {
+        return transactionManager.run {
+            val userToBan = it.usersRepository.getUserByUsername(userName)
+                ?: return@run failure(BanUserResultError.UsernameNotFound)
+
+            val channelsRepository = it.channelsRepository
+            val channel = channelsRepository.getChannelById(channelId)
+                ?: return@run failure(BanUserResultError.ChannelNotFound)
+
+            if (!channelsDomain.isOwner(ownerId, channel)) {
+                return@run failure(BanUserResultError.UserIsNotOwner)
+            }
+
+            if (channelsDomain.isOwner(userToBan.id, channel)) {
+                return@run failure(BanUserResultError.OwnerNotBanned)
+            }
+
+            if (channelsDomain.isUserBanned(userToBan.id, channel)) {
+                return@run failure(BanUserResultError.UserAlreadyBanned)
+            }
+
+            if (!channelsDomain.isUserMember(userToBan.id, channel)) {
+                return@run failure(BanUserResultError.UserNotInChannel)
+            } else {
+                val newChannel = channelsRepository.updateChannelUserState(userToBan.id, channel.id, State.BANNED)
+                return@run success(newChannel)
+            }
+       }
+    }
+
+    fun unbanUserFromChannel(ownerId: Int, userName: String, channelId: Int): UnbanUserResult {
+        return transactionManager.run {
+            val userToUnban = it.usersRepository.getUserByUsername(userName)
+                ?: return@run failure(UnbanUserResultError.UsernameNotFound)
+
+            val channelsRepository = it.channelsRepository
+            val channel = channelsRepository.getChannelById(channelId)
+                ?: return@run failure(UnbanUserResultError.ChannelNotFound)
+
+            if (!channelsDomain.isOwner(ownerId, channel)) {
+                return@run failure(UnbanUserResultError.UserIsNotOwner)
+            }
+
+            if (channelsDomain.isOwner(userToUnban.id, channel)) {
+                return@run failure(UnbanUserResultError.OwnerNotBanned)
+            }
+
+            if (!channelsDomain.isUserBanned(userToUnban.id, channel)) {
+                return@run failure(UnbanUserResultError.UserIsNotBanned)
+            }
+
+            val newChannel = channelsRepository.updateChannelUserState(userToUnban.id, channel.id, State.UNBANNED)
+            return@run success(newChannel)
         }
     }
 

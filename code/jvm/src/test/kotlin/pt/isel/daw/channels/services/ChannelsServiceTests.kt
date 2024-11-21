@@ -47,7 +47,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: using the name
-        val getChannelByNameResult = service.getChannelByName(testUserInfo.id, channelName, null)
+        val getChannelByNameResult = service.searchChannelsByName(testUserInfo.id, channelName, null)
 
         // then: the return is successful and has the same id, name, owner and empty members list
         assertTrue(getChannelByNameResult.size == 1)
@@ -101,7 +101,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: using the name
-        val getChannelByNameResult = service.getChannelByName(testUserInfo.id, channelName, null)
+        val getChannelByNameResult = service.searchChannelsByName(testUserInfo.id, channelName, null)
 
         // then: the return is successful and has the same id, name, owner and empty members list
         assertTrue(getChannelByNameResult.size == 1)
@@ -259,7 +259,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: getting the channel by name
-        val getChannelByNameResult = service.getChannelByName(testUserInfo.id, newChannelName, null)
+        val getChannelByNameResult = service.searchChannelsByName(testUserInfo.id, newChannelName, null)
 
         // then: the return is successful and has the new name
         assertTrue(getChannelByNameResult.size == 1)
@@ -316,7 +316,7 @@ class ChannelsServiceTests: ServiceTests() {
         }
 
         // when: getting the channel by name
-        val getChannelByNameResult = service.getChannelByName(testUserInfo.id, publicChannelName, null)
+        val getChannelByNameResult = service.searchChannelsByName(testUserInfo.id, publicChannelName, null)
 
         // then: the return is successful and has the new member
         assertTrue(getChannelByNameResult.size == 1)

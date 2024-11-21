@@ -6,6 +6,7 @@ import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Sort
+import pt.isel.daw.channels.domain.channels.State
 import pt.isel.daw.channels.domain.channels.Status
 import pt.isel.daw.channels.domain.user.UserInfo
 import pt.isel.daw.channels.http.model.channel.ChannelDbModel
@@ -54,9 +55,13 @@ class JdbiChannelsRepository(
 
         if (channelDbModel == null) return channelDbModel
 
-        val members = getChannelMembers(channelId)
+        val members = getChannelUsersByState(channelId, State.UNBANNED)
+        val bannedMembers = getChannelUsersByState(channelId, State.BANNED)
 
-        return channelDbModel.copy(members = members).toChannel()
+        return channelDbModel.copy(
+            members = members,
+            bannedMembers = bannedMembers
+        ).toChannel()
     }
 
     override fun searchChannelsByName(channelName: String, sort: Sort?): List<Channel> {
@@ -81,8 +86,9 @@ class JdbiChannelsRepository(
                 .list()
 
         return channelDbModelList.map { channel ->
-            val members = getChannelMembers(channel.id)
-            channel.copy(members = members).toChannel()
+            val members = getChannelUsersByState(channel.id, State.UNBANNED)
+            val bannedMembers = getChannelUsersByState(channel.id, State.BANNED)
+            channel.copy(members = members, bannedMembers = bannedMembers).toChannel()
         }
     }
 
@@ -106,8 +112,9 @@ class JdbiChannelsRepository(
                 .list()
 
         return channelDbModelList.map { channel ->
-            val members = getChannelMembers(channel.id)
-            channel.copy(members = members).toChannel()
+            val members = getChannelUsersByState(channel.id, State.UNBANNED)
+            val bannedMembers = getChannelUsersByState(channel.id, State.BANNED)
+            channel.copy(members = members, bannedMembers = bannedMembers).toChannel()
         }
     }
 
@@ -129,19 +136,22 @@ class JdbiChannelsRepository(
                 .list()
 
         return channelDbModelList.map { channel ->
-            val members = getChannelMembers(channel.id)
-            channel.copy(members = members).toChannel()
+            val members = getChannelUsersByState(channel.id, State.UNBANNED)
+            val bannedMembers = getChannelUsersByState(channel.id, State.BANNED)
+            channel.copy(members = members, bannedMembers = bannedMembers).toChannel()
         }
     }
 
     private fun insertUserIntoChannel(userId: Int, channelId: Int) {
         handle.createUpdate(
             """
-                insert into dbo.join_channels (user_id, ch_id) values (:userId, :channelId)
+                insert into dbo.join_channels (user_id, ch_id, state) 
+                values (:userId, :channelId, :state)
             """
         )
             .bind("userId", userId)
             .bind("channelId", channelId)
+            .bind("state", State.UNBANNED.ordinal)
             .execute()
     }
 
@@ -149,18 +159,20 @@ class JdbiChannelsRepository(
         insertUserIntoChannel(userId, channelId)
 
         val channelDbModel = secureGetChannelById(channelId)
-        val members = getChannelMembers(channelId)
+        val members = getChannelUsersByState(channelId, State.UNBANNED)
+        val bannedMembers = getChannelUsersByState(channelId, State.BANNED)
 
-        return channelDbModel.copy(members = members).toChannel()
+        return channelDbModel.copy(members = members, bannedMembers = bannedMembers).toChannel()
     }
 
     override fun joinMemberInChannelPrivate(userId: Int, channelId: Int, codHash: String): Channel {
         updateInviteStatus(Status.ACCEPT, codHash)
 
         val channelDbModel = secureGetChannelById(channelId)
-        val members = getChannelMembers(channelId)
+        val members = getChannelUsersByState(channelId, State.UNBANNED)
+        val bannedMembers = getChannelUsersByState(channelId, State.BANNED)
 
-        return channelDbModel.copy(members = members).toChannel()
+        return channelDbModel.copy(members = members, bannedMembers = bannedMembers).toChannel()
     }
 
     override fun isOwnerChannel(channelId: Int, userId: Int): Boolean {
@@ -187,8 +199,9 @@ class JdbiChannelsRepository(
                 .list()
 
         return channelDbModelList.map { channel ->
-            val members = getChannelMembers(channel.id)
-            channel.copy(members = members).toChannel()
+            val members = getChannelUsersByState(channel.id, State.UNBANNED)
+            val bannedMembers = getChannelUsersByState(channel.id, State.BANNED)
+            channel.copy(members = members, bannedMembers = bannedMembers).toChannel()
         }
     }
 
@@ -224,9 +237,10 @@ class JdbiChannelsRepository(
 
         val channelDbModel = secureGetChannelById(channelId)
 
-        val members = getChannelMembers(channelId)
+        val members = getChannelUsersByState(channelId, State.UNBANNED)
+        val bannedMembers = getChannelUsersByState(channelId, State.BANNED)
 
-        return channelDbModel.copy(members = members).toChannel()
+        return channelDbModel.copy(members = members, bannedMembers = bannedMembers).toChannel()
     }
 
     override fun createPrivateInvite(
@@ -329,16 +343,37 @@ class JdbiChannelsRepository(
             .list()
     }
 
-    private fun getChannelMembers(channelId: Int) =
+    override fun updateChannelUserState(userId: Int, channelId: Int, state: State): Channel {
+        handle.createUpdate(
+            """
+                update dbo.Join_Channels
+                set state = :state
+                where user_id = :userId and ch_id = :channelId
+            """
+        )
+            .bind("state", state.ordinal)
+            .bind("userId", userId)
+            .bind("channelId", channelId)
+            .execute()
+
+        val channelDbModel = secureGetChannelById(channelId)
+        val members = getChannelUsersByState(channelId, State.UNBANNED)
+        val bannedMembers = getChannelUsersByState(channelId, State.BANNED)
+
+        return channelDbModel.copy(members = members, bannedMembers = bannedMembers).toChannel()
+    }
+
+    private fun getChannelUsersByState(channelId: Int, state: State) =
         handle.createQuery(
             """
                 select users.id, users.email, users.username
                 from dbo.Users as users
                 join dbo.Join_Channels as members_table on members_table.user_id = users.id
-                where members_table.ch_id = :channelId
+                where members_table.ch_id = :channelId and members_table.state = :state
             """
         )
             .bind("channelId", channelId)
+            .bind("state", state.ordinal)
             .mapTo<UserInfo>()
             .list()
 

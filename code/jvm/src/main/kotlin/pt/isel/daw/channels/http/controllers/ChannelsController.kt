@@ -85,7 +85,8 @@ class ChannelsController(
                         res.value.name,
                         res.value.owner,
                         res.value.type,
-                        res.value.members
+                        res.value.members,
+                        res.value.bannedMembers
                     )
                 )
 
@@ -104,7 +105,7 @@ class ChannelsController(
     ): ResponseEntity<*> {
         val userId = authenticatedUser.user.id
         val sortParam = sort?.let { Sort.fromString(sort) }
-        val res = channelsService.getChannelByName(userId, name, sortParam)
+        val res = channelsService.searchChannelsByName(userId, name, sortParam)
         return ResponseEntity
             .status(200)
             .body(ChannelsListOutputModel(res))
@@ -154,7 +155,8 @@ class ChannelsController(
                             updateChannel.value.name,
                             updateChannel.value.owner,
                             updateChannel.value.type,
-                            updateChannel.value.members
+                            updateChannel.value.members,
+                            updateChannel.value.bannedMembers
                         )
                     )
 
@@ -201,7 +203,8 @@ class ChannelsController(
                         channel.value.name,
                         channel.value.owner,
                         channel.value.type,
-                        channel.value.members
+                        channel.value.members,
+                        channel.value.bannedMembers
                     )
                 )
 
@@ -212,7 +215,14 @@ class ChannelsController(
                 )
 
                 JoinUserInChannelPublicError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+
                 JoinUserInChannelPublicError.ChannelIsPrivate -> Problem.channelIsPrivate(id, instance)
+
+                JoinUserInChannelPublicError.UserIsBanned -> Problem.userIsBanned(
+                    userAuthenticatedUser.user.username,
+                    id,
+                    instance
+                )
             }
         }
 
@@ -243,11 +253,18 @@ class ChannelsController(
                         channel.value.name,
                         channel.value.owner,
                         channel.value.type,
-                        channel.value.members
+                        channel.value.members,
+                        channel.value.bannedMembers
                     )
                 )
 
             is Failure -> when (channel.value) {
+                JoinUserInChannelPrivateError.GuestIsBanned -> Problem.userIsBanned(
+                    userAuthenticatedUser.user.username,
+                    id,
+                    instance
+                )
+
                 JoinUserInChannelPrivateError.UserAlreadyInChannel -> Problem.userAlreadyInChannel(
                     userAuthenticatedUser.user.username,
                     instance
@@ -315,6 +332,8 @@ class ChannelsController(
                 InvitePrivateChannelError.ChannelNotFound -> Problem.channelNotFound(id, instance)
 
                 InvitePrivateChannelError.GuestNotFound -> Problem.usernameNotFound(input.username, instance)
+
+                InvitePrivateChannelError.GuestIsBanned -> Problem.userIsBanned(input.username, id, instance)
             }
         }
     }
@@ -394,30 +413,96 @@ class ChannelsController(
                 )
             }))
     }
+
+    @PostMapping(Uris.Channels.BAN_USER)
+    fun banUserFromChannel(
+        authenticatedUser: AuthenticatedUser,
+        @PathVariable id: Int,
+        @RequestBody username: BanUserFromChannel
+    ): ResponseEntity<*> {
+        val instance = Uris.Channels.banUser(id)
+        return when (
+            val res = channelsService.banUserFromChannel(
+                authenticatedUser.user.id,
+                username.username,
+                id
+            )
+        ) {
+            is Success -> ResponseEntity
+                .status(200)
+                .body(
+                    ChannelOutputModel(
+                        res.value.id,
+                        res.value.name,
+                        res.value.owner,
+                        res.value.type,
+                        res.value.members,
+                        res.value.bannedMembers
+                    )
+                )
+
+            is Failure -> when (res.value) {
+                BanUserResultError.UsernameNotFound -> Problem.usernameNotFound(username.username, instance)
+
+                BanUserResultError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+
+                BanUserResultError.OwnerNotBanned -> Problem.ownerNotBanned(id, instance)
+
+                BanUserResultError.UserAlreadyBanned -> Problem.userIsBanned(username.username, id, instance)
+
+                BanUserResultError.UserIsNotOwner ->
+                    Problem.userIsNotChannelOwner(
+                        authenticatedUser.user.username,
+                        instance
+                    )
+
+                BanUserResultError.UserNotInChannel -> Problem.userNotInChannel(username.username, instance)
+            }
+        }
+    }
+
+    @PostMapping(Uris.Channels.UNBAN_USER)
+    fun unbanUserFromChannel(
+        authenticatedUser: AuthenticatedUser,
+        @PathVariable id: Int,
+        @RequestBody username: BanUserFromChannel
+    ): ResponseEntity<*> {
+        val instance = Uris.Channels.unbanUser(id)
+        return when (
+            val res = channelsService.unbanUserFromChannel(
+                authenticatedUser.user.id,
+                username.username,
+                id
+            )
+        ) {
+            is Success -> ResponseEntity
+                .status(200)
+                .body(
+                    ChannelOutputModel(
+                        res.value.id,
+                        res.value.name,
+                        res.value.owner,
+                        res.value.type,
+                        res.value.members,
+                        res.value.bannedMembers
+                    )
+                )
+
+            is Failure -> when (res.value) {
+                UnbanUserResultError.UsernameNotFound -> Problem.usernameNotFound(username.username, instance)
+
+                UnbanUserResultError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+
+                UnbanUserResultError.OwnerNotBanned -> Problem.ownerNotBanned(id, instance)
+
+                UnbanUserResultError.UserIsNotBanned -> Problem.userIsNotBanned(username.username, id, instance)
+
+                UnbanUserResultError.UserIsNotOwner ->
+                    Problem.userIsNotChannelOwner(
+                        authenticatedUser.user.username,
+                        instance
+                    )
+            }
+        }
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

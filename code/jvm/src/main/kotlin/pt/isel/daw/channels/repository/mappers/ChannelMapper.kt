@@ -21,7 +21,8 @@ class ChannelMapper(
             name = rs.getString("name"),
             owner = owner,
             type = type,
-            members = emptyList()
+            members = emptyList(),
+            bannedMembers = emptyList()
         )
     }
 }

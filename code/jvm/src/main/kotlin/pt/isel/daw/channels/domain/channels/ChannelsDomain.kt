@@ -22,4 +22,7 @@ class ChannelsDomain {
 
     fun isOwner(userId: Int, channel: Channel): Boolean =
         channel.owner.id == userId
+
+    fun isUserBanned(userId: Int, channel: Channel): Boolean =
+        channel.bannedMembers.filter { user -> user.id == userId }.size == 1
 }

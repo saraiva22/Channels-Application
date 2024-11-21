@@ -74,6 +74,9 @@ class Problem(
         private val channelIsPublic = URI("${CHANNEL_FOLDER}channel-is-public")
         private val privacyTypeInvalid = URI("${CHANNEL_FOLDER}privacy-type-invalid")
         private val errorLeavingChannel = URI("${CHANNEL_FOLDER}error-leaving-channel")
+        private val userIsBanned = URI("${CHANNEL_FOLDER}user-is-banned")
+        private val userIsNotBanned = URI("${CHANNEL_FOLDER}user-is-not-banned")
+        private val ownerNotBanned = URI("${CHANNEL_FOLDER}owner-not-banned")
 
         // Message
         private val messageNotFound = URI("${MESSAGE_FOLDER}message-not-found")
@@ -306,6 +309,30 @@ class Problem(
             title = "Error leaving channel",
             status = HttpStatus.BAD_REQUEST.value(),
             detail = "Error leaving channel $channelId",
+            instance = instance
+        ).toResponse()
+
+        fun userIsBanned(username: String, channelId: Int, instance: URI?) = Problem(
+            type = userIsBanned,
+            title = "User is banned from channel",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "User $username is banned from channel $channelId",
+            instance = instance
+        ).toResponse()
+
+        fun ownerNotBanned(channelId: Int, instance: URI?) = Problem(
+            type = ownerNotBanned,
+            title = "Channel owner can not be banned",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "Owner of channel $channelId can not be banned",
+            instance = instance
+        ).toResponse()
+
+        fun userIsNotBanned(username: String, channelId: Int, instance: URI?) = Problem(
+            type = userIsNotBanned,
+            title = "User is not banned from channel",
+            status = HttpStatus.BAD_REQUEST.value(),
+            detail = "User $username is not banned from channel $channelId",
             instance = instance
         ).toResponse()
 

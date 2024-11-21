@@ -8,5 +8,6 @@ data class ChannelOutputModel (
     val name: String,
     val owner: UserInfo,
     val type: Type,
-    val members: List<UserInfo>
+    val members: List<UserInfo>,
+    val bannedMembers: List<UserInfo>
 )

@@ -4,6 +4,7 @@ import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Sort
+import pt.isel.daw.channels.domain.channels.State
 import pt.isel.daw.channels.http.model.channel.PrivateInviteOutputModel
 import pt.isel.daw.channels.http.model.channel.ChannelUpdateInputModel
 
@@ -46,4 +47,6 @@ interface ChannelsRepository {
     fun getReceivedChannelInvites(userId: Int, limit: Int, offSet: Int): List<PrivateInviteOutputModel>
 
     fun getSentChannelInvites(userId: Int, limit: Int, offSet: Int): List<PrivateInviteOutputModel>
+
+    fun updateChannelUserState(userId: Int, channelId: Int, state: State): Channel
 }
