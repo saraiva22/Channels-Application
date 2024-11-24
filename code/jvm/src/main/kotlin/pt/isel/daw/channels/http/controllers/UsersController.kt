@@ -1,5 +1,7 @@
 package pt.isel.daw.channels.http.controllers
 
+import jakarta.servlet.http.Cookie
+import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -49,13 +51,17 @@ class UsersController(
     @PostMapping(Uris.Users.TOKEN)
     fun token(
         @RequestBody input: UserCreateTokenInputModel,
+        response: HttpServletResponse
     ): ResponseEntity<*> {
         val instance = Uris.Users.login()
         val token = userService.createToken(input.username, input.password)
         return when (token) {
-            is Success ->
+            is Success -> {
+                response.addCookie(Cookie("token", token.value.tokenValue))
+
                 ResponseEntity.status(200)
                     .body(UserTokenCreateOutputModel(token.value.tokenValue))
+            }
 
             is Failure -> when (token.value) {
                 TokenCreationError.UserOrPasswordAreInvalid -> Problem.userOrPasswordAreInvalid(instance)

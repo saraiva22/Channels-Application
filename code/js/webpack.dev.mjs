@@ -4,6 +4,7 @@ export default {
   mode: 'development',
   devServer: {
     historyApiFallback: true,
+    port: 9000
   },
   resolve: {
     extensions: ['.js', '.ts', '.tsx'],

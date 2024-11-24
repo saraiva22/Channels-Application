@@ -1,12 +1,33 @@
 import React from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { Layout } from './Layout/Layout';
+import { Login } from './Components/Authentication/Login';
+import { Register } from './Components/Authentication/Register';
+import { RequireAuthentication } from './Components/Authentication/requireAuthentication';
 
-function App() {
+export function App() {
   return (
-    <div>
-      <h1>DAW</h1>
-      <h3>Group 10</h3>
-    </div>
+    <RequireAuthentication>
+      <RouterProvider router={router} />
+    </RequireAuthentication>
   );
 }
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Layout />,
+    children: [
+      {
+        path: '/login',
+        element: <Login />,
+      },
+      {
+        path: '/register',
+        element: <Register />,
+      }
+    ],
+  },
+]);
 
 export default App;
