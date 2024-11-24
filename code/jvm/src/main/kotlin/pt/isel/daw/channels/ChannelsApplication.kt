@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import pt.isel.daw.channels.domain.token.Sha256TokenEncoder
@@ -57,6 +58,13 @@ class PipelineConfig(
 
 	override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
 		resolvers.add(authenticatedUserArgumentResolver)
+	}
+
+	override fun addCorsMappings(registry: CorsRegistry) {
+		registry.addMapping("/**")
+			.allowCredentials(true)
+			.allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+			.allowedOrigins("http://localhost:9000", "http://localhost")
 	}
 }
 
