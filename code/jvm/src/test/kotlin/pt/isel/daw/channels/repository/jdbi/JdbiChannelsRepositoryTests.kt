@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test
 import pt.isel.daw.channels.domain.channels.Channel
 import pt.isel.daw.channels.domain.channels.ChannelModel
 import pt.isel.daw.channels.domain.channels.Privacy
+import pt.isel.daw.channels.domain.channels.State
 import pt.isel.daw.channels.domain.channels.Type
+import pt.isel.daw.channels.http.model.channel.ChannelUpdateInputModel
 import pt.isel.daw.channels.runWithHandle
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -204,7 +206,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // when: updating the channel name
             val newChannelName = newTestChannelName()
-            repo.updateChannel(createdChannel.id, newChannelName)
+            repo.updateChannel(createdChannel.id, ChannelUpdateInputModel(newChannelName))
 
             // and: searching for the channel by name
             val updatedChannel: List<Channel> = repo.searchChannelsByName(newChannelName, null)
@@ -219,7 +221,38 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
     }
 
     @Test
-    fun `user join public channel`() {
+    fun `update channel type`() {
+        runWithHandle(jdbi) { handle ->
+            // given: a ChannelsRepository
+            val repo = JdbiChannelsRepository(handle)
+
+            // and: a public channel
+            val channelName = newTestChannelName()
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
+            repo.createChannel(channel)
+
+            // and: getting the channel by id
+            val retrievedChannel: List<Channel> = repo.searchChannelsByName(channelName, null)
+            val createdChannel = retrievedChannel[0]
+
+            // when: updating the channel type
+            repo.updateChannel(createdChannel.id, ChannelUpdateInputModel(type = Type.PRIVATE))
+
+            // and: searching for the channel by name
+            val updatedChannel: List<Channel> = repo.searchChannelsByName(channelName, null)
+
+            // then: the channel is found
+            assertTrue(updatedChannel.size == 1)
+            val updated = updatedChannel[0]
+            assertEquals(channelName, updated.name)
+            assertEquals(createdChannel.owner, updated.owner)
+            assertEquals(createdChannel.id, updated.id)
+            assertEquals(Type.PRIVATE, updated.type)
+        }
+    }
+
+    @Test
+    fun `user joins public channel`() {
         runWithHandle(jdbi) {
             // given: a ChannelsRepository
             val repo = JdbiChannelsRepository(it)
@@ -272,39 +305,6 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
     }
 
     @Test
-    fun `user join a private channel`() {
-        runWithHandle(jdbi) {
-            // given: a ChannelsRepository
-            val repo = JdbiChannelsRepository(it)
-
-            // and: a private channel
-            val channelName = newTestChannelName()
-            val channel = ChannelModel(channelName, testUserInfo.id, Type.PRIVATE)
-            val channelId = repo.createChannel(channel)
-
-            // when: creating an invitation for the channel
-            val code = channelsDomain.generateInvitation(channelId)
-            val inviteId = repo.createPrivateInvite(code, false)
-
-            // and: sending the invite to the user
-            val privacy = 1
-            repo.sendInvitePrivateChannel(testUserInfo2.id, channelId, inviteId, privacy)
-
-            // and: user joins the channel
-            repo.joinMemberInChannelPrivate(testUserInfo2.id, channelId, code)
-
-            // and: getting the channel by id
-            val retrievedChannel: Channel? = repo.getChannelById(channelId)
-
-            // then:
-            assertNotNull(retrievedChannel)
-            assertTrue(retrievedChannel.members.size == 2)
-            assertTrue(retrievedChannel.members.contains(testUserInfo))
-            assertTrue(retrievedChannel.members.contains(testUserInfo2))
-        }
-    }
-
-    @Test
     fun `create a private channel READ_WRITE invite`() {
         runWithHandle(jdbi) {
             // given: a ChannelsRepository
@@ -317,28 +317,19 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // when: creating an invitation for the channel
             val code = channelsDomain.generateInvitation(channelId)
-            val inviteId = repo.createPrivateInvite(code, false)
-
-            // and: sending the invite to the user
-            val privacy = 1
-            val inviteSent = repo.sendInvitePrivateChannel(testUserInfo2.id, channelId, inviteId, privacy)
-
-            // then: the invite is sent
-            assertTrue(inviteSent > 0)
-
-            // when: getting the type of the invite
-            val inviteType = repo.getMemberPermissions(testUserInfo2.id, channelId)
-
-            // then: the invite type is correct
-            assertNotNull(inviteType)
-            assertEquals(inviteType, Privacy.READ_WRITE)
+            repo.createPrivateInvite(
+                code,
+                Privacy.READ_WRITE.ordinal,
+                testUserInfo.id,
+                testUserInfo2.id,
+                channelId
+            )
 
             // when: checking if the invite code is valid
-            val validInvite = repo.isInviteCodeValid(testUserInfo2.id, channelId, code, false)
+            val validInvite = repo.isInviteCodeValid(testUserInfo2.id, channelId, code)
 
             // then: the invite is valid
-            assertNotNull(validInvite)
-            assertEquals(validInvite.id, channelId)
+            assertTrue(validInvite)
         }
     }
 
@@ -355,14 +346,87 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // when: creating an invitation for the channel
             val code = channelsDomain.generateInvitation(channelId)
-            val inviteId = repo.createPrivateInvite(code, false)
+            repo.createPrivateInvite(
+                code,
+                Privacy.READ_ONLY.ordinal,
+                testUserInfo.id,
+                testUserInfo2.id,
+                channelId
+            )
 
-            // and: sending the invite to the user
-            val privacy = 0
-            val inviteSent = repo.sendInvitePrivateChannel(testUserInfo2.id, channelId, inviteId, privacy)
+            // when: checking if the invite code is valid
+            val validInvite = repo.isInviteCodeValid(testUserInfo2.id, channelId, code)
 
-            // then: the invite is sent
-            assertTrue(inviteSent > 0)
+            // then: the invite is valid
+            assertTrue(validInvite)
+        }
+    }
+
+    @Test
+    fun `user joins a private channel and gets READ_WRITE permissions`() {
+        runWithHandle(jdbi) {
+            // given: a ChannelsRepository
+            val repo = JdbiChannelsRepository(it)
+
+            // and: a private channel
+            val channelName = newTestChannelName()
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PRIVATE)
+            val channelId = repo.createChannel(channel)
+
+            // when: creating an invitation for the channel
+            val code = channelsDomain.generateInvitation(channelId)
+            repo.createPrivateInvite(
+                code,
+                Privacy.READ_WRITE.ordinal,
+                testUserInfo.id,
+                testUserInfo2.id,
+                channelId
+            )
+
+            // and: user joins the channel
+            repo.joinMemberInChannelPrivate(testUserInfo2.id, channelId, code)
+
+            // when: getting the type of the invite
+            val inviteType = repo.getMemberPermissions(testUserInfo2.id, channelId)
+
+            // then: the invite type is correct
+            assertNotNull(inviteType)
+            assertEquals(inviteType, Privacy.READ_WRITE)
+
+            // and: getting the channel by id
+            val retrievedChannel: Channel? = repo.getChannelById(channelId)
+
+            // then:
+            assertNotNull(retrievedChannel)
+            assertTrue(retrievedChannel.members.size == 2)
+            assertTrue(retrievedChannel.members.contains(testUserInfo))
+            assertTrue(retrievedChannel.members.contains(testUserInfo2))
+        }
+    }
+
+    @Test
+    fun `user joins a private channel and gets READ_ONLY permissions`() {
+        runWithHandle(jdbi) {
+            // given: a ChannelsRepository
+            val repo = JdbiChannelsRepository(it)
+
+            // and: a private channel
+            val channelName = newTestChannelName()
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PRIVATE)
+            val channelId = repo.createChannel(channel)
+
+            // when: creating an invitation for the channel
+            val code = channelsDomain.generateInvitation(channelId)
+            repo.createPrivateInvite(
+                code,
+                Privacy.READ_ONLY.ordinal,
+                testUserInfo.id,
+                testUserInfo2.id,
+                channelId
+            )
+
+            // and: user joins the channel
+            repo.joinMemberInChannelPrivate(testUserInfo2.id, channelId, code)
 
             // when: getting the type of the invite
             val inviteType = repo.getMemberPermissions(testUserInfo2.id, channelId)
@@ -371,12 +435,145 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             assertNotNull(inviteType)
             assertEquals(inviteType, Privacy.READ_ONLY)
 
-            // when: checking if the invite code is valid
-            val validInvite = repo.isInviteCodeValid(testUserInfo2.id, channelId, code, false)
+            // and: getting the channel by id
+            val retrievedChannel: Channel? = repo.getChannelById(channelId)
 
-            // then: the invite is valid
-            assertNotNull(validInvite)
-            assertEquals(validInvite.id, channelId)
+            // then:
+            assertNotNull(retrievedChannel)
+            assertTrue(retrievedChannel.members.size == 2)
+            assertTrue(retrievedChannel.members.contains(testUserInfo))
+            assertTrue(retrievedChannel.members.contains(testUserInfo2))
+        }
+    }
+
+    @Test
+    fun `user rejects private channel invite`() {
+        runWithHandle(jdbi) {
+            // given: a ChannelsRepository
+            val repo = JdbiChannelsRepository(it)
+
+            // and: a private channel
+            val channelName = newTestChannelName()
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PRIVATE)
+            val channelId = repo.createChannel(channel)
+
+            // when: creating an invitation for the channel
+            val code = channelsDomain.generateInvitation(channelId)
+            repo.createPrivateInvite(
+                code,
+                Privacy.READ_ONLY.ordinal,
+                testUserInfo.id,
+                testUserInfo2.id,
+                channelId
+            )
+
+            // and: user rejects the channel
+            repo.channelInviteRejected(testUserInfo2.id, channelId, code)
+
+            // when: getting the channel by id
+            val retrievedChannel: Channel? = repo.getChannelById(channelId)
+
+            // then:
+            assertNotNull(retrievedChannel)
+            assertTrue(retrievedChannel.members.size == 1)
+            assertTrue(retrievedChannel.members.contains(testUserInfo))
+            assertFalse(retrievedChannel.members.contains(testUserInfo2))
+        }
+    }
+
+    @Test
+    fun `ban and unban user from public channel`() {
+        runWithHandle(jdbi) {
+            // given: a ChannelsRepository
+            val repo = JdbiChannelsRepository(it)
+
+            // and: a public channel
+            val channelName = newTestChannelName()
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PUBLIC)
+            val channelId = repo.createChannel(channel)
+
+            // and: user joins the channel
+            repo.joinChannel(testUserInfo2.id, channelId)
+
+            // when: banning the user from the channel
+            repo.updateChannelUserState(testUserInfo2.id, channelId, State.BANNED)
+
+            // and: getting the channel by id
+            val retrievedChannel: Channel? = repo.getChannelById(channelId)
+
+            // then:
+            assertNotNull(retrievedChannel)
+            assertTrue(retrievedChannel.members.size == 1)
+            assertTrue(retrievedChannel.members.contains(testUserInfo))
+            assertFalse(retrievedChannel.members.contains(testUserInfo2))
+            assertFalse(retrievedChannel.bannedMembers.isEmpty())
+            assertTrue(retrievedChannel.bannedMembers.contains(testUserInfo2))
+
+            // when: unbanning the user from the channel
+            repo.updateChannelUserState(testUserInfo2.id, channelId, State.UNBANNED)
+
+            // and: getting the channel by id
+            val retrievedChannel2: Channel? = repo.getChannelById(channelId)
+
+            // then:
+            assertNotNull(retrievedChannel2)
+            assertTrue(retrievedChannel2.members.size == 2)
+            assertTrue(retrievedChannel2.members.contains(testUserInfo))
+            assertTrue(retrievedChannel2.members.contains(testUserInfo2))
+            assertTrue(retrievedChannel2.bannedMembers.isEmpty())
+        }
+    }
+
+    @Test
+    fun `ban and unban user from private channel`() {
+        runWithHandle(jdbi) {
+            // given: a ChannelsRepository
+            val repo = JdbiChannelsRepository(it)
+
+            // and: a private channel
+            val channelName = newTestChannelName()
+            val channel = ChannelModel(channelName, testUserInfo.id, Type.PRIVATE)
+            val channelId = repo.createChannel(channel)
+
+            // and: creating an invitation for the channel
+            val code = channelsDomain.generateInvitation(channelId)
+            repo.createPrivateInvite(
+                code,
+                Privacy.READ_ONLY.ordinal,
+                testUserInfo.id,
+                testUserInfo2.id,
+                channelId
+            )
+
+            // and: user joins the channel
+            repo.joinMemberInChannelPrivate(testUserInfo2.id, channelId, code)
+
+            // when: banning the user from the channel
+            repo.updateChannelUserState(testUserInfo2.id, channelId, State.BANNED)
+
+            // and: getting the channel by id
+            val retrievedChannel: Channel? = repo.getChannelById(channelId)
+
+            // then:
+            assertNotNull(retrievedChannel)
+            assertTrue(retrievedChannel.members.size == 1)
+            assertTrue(retrievedChannel.members.contains(testUserInfo))
+            assertFalse(retrievedChannel.members.contains(testUserInfo2))
+            assertFalse(retrievedChannel.bannedMembers.isEmpty())
+            assertTrue(retrievedChannel.bannedMembers.contains(testUserInfo2))
+
+            // when: unbanning the user from the channel
+            repo.updateChannelUserState(testUserInfo2.id, channelId, State.UNBANNED)
+
+            // and: getting the channel by id
+            val retrievedChannel2: Channel? = repo.getChannelById(channelId)
+
+            // then:
+            assertNotNull(retrievedChannel2)
+            assertTrue(retrievedChannel2.members.size == 2)
+            assertTrue(retrievedChannel2.members.contains(testUserInfo))
+            assertTrue(retrievedChannel2.members.contains(testUserInfo2))
+            assertTrue(retrievedChannel2.bannedMembers.isEmpty())
         }
     }
 
@@ -393,11 +590,13 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
 
             // and: creating an invitation for the channel
             val code = channelsDomain.generateInvitation(channelId)
-            val inviteId = repo.createPrivateInvite(code, false)
-
-            // and: sending the invite to the user
-            val privacy = 0
-            repo.sendInvitePrivateChannel(testUserInfo2.id, channelId, inviteId, privacy)
+            repo.createPrivateInvite(
+                code,
+                Privacy.READ_ONLY.ordinal,
+                testUserInfo.id,
+                testUserInfo2.id,
+                channelId
+            )
 
             // and: user joins the channel
             repo.joinMemberInChannelPrivate(testUserInfo2.id, channelId, code)

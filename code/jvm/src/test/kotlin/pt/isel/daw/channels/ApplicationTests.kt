@@ -14,6 +14,8 @@ open class ApplicationTests {
 
         fun newTestChannelName() = "channel-${abs(Random.nextLong())}"
 
+        fun newTestPassword() = "Password@${abs(Random.nextInt())}"
+
         fun newTokenValidationData() = "token-${abs(Random.nextLong())}"
 
         fun newMessageText() = "message-${abs(Random.nextLong())}"

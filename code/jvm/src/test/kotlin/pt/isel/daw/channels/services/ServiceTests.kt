@@ -6,7 +6,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import pt.isel.daw.channels.ApplicationTests
 import pt.isel.daw.channels.TestClock
 import pt.isel.daw.channels.clearData
-import pt.isel.daw.channels.clearInvitationChannelsData
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.messages.MessageDomain
 import pt.isel.daw.channels.domain.token.Sha256TokenEncoder
@@ -16,6 +15,7 @@ import pt.isel.daw.channels.domain.user.UsersDomain
 import pt.isel.daw.channels.domain.user.UsersDomainConfig
 import pt.isel.daw.channels.repository.jdbi.JdbiTransactionManager
 import pt.isel.daw.channels.services.channel.ChannelsService
+import pt.isel.daw.channels.services.message.ChatService
 import pt.isel.daw.channels.services.message.MessagesService
 import pt.isel.daw.channels.services.user.UsersService
 import pt.isel.daw.channels.utils.Failure
@@ -28,6 +28,7 @@ import kotlin.time.Duration.Companion.minutes
 open class ServiceTests: ApplicationTests() {
     companion object {
         fun createUsersService(
+            chatService: ChatService,
             testClock: TestClock,
             tokenTtl: Duration = 30.days,
             tokenRollingTtl: Duration = 30.minutes,
@@ -44,17 +45,19 @@ open class ServiceTests: ApplicationTests() {
                     maxTokensPerUser = maxTokensPerUser,
                 ),
             ),
-            testClock,
+            chatService,
+            testClock
         )
 
         fun createChannelService() =
             ChannelsService(JdbiTransactionManager(jdbi), ChannelsDomain())
 
         fun createMessageService() =
-            MessagesService(JdbiTransactionManager(jdbi), ChannelsDomain(), MessageDomain(), testClock)
+            MessagesService(JdbiTransactionManager(jdbi), ChannelsDomain(), MessageDomain(), chatService, testClock)
 
+        private val chatService = ChatService()
         private val testClock = TestClock()
-        private val userServices = createUsersService(testClock)
+        private val userServices = createUsersService(chatService, testClock)
         private val channelServices = createChannelService()
 
         lateinit var testUser: User
@@ -80,7 +83,7 @@ open class ServiceTests: ApplicationTests() {
         private fun createUser(): User {
             val userName = newTestUserName()
             val email = newTestEmail(userName)
-            val password = newTokenValidationData()
+            val password = newTestPassword()
             val invitationCode = generateInvitationCode()
 
             return createUserInService(userName, email, password, invitationCode)
@@ -124,9 +127,10 @@ open class ServiceTests: ApplicationTests() {
         fun clearDB(): Unit {
             clearData(jdbi, "dbo.Messages", "user_id", testUser.id)
             clearData(jdbi, "dbo.Messages", "user_id", testUser2.id)
-            clearInvitationChannelsData(jdbi, testUser.id)
-            clearInvitationChannelsData(jdbi, testUser2.id)
-            if (::randomUser.isInitialized) clearInvitationChannelsData(jdbi, randomUser.id)
+            clearData(jdbi, "dbo.Invitation_Channels", "inviter_id", testUser.id)
+            clearData(jdbi, "dbo.Invitation_Channels", "inviter_id", testUser2.id)
+            if (::randomUser.isInitialized)
+                clearData(jdbi, "dbo.Invitation_Channels", "inviter_id", randomUser.id)
             clearData(jdbi, "dbo.Join_Channels", "user_id", testUser.id)
             clearData(jdbi, "dbo.Join_Channels", "user_id", testUser2.id)
             clearData(jdbi, "dbo.Channels", "owner_id", testUser.id)

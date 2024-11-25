@@ -4,7 +4,6 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import pt.isel.daw.channels.ApplicationTests
 import pt.isel.daw.channels.clearData
-import pt.isel.daw.channels.clearInvitationChannelsData
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.user.PasswordValidationInfo
 import pt.isel.daw.channels.domain.user.User
@@ -48,8 +47,8 @@ open class RepositoryTests: ApplicationTests() {
         fun clearDB(): Unit {
             clearData(jdbi, "dbo.Messages", "user_id", testUser.id)
             clearData(jdbi, "dbo.Messages", "user_id", testUser2.id)
-            clearInvitationChannelsData(jdbi, testUser.id)
-            clearInvitationChannelsData(jdbi, testUser2.id)
+            clearData(jdbi, "dbo.Invitation_Channels", "inviter_id", testUser.id)
+            clearData(jdbi, "dbo.Invitation_Channels", "inviter_id", testUser2.id)
             clearData(jdbi, "dbo.Join_Channels", "user_id", testUser.id)
             clearData(jdbi, "dbo.Join_Channels", "user_id", testUser2.id)
             clearData(jdbi, "dbo.Channels", "owner_id", testUser.id)

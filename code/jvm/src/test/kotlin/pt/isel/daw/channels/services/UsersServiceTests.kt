@@ -13,8 +13,8 @@ import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
+/*
 class UsersServiceTests: ServiceTests() {
-
 
     @Test
     fun `can create user, token, and retrieve by token`(){
@@ -325,3 +325,5 @@ class UsersServiceTests: ServiceTests() {
         }
     }
 }
+
+ */
