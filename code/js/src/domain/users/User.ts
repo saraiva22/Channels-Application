@@ -1,4 +1,4 @@
-type PasswordValidationInfo = {
+export type PasswordValidationInfo = {
   validationInfo: string;
 };
 

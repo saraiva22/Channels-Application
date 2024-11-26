@@ -57,7 +57,7 @@ class UsersController(
         val token = userService.createToken(input.username, input.password)
         return when (token) {
             is Success -> {
-                response.addCookie(Cookie("token", token.value.tokenValue))
+                response.addCookie(Cookie("login", token.value.tokenValue))
 
                 ResponseEntity.status(200)
                     .body(UserTokenCreateOutputModel(token.value.tokenValue))

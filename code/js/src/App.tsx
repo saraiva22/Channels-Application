@@ -1,9 +1,10 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { Layout } from './layout/Layout';
+import { LayoutWithNavBar } from './layout/NavBar';
 import { Login } from './components/authentication/Login';
 import { Register } from './components/authentication/Register';
 import { RequireAuthentication } from './components/authentication/RequireAuthentication';
+import { HomePage } from './components/home/Home';
 
 export const webRoutes = {
   home: '/',
@@ -12,13 +13,18 @@ export const webRoutes = {
   register: '/register',
   logout: '/logout',
   channels: '/channels',
+  about: '/about',
 };
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Layout />,
+    element: <LayoutWithNavBar />,
     children: [
+      {
+        path: webRoutes.home,
+        element: <HomePage />,
+      },
       {
         path: webRoutes.login,
         element: <Login />,

@@ -4,7 +4,7 @@ export default {
   mode: 'development',
   devServer: {
     historyApiFallback: true,
-    port: 9000
+    port: 9000,
   },
   resolve: {
     extensions: ['.js', '.ts', '.tsx'],
@@ -16,6 +16,10 @@ export default {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },
