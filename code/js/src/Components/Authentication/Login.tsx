@@ -1,6 +1,6 @@
 import React, { useReducer } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { login } from '../../Service/Users/UserServices';
+import { login } from '../../services/users/UserServices';
 
 type State =
   | { tag: 'editing'; error?: string; inputs: { username: string; password: string } }
@@ -67,17 +67,16 @@ export function Login() {
     const username = state.inputs.username;
     const password = state.inputs.password;
 
-    login(username, password)
-      .then(res => {
-        if (res) {
-          dispatch({ type: 'success' });
-        } else {
-          dispatch({ type: 'error', message: 'Invalid username or password' });
-        }
-      })
-      .catch(e => {
-        dispatch({ type: 'error', message: e.message });
-      });
+    try {
+      const result = await login(username, password);
+      if (result) {
+        dispatch({ type: 'success' });
+      } else {
+        dispatch({ type: 'error', message: 'Invalid username or password' });
+      }
+    } catch (e) {
+      dispatch({ type: 'error', message: e.message });
+    }
   }
 
   const username = state.tag === 'submitting' ? state.username : state.inputs.username;

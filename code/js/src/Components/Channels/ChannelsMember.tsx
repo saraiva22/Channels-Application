@@ -1,16 +1,15 @@
 import * as React from 'react';
-import { getMemberChannels } from "../../Service/Channels/ChannelsServices";
+import { getMemberChannels } from '../../services/channels/ChannelsServices';
 
 export function ChannelsMember() {
-    async function handleResults() {
-        const res = await getMemberChannels()
-        return await JSON.stringify(res)
-    }
+  async function handleResults() {
+    const res = await getMemberChannels();
+    return JSON.stringify(res);
+  }
 
-    return(
-        <div>
-            <textarea value={handleResults} readOnly cols={80} rows={40}></textarea>
-        </div>
-    )
+  return (
+    <div>
+      <textarea onChange={handleResults} readOnly cols={80} rows={40}></textarea>
+    </div>
+  );
 }
-

@@ -1,13 +1,18 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { Layout } from './Layout/Layout';
-import { Login } from './Components/Authentication/Login';
-import { Register } from './Components/Authentication/Register';
-import { RequireAuthentication } from './Components/Authentication/RequireAuthentication';
+import { Layout } from './layout/Layout';
+import { Login } from './components/authentication/Login';
+import { Register } from './components/authentication/Register';
+import { RequireAuthentication } from './components/authentication/RequireAuthentication';
 
-export function App() {
-  return <RouterProvider router={router} />;
-}
+export const webRoutes = {
+  home: '/',
+  me: '/me',
+  login: '/login',
+  register: '/register',
+  logout: '/logout',
+  channels: '/channels',
+};
 
 const router = createBrowserRouter([
   {
@@ -15,15 +20,17 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        path: '/login',
+        path: webRoutes.login,
         element: <Login />,
       },
       {
-        path: '/register',
+        path: webRoutes.register,
         element: <Register />,
       },
     ],
   },
 ]);
 
-export default App;
+export function App() {
+  return <RouterProvider router={router} />;
+}
