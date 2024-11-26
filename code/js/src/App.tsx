@@ -5,6 +5,7 @@ import { Login } from './components/authentication/Login';
 import { Register } from './components/authentication/Register';
 import { RequireAuthentication } from './components/authentication/RequireAuthentication';
 import { HomePage } from './components/home/Home';
+import { About } from './components/about/About';
 
 export const webRoutes = {
   home: '/',
@@ -33,6 +34,11 @@ const router = createBrowserRouter([
         path: webRoutes.register,
         element: <Register />,
       },
+      {
+        path: webRoutes.about,
+        element: <About />,
+      },
+      {}
     ],
   },
 ]);

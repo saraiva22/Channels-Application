@@ -184,11 +184,11 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun tokenNotRevoked(instance: URI?): ResponseEntity<*> = Problem(
+        fun tokenNotRevoked(instance: URI?, token: String): ResponseEntity<*> = Problem(
             type = tokenNotRevoked,
             title = "Token not revoked",
             status = HttpStatus.BAD_REQUEST.value(),
-            detail = "Token not revoked",
+            detail = "Token $token not revoked",
             instance = instance
         ).toResponse()
 

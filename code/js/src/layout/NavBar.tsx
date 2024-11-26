@@ -1,12 +1,18 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../components/authentication/RequireAuthentication';
 import { webRoutes } from '../App';
+import { logout } from '../services/users/UserServices';
 import './NavBar.css';
 
 function NavBar() {
   const loggedIn = isLoggedIn();
-  console.log(loggedIn);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate(webRoutes.home);
+  };
 
   return (
     <nav className="navStyle">
@@ -29,9 +35,9 @@ function NavBar() {
               </Link>
             </li>
             <li className="liStyle">
-              <Link className="linkStyle" to={webRoutes.logout}>
+              <button className="bStyle" onClick={handleLogout}>
                 Logout
-              </Link>
+              </button>
             </li>
           </>
         ) : (

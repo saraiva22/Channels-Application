@@ -24,6 +24,7 @@ object Uris {
 
         fun login(): URI = URI(TOKEN)
 
+        fun logout(): URI = URI(LOGOUT)
         fun register(): URI = URI(CREATE)
     }
 

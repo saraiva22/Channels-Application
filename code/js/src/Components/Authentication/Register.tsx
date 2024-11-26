@@ -100,7 +100,6 @@ export function Register() {
 
     try {
       const result = await register(username, email, password, inviteCode);
-      console.log(result);
       if (!result) {
         dispatch({ type: 'error', message: 'invalid' });
         return;

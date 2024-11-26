@@ -1,4 +1,4 @@
-import httpServiceInit from '../HttpService';
+import httpServiceInit from '../utils/HttpService';
 const httpService = httpServiceInit();
 
 export async function getMemberChannels(sort?: String): Promise<string> {

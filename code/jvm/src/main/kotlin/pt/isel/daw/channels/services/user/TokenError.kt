@@ -17,9 +17,9 @@ typealias TokenCreationResult = Either<TokenCreationError, TokenExternalInfo>
 
 
 sealed class TokenRevocationError {
-    data object TokenIsInvalid : TokenRevocationError()
+    data object TokenDoesNotExist : TokenRevocationError()
 }
 
-typealias TokenRevocationResult = Either<TokenRevocationError, Boolean>
+typealias TokenRevocationResult = Either<TokenRevocationError, Unit>
 
 

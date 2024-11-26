@@ -99,7 +99,7 @@ class UsersDomain(
     private fun checkInvite(invite: String, hash: String) = hashInvite(invite) == hash
 
     companion object {
-        private const val MIN_PASSWORD_SIZE = 6
+        private const val MIN_PASSWORD_SIZE = 5
         private const val MAX_PASSWORD_SIZE = 32
     }
 }

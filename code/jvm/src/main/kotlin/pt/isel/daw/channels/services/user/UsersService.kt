@@ -123,13 +123,14 @@ class UsersService(
     }
 
 
-    fun revokeToken(userId: Int, token: String): Boolean {
+    fun revokeToken(userId: Int, token: String): TokenRevocationResult {
         val tokenValidationInfo = usersDomain.createTokenValidationInformation(token)
         return transactionManager.run {
-            it.usersRepository.removeTokenByValidationInfo(tokenValidationInfo)
+             val res = it.usersRepository.removeTokenByValidationInfo(tokenValidationInfo)
+            if(res == 0) failure(TokenRevocationError.TokenDoesNotExist)
             chatService.disconnectListener(userId, token)
             logger.info("Token Revoked")
-            true
+            success(Unit)
         }
     }
 

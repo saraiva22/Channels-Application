@@ -12,7 +12,7 @@ data class UserCreateInputModel(
     @field:Email(message = "Email must be valid")
     val email: String,
     @field:NotBlank(message = "Password must not be blank")
-    @field:Size(min = 6, max = 32, message = "Password must have between 5 and 40 characters")
+    @field:Size(min = 5, max = 32, message = "Password must have between 5 and 40 characters")
     val password: String,
     val inviteCode: String?
 )

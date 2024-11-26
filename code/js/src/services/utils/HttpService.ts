@@ -1,4 +1,5 @@
-import { Problem, problemMediaType } from './Problem';
+import { Problem, problemMediaType } from '../media/Problem';
+
 
 export default function httpService() {
   return {

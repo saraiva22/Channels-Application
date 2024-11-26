@@ -3,6 +3,7 @@ package pt.isel.daw.channels.http.pipeline
 import org.springframework.stereotype.Component
 import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.services.user.UsersService
+import jakarta.servlet.http.Cookie
 
 @Component
 class RequestTokenProcessor(
@@ -24,6 +25,13 @@ class RequestTokenProcessor(
                 it,
                 parts[1],
             )
+        }
+    }
+
+    fun processAuthorizationCookieValue(cookie: Cookie): AuthenticatedUser? {
+        val user = usersService.getUserByToken(cookie.value)
+        return user?.let {
+            AuthenticatedUser(it, cookie.value)
         }
     }
 

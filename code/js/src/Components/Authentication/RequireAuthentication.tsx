@@ -19,8 +19,6 @@ export function isLoggedIn(): boolean {
 }
 
 export function getCookie(name: string): string | null {
-  return document.cookie
-    .split(';')
-    .find(row => row.startsWith(name))
-    ?.split('=')[1];
+  const loginCookie = document.cookie.split('; ').find(row => row.startsWith(name));
+  return loginCookie ? loginCookie.split('=')[1] : null;
 }

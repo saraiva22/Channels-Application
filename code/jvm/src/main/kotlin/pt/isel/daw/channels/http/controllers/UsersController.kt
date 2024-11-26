@@ -2,18 +2,14 @@ package pt.isel.daw.channels.http.controllers
 
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse
-import org.slf4j.LoggerFactory
+import kotlinx.datetime.Clock
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.http.Uris
 import pt.isel.daw.channels.http.media.Problem
-import pt.isel.daw.channels.http.model.user.UserCreateInputModel
-import pt.isel.daw.channels.http.model.user.UserCreateTokenInputModel
-import pt.isel.daw.channels.http.model.user.UserHomeOutputModel
-import pt.isel.daw.channels.http.model.user.UserInviteOutputModel
-import pt.isel.daw.channels.http.model.user.UserTokenCreateOutputModel
+import pt.isel.daw.channels.http.model.user.*
 import pt.isel.daw.channels.http.model.utils.IdOutputModel
 import pt.isel.daw.channels.services.user.TokenCreationError
 import pt.isel.daw.channels.services.user.UserCreationError
@@ -26,6 +22,15 @@ import pt.isel.daw.channels.utils.Success
 class UsersController(
     private val userService: UsersService
 ) {
+
+    companion object {
+        const val HEADER_SET_COOKIE_NAME = "Set-Cookie"
+        const val COOKIE_NAME_LOGIN = "login"
+        const val COOKIE_NAME_TOKEN = "token"
+
+
+    }
+
     @PostMapping(Uris.Users.CREATE)
     fun create(
         @Validated @RequestBody input: UserCreateInputModel
@@ -57,9 +62,16 @@ class UsersController(
         val token = userService.createToken(input.username, input.password)
         return when (token) {
             is Success -> {
-                response.addCookie(Cookie("login", token.value.tokenValue))
-
+                val cookieMaxAge = token.value.tokenExpiration.epochSeconds - Clock.System.now().epochSeconds
                 ResponseEntity.status(200)
+                    .header(
+                        HEADER_SET_COOKIE_NAME,
+                        "$COOKIE_NAME_TOKEN=${token.value.tokenValue};Max-age=$cookieMaxAge; HttpOnly; SameSite = Strict; Path=/"
+                    )
+                    .header(
+                        HEADER_SET_COOKIE_NAME,
+                        "$COOKIE_NAME_LOGIN=${input.username};Max-age=$cookieMaxAge; SameSite = Strict; Path=/"
+                    )
                     .body(UserTokenCreateOutputModel(token.value.tokenValue))
             }
 
@@ -73,9 +85,23 @@ class UsersController(
 
     @PostMapping(Uris.Users.LOGOUT)
     fun logout(
-        user: AuthenticatedUser,
-    ) {
-        userService.revokeToken(user.user.id, user.token)
+        auth: AuthenticatedUser,
+    ): ResponseEntity<*> {
+        val instance = Uris.Users.logout()
+        return when (userService.revokeToken(auth.user.id, auth.token)) {
+            is Success -> ResponseEntity.status(200)
+                .header(
+                    HEADER_SET_COOKIE_NAME,
+                    "$COOKIE_NAME_TOKEN=${auth.token};Max-age=0; HttpOnly; SameSite = Strict; Path=/"
+                )
+                .header(
+                    HEADER_SET_COOKIE_NAME,
+                    "$COOKIE_NAME_LOGIN=${auth.user.username};Max-age=0; SameSite = Strict; Path=/"
+                )
+                .body(UserTokenCreateOutputModel("Token ${auth.token} removed successful"))
+
+            is Failure -> Problem.tokenNotRevoked(instance, auth.token)
+        }
     }
 
     @GetMapping(Uris.Users.GET_BY_ID)
@@ -114,10 +140,6 @@ class UsersController(
             id = userAuthenticatedUser.user.id,
             username = userAuthenticatedUser.user.username,
         )
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(UsersController::class.java)
     }
 
 }
