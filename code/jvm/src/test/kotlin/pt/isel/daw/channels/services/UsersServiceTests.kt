@@ -4,6 +4,7 @@ import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import pt.isel.daw.channels.TestClock
+import pt.isel.daw.channels.services.message.ChatService
 import pt.isel.daw.channels.utils.Either
 import java.util.*
 import kotlin.test.Test
@@ -13,18 +14,19 @@ import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-/*
+
 class UsersServiceTests: ServiceTests() {
 
     @Test
     fun `can create user, token, and retrieve by token`(){
         /// given: a user service
+        val chatService = ChatService()
         val testClock = TestClock()
-        val userService = createUsersService(testClock)
+        val userService = createUsersService(chatService, testClock)
 
         // when: creating a user
         val username = newTestUserName()
-        val password = "changeit"
+        val password = newTestPassword()
         val email = newTestEmail(username)
         val invite = generateInvitationCode()
         val createUserResult = userService.createUser(username, email, password, invite)
@@ -63,13 +65,14 @@ class UsersServiceTests: ServiceTests() {
     @Test
     fun `create user token`() {
         // given: a user service
+        val chatService = ChatService()
         val testClock = TestClock()
-        val userService = createUsersService(testClock)
+        val userService = createUsersService(chatService, testClock)
 
         // then: creating a user
         val userName = newTestUserName()
         val email = newTestEmail(userName)
-        val passwordValidationInfo = newTokenValidationData()
+        val passwordValidationInfo = newTestPassword()
         val code = generateInvitationCode()
         val createUserResult = createUserInService(userName, email, passwordValidationInfo, code)
 
@@ -99,15 +102,16 @@ class UsersServiceTests: ServiceTests() {
     @Test
     fun `can use token during rolling period but not after absolute TTL`() {
         // given: a user service
+        val chatService = ChatService()
         val testClock = TestClock()
         val tokenTtl = 90.minutes
         val tokenRollingTtl = 30.minutes
-        val userService = createUsersService(testClock, tokenTtl, tokenRollingTtl)
+        val userService = createUsersService(chatService, testClock, tokenTtl, tokenRollingTtl)
 
         // then: creating a user
         val userName = newTestUserName()
         val email = newTestEmail(userName)
-        val passwordValidationInfo = newTokenValidationData()
+        val passwordValidationInfo = newTestPassword()
         val code = generateInvitationCode()
         val createUserResult = createUserInService(userName, email, passwordValidationInfo, code)
 
@@ -138,13 +142,14 @@ class UsersServiceTests: ServiceTests() {
     @Test
     fun `revoke user token`() {
         // given: a user service
+        val chatService = ChatService()
         val testClock = TestClock()
-        val userService = createUsersService(testClock)
+        val userService = createUsersService(chatService, testClock)
 
         // then: creating a user
         val userName = newTestUserName()
         val email = newTestEmail(userName)
-        val passwordValidationInfo = newTokenValidationData()
+        val passwordValidationInfo = newTestPassword()
         val code = generateInvitationCode()
         val createUserResult = createUserInService(userName, email, passwordValidationInfo, code)
 
@@ -158,7 +163,7 @@ class UsersServiceTests: ServiceTests() {
         }
 
         // when: revoking the token
-        userService.revokeToken(token)
+        userService.revokeToken(createUserResult.id, token)
 
         // then: the token is no longer valid
         val user = userService.getUserByToken(token)
@@ -172,13 +177,14 @@ class UsersServiceTests: ServiceTests() {
     @Test
     fun `create register invite`() {
         // given: a user service
+        val chatService = ChatService()
         val testClock = TestClock()
-        val userService = createUsersService(testClock)
+        val userService = createUsersService(chatService, testClock)
 
         // then: creating a user
         val userName = newTestUserName()
         val email = newTestEmail(userName)
-        val passwordValidationInfo = newTokenValidationData()
+        val passwordValidationInfo = newTestPassword()
         val code = generateInvitationCode()
         val createUserResult = createUserInService(userName, email, passwordValidationInfo, code)
 
@@ -196,13 +202,14 @@ class UsersServiceTests: ServiceTests() {
     @Test
     fun `can limit the number of tokens`() {
         // given: a user service
+        val chatService = ChatService()
         val testClock = TestClock()
         val maxTokensPerUser = 5
-        val userService = createUsersService(testClock, maxTokensPerUser = maxTokensPerUser)
+        val userService = createUsersService(chatService, testClock, maxTokensPerUser = maxTokensPerUser)
 
         // when: creating a user
         val username = newTestUserName()
-        val password = "changeit"
+        val password = newTestPassword()
         val email = newTestEmail(username)
         val invite = generateInvitationCode()
         val createUserResult = userService.createUser(username,email,  password, invite)
@@ -255,13 +262,14 @@ class UsersServiceTests: ServiceTests() {
     @Test
     fun `can limit the number of tokens even if multiple tokens are used at the same time`() {
         // given: a user service
+        val chatService = ChatService()
         val testClock = TestClock()
         val maxTokensPerUser = 5
-        val userService = createUsersService(testClock, maxTokensPerUser = maxTokensPerUser)
+        val userService = createUsersService(chatService, testClock, maxTokensPerUser = maxTokensPerUser)
 
         // when: creating a user
         val username = newTestUserName()
-        val password = "changeit"
+        val password = newTestPassword()
         val email = newTestEmail(username)
         val invite = generateInvitationCode()
         val createUserResult = userService.createUser(username,email,  password, invite)
@@ -317,13 +325,5 @@ class UsersServiceTests: ServiceTests() {
                 handle.execute("delete from $tableName where $columnName = $userId")
             }
         }
-
-        private fun generateInvitation(): String {
-            val part1 = UUID.randomUUID().toString().take(4)
-            val part2 = UUID.randomUUID().toString().take(4)
-            return "$part1-$part2"
-        }
     }
 }
-
- */

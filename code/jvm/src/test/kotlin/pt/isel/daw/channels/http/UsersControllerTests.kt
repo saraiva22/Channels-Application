@@ -3,6 +3,7 @@ package pt.isel.daw.channels.http
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
+import pt.isel.daw.channels.ApplicationTests
 import pt.isel.daw.channels.http.model.TokenResponse
 import pt.isel.daw.channels.http.model.UserInviteResponse
 import kotlin.math.abs
@@ -12,7 +13,7 @@ import kotlin.test.assertTrue
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class UsersControllerTests {
+class UsersControllerTests: ApplicationTests() {
     // One of the very few places where we use property injection
     @LocalServerPort
     var port: Int = 0
@@ -24,8 +25,7 @@ class UsersControllerTests {
 
         // and: a random user
         val username = newTestUserName()
-        val password = "changeit"
-
+        val password = PASSWORD
 
         // when: get Token for admin
         // then: the response is a 200
@@ -132,7 +132,7 @@ class UsersControllerTests {
         // and: a random user
         val username = newTestUserName()
         val email = newTestEmail()
-        val password = "changeit"
+        val password = PASSWORD
 
         //when: error creating an admin user, because database have one user
         // then: the response is a 400 with the proper problem
@@ -246,7 +246,7 @@ class UsersControllerTests {
 
         // when: getting the user home with a valid token
         // then: the response is a 200 with the proper representation
-        client.get().uri("/me")
+        client.get().uri("/home")
             .header("Authorization", "Bearer ${result2.token}")
             .exchange()
             .expectStatus().isOk
@@ -255,7 +255,7 @@ class UsersControllerTests {
 
         // when: getting the user home with an invalid token
         // then: the response is a 401 with the proper problem
-        client.get().uri("/me")
+        client.get().uri("/home")
             .header("Authorization", "Bearer ${result2.token}-invalid")
             .exchange()
             .expectStatus().isUnauthorized
@@ -270,7 +270,7 @@ class UsersControllerTests {
 
         // when: getting the user home with the revoked token
         // then: response is a 401
-        client.get().uri("/me")
+        client.get().uri("/home")
             .header("Authorization", "Bearer ${result2.token}")
             .exchange()
             .expectStatus().isUnauthorized
@@ -285,7 +285,9 @@ class UsersControllerTests {
 
         private const val ADMIN_USERNAME = "admin"
         private const val ADMIN_EMAIL = "admin@gmail.com"
-        private const val ADMIN_PASSWORD = "admin"
+        private const val ADMIN_PASSWORD = "Admin@123"
+
+        val PASSWORD = newTestPassword()
 
         private fun getTokenUserAdmin(client: WebTestClient): TokenResponse {
             return client.post().uri("/users/token")
@@ -301,6 +303,5 @@ class UsersControllerTests {
                 .returnResult()
                 .responseBody!!
         }
-
     }
 }

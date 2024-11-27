@@ -95,7 +95,7 @@ class ControllerTests: ServiceTests() {
             .responseBody!!
 
     companion object {
-        val password = "password"
+        val password = newTestPassword()
 
         val private = Type.PRIVATE
 

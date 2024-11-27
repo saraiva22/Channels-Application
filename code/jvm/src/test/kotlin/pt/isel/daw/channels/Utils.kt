@@ -2,6 +2,8 @@ package pt.isel.daw.channels
 
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
+import pt.isel.daw.channels.domain.user.UsersDomain
+import java.security.MessageDigest
 
 fun runWithHandle(jdbi: Jdbi, block: (Handle) -> Unit) = jdbi.useTransaction<Exception>(block)
 
@@ -17,31 +19,12 @@ fun clearData(jdbi: Jdbi, tableName: String, attributeName: String, value: Int) 
             .execute()
     })
 }
-/*
-fun clearInvitationChannelsData(jdbi: Jdbi, value: Int) {
-    runWithHandle(jdbi, { handle ->
-        run {
-            val inviteIds = handle.createQuery(
-                """
-                select cod_hash
-                from dbo.Invitation_Channels
-                where inviter_id = :value
-            """
-            )
-                .bind("value", value)
-                .mapTo(String::class.java)
-                .list()
-
-            inviteIds.forEach { inviteId ->
-                clearData(jdbi, "dbo.Invitation_Channels", "cod_hash", inviteId)
-            }
-        }
-    })
-}
-
- */
 
 fun clearInvitationRegisterData(jdbi: Jdbi, value: String) {
+    val md = MessageDigest.getInstance("SHA-256")
+    val hashedBytes = md.digest(value.toByteArray())
+    val hashedInvite =  hashedBytes.joinToString("") { "%02x".format(it) }
+
     runWithHandle(jdbi, { handle ->
         run {
             val inviteId = handle.createQuery(
@@ -51,7 +34,7 @@ fun clearInvitationRegisterData(jdbi: Jdbi, value: String) {
                     where cod_hash = :value
                 """
             )
-                .bind("value", value)
+                .bind("value", hashedInvite)
                 .mapTo(Int::class.java)
                 .one()
 
