@@ -1,5 +1,6 @@
 package pt.isel.daw.channels.http.controllers
 
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,10 +15,7 @@ import pt.isel.daw.channels.http.model.message.MessageCreateInputModel
 import pt.isel.daw.channels.http.model.message.MessageListOutputModel
 import pt.isel.daw.channels.http.model.message.MessageOutputModel
 import pt.isel.daw.channels.http.model.utils.IdOutputModel
-import pt.isel.daw.channels.services.message.CreateMessageError
-import pt.isel.daw.channels.services.message.DeleteMessageError
-import pt.isel.daw.channels.services.message.GetMessageError
-import pt.isel.daw.channels.services.message.MessagesService
+import pt.isel.daw.channels.services.message.*
 import pt.isel.daw.channels.utils.Failure
 import pt.isel.daw.channels.utils.Success
 
@@ -81,11 +79,42 @@ class MessagesController(
             }
 
             is Failure -> when (res.value) {
-                GetMessageError.ChannelNotFound -> Problem.channelNotFound(id, instance)
-                GetMessageError.PermissionDenied -> Problem.unauthorized(instance)
+                GetMessagesError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+                GetMessagesError.PermissionDenied -> Problem.unauthorized(instance)
             }
         }
     }
+
+    @GetMapping(Uris.Messages.GET_BY_ID)
+    fun getMessagesById(
+        @PathVariable channelId: Int,
+        @PathVariable messageId: Int,
+        authenticatedUser: AuthenticatedUser
+    ): ResponseEntity<*> {
+        val instance = Uris.Messages.byId(channelId, messageId)
+        val userId = authenticatedUser.user.id
+        return when (val res = messagesService.getMessageById(userId, messageId, channelId)) {
+            is Success ->
+                ResponseEntity
+                    .status(200)
+                    .body(
+                        MessageOutputModel(
+                            res.value.id,
+                            res.value.text,
+                            res.value.channel,
+                            res.value.user,
+                            res.value.created.toString()
+                        )
+                    )
+
+            is Failure -> when (res.value) {
+                GetMessageError.ChannelNotFound -> Problem.channelNotFound(channelId, instance)
+                GetMessageError.PermissionDenied -> Problem.userPermissionsDenied(instance)
+                GetMessageError.MessageNotFound -> Problem.messageNotFound(messageId, instance)
+            }
+        }
+    }
+
 
     @DeleteMapping(Uris.Messages.DELETE)
     fun deleteMessagesByChannel(
@@ -102,21 +131,10 @@ class MessagesController(
 
             is Failure -> when (res.value) {
                 DeleteMessageError.ChannelNotFound -> Problem.channelNotFound(id, instance)
-                DeleteMessageError.PermissionDenied -> Problem.unauthorized(instance)
+                DeleteMessageError.PermissionDenied -> Problem.userPermissionsDenied(instance)
                 DeleteMessageError.MessageNotFound -> Problem.messageNotFound(id, instance)
             }
         }
     }
 
-    /*
-    @GetMapping(Uris.Messages.LISTEN)
-    fun listenMessage(
-        @PathVariable id: Int,
-        authenticatedUser: AuthenticatedUser
-    ): SseEmitter {
-        val sseEmitter = SseEmitter(TimeUnit.HOURS.toMillis(1))
-
-
-    }
-     */
 }

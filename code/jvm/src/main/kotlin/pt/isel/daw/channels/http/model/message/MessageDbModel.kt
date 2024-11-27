@@ -10,8 +10,6 @@ import pt.isel.daw.channels.domain.user.UserInfo
 data class MessageDbModel (
     val id: Int,
     val text: String,
-    //@Nested("channel")
-    //val channel: Channel,
     @Nested("user")
     val user: UserInfo,
     val created: Long

@@ -21,7 +21,8 @@ class CustomExceptionHandler : ResponseEntityExceptionHandler() {
         request: WebRequest,
     ): ResponseEntity<Any>? {
         log.info("Handling MethodArgumentNotValidException: {}", ex.message)
-        return Problem.response(400, Problem.invalidRequestContent())
+        val errorMessages = ex.bindingResult.fieldErrors.mapNotNull { it.defaultMessage }
+        return Problem.response(400, Problem.invalidRequestContent(errorMessages))
     }
 
     override fun handleHttpMessageNotReadable(

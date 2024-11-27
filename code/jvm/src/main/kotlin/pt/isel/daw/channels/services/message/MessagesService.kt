@@ -49,7 +49,21 @@ class MessagesService(
         }
     }
 
-    fun getChannelMessages(userId: Int, channelId: Int): GetMessageResult {
+    fun getChannelMessages(userId: Int, channelId: Int): GetMessagesResult {
+        return transactionManager.run {
+            val channel = it.channelsRepository.getChannelById(channelId)
+                ?: return@run failure(GetMessagesError.ChannelNotFound)
+
+            if (!channelsDomain.isUserMember(userId, channel))
+                return@run failure(GetMessagesError.PermissionDenied)
+
+            val messageList = it.messagesRepository.getChannelMessages(channel)
+            success(messageList)
+        }
+    }
+
+
+    fun getMessageById(userId: Int, messageId: Int, channelId: Int): GetMessageResult {
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(GetMessageError.ChannelNotFound)
@@ -57,8 +71,10 @@ class MessagesService(
             if (!channelsDomain.isUserMember(userId, channel))
                 return@run failure(GetMessageError.PermissionDenied)
 
-            val messageList = it.messagesRepository.getChannelMessages(channel)
-            success(messageList)
+            val message = it.messagesRepository.getMessageById(messageId, channel) ?: return@run failure(
+                GetMessageError.MessageNotFound
+            )
+            success(message)
         }
     }
 
@@ -70,14 +86,16 @@ class MessagesService(
             if (!channelsDomain.isUserMember(userId, channel))
                 return@run failure(DeleteMessageError.PermissionDenied)
 
-            val messagesOfChannel = getChannelMessages(userId, channelId)
-            if (messagesOfChannel is Either.Right<List<Message>> &&
-                !messagesDomain.isMessageInList(messageId, messagesOfChannel.value)) {
-                return@run failure(DeleteMessageError.MessageNotFound)
-            }
+            val message = it.messagesRepository.getMessageById(messageId, channel) ?: return@run failure(
+                DeleteMessageError.MessageNotFound
+            )
+
+            if (!channelsDomain.isOwner(userId, channel) && !messagesDomain.isCreatorOfMessage(userId, message))
+                return@run failure(DeleteMessageError.PermissionDenied)
 
             it.messagesRepository.deleteMessageFromChannel(messageId, channelId)
             success(true)
         }
     }
+
 }

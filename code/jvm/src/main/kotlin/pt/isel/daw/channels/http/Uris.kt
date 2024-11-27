@@ -4,8 +4,8 @@ import org.springframework.web.util.UriTemplate
 import java.net.URI
 
 object Uris {
-    const val PREFIX = "/api"
-    const val HOME = PREFIX
+    private const val PREFIX = "/api"
+    private const val HOME = PREFIX
 
     fun home(): URI = URI(HOME)
 
@@ -69,7 +69,7 @@ object Uris {
         const val CREATE = "$PREFIX/channels/{id}/messages"
         const val GET_MESSAGES = "$PREFIX/channels/{id}/messages"
         const val DELETE = "$PREFIX/channels/{channelId}/messages/{id}"
-        const val GET_BY_ID = "$PREFIX/channels/{channelId}/messages/{id}"
+        const val GET_BY_ID = "$PREFIX/channels/{channelId}/messages/{messageId}"
 
 
         fun register(): URI = URI(CREATE)

@@ -6,6 +6,7 @@ import { Register } from './components/authentication/Register';
 import { RequireAuthentication } from './components/authentication/RequireAuthentication';
 import { HomePage } from './components/home/Home';
 import { About } from './components/about/About';
+import { Notifications } from './components/notifications/Notifications';
 
 export const webRoutes = {
   home: '/',
@@ -15,6 +16,7 @@ export const webRoutes = {
   logout: '/logout',
   channels: '/channels',
   about: '/about',
+  notifications: '/notifications',
 };
 
 const router = createBrowserRouter([
@@ -38,7 +40,10 @@ const router = createBrowserRouter([
         path: webRoutes.about,
         element: <About />,
       },
-      {}
+      {
+        path: webRoutes.notifications,
+        element: <Notifications />,
+      },
     ],
   },
 ]);

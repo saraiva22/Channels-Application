@@ -3,12 +3,21 @@ package pt.isel.daw.channels.services.message
 import pt.isel.daw.channels.domain.messages.Message
 import pt.isel.daw.channels.utils.Either
 
+sealed class GetMessagesError {
+    data object ChannelNotFound : GetMessagesError()
+    data object PermissionDenied : GetMessagesError()
+}
+
+typealias GetMessagesResult = Either<GetMessagesError, List<Message>>
+
+
 sealed class GetMessageError {
     data object ChannelNotFound : GetMessageError()
     data object PermissionDenied : GetMessageError()
+    data object MessageNotFound : GetMessageError()
 }
 
-typealias GetMessageResult = Either<GetMessageError, List<Message>>
+typealias GetMessageResult = Either<GetMessageError, Message>
 
 sealed class CreateMessageError {
     data object ChannelNotFound : CreateMessageError()

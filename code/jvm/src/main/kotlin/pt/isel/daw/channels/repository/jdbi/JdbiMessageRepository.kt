@@ -59,4 +59,26 @@ class JdbiMessageRepository(
             .bind("messageId", messageId)
             .bind("channelId", channelId)
             .execute()
+
+
+    override fun getMessageById(messageId: Int, channel: Channel): Message? {
+        val message = handle.createQuery(
+            """ 
+            select messages.id, messages.text,
+            users.id as user_id, users.email as user_email, users.username as user_username,
+            messages.create_at as created
+            from dbo.Messages as messages
+            join dbo.Users as users on messages.user_id = users.id
+            where messages.id = :messageId and messages.channel_id = :channelId
+            """
+        )
+            .bind("messageId", messageId)
+            .bind("channelId", channel.id)
+            .mapTo<MessageDbModel>()
+            .firstOrNull()
+
+        return message?.toMessage(channel)
+    }
+
+
 }

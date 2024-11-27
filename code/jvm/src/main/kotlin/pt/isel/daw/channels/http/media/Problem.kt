@@ -1,8 +1,8 @@
 package pt.isel.daw.channels.http.media
 
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE
+import org.springframework.http.ResponseEntity
 import java.net.URI
 
 /**
@@ -55,6 +55,7 @@ class Problem(
         private val insecurePassword = URI("${USER_FOLDER}insecure-password")
         private val userOrPasswordAreInvalid = URI("${USER_FOLDER}user-or-password-are-invalid")
 
+
         //Token
         private val invalidToken = URI("${TOKEN_FOLDER}user-not-found")
         private val tokenNotRevoked = URI("${TOKEN_FOLDER}token-not-revoked")
@@ -77,6 +78,7 @@ class Problem(
         private val userIsBanned = URI("${CHANNEL_FOLDER}user-is-banned")
         private val userIsNotBanned = URI("${CHANNEL_FOLDER}user-is-not-banned")
         private val ownerNotBanned = URI("${CHANNEL_FOLDER}owner-not-banned")
+        private val userPermissionsDenied = URI("${CHANNEL_FOLDER}user-permissions-denied")
 
         // Message
         private val messageNotFound = URI("${MESSAGE_FOLDER}message-not-found")
@@ -93,11 +95,11 @@ class Problem(
         ).toResponse()
 
 
-        fun invalidRequestContent(): Problem = Problem(
+        fun invalidRequestContent(errors: List<String>? = null): Problem = Problem(
             type = invalidRequestContent,
             title = "Invalid request content",
             status = HttpStatus.BAD_REQUEST.value(),
-            detail = "The request content is invalid",
+            detail = errors?.joinToString(", ") ?: "Invalid request content",
             instance = invalidRequestContent
         )
 
@@ -200,6 +202,14 @@ class Problem(
             instance = instance
         ).toResponse()
 
+        fun userPermissionsDenied(instance: URI?): ResponseEntity<*> = Problem(
+            type = userPermissionsDenied,
+            title = "User permissions denied",
+            status = HttpStatus.FORBIDDEN.value(),
+            detail = "User permissions denied for this action",
+            instance = instance
+        ).toResponse()
+
         fun unauthorized(instance: URI?): ResponseEntity<*> = Problem(
             type = unauthorized,
             title = "Unauthorized",
@@ -216,7 +226,7 @@ class Problem(
             instance = instance
         ).toResponse()
 
-        fun userIsNotChannelOwner(username: String, instance: URI?) : ResponseEntity<*> = Problem(
+        fun userIsNotChannelOwner(username: String, instance: URI?): ResponseEntity<*> = Problem(
             type = userIsNotChannelOwner,
             title = "User is not channel owner",
             status = HttpStatus.BAD_REQUEST.value(),

@@ -18,19 +18,19 @@ function NavBar() {
     <nav className="navStyle">
       <ul className="ulStyle">
         <li className="liStyle">
-          <Link className="linkStyle" to={webRoutes.home}>
+          <Link to={webRoutes.home} className="linkStyle">
             Home
           </Link>
         </li>
         <li className="liStyle">
-          <Link className="linkStyle" to={webRoutes.about}>
+          <Link to={webRoutes.about} className="linkStyle">
             About
           </Link>
         </li>
         {loggedIn ? (
           <>
             <li className="liStyle">
-              <Link className="linkStyle" to={webRoutes.channels}>
+              <Link to={webRoutes.channels} className="linkStyle">
                 Channel
               </Link>
             </li>
@@ -39,16 +39,21 @@ function NavBar() {
                 Logout
               </button>
             </li>
+            <li className="liStyle">
+              <Link to={webRoutes.notifications} className="linkStyle">
+                Notifications
+              </Link>
+            </li>
           </>
         ) : (
           <>
             <li className="liStyle">
-              <Link className="linkStyle" to={webRoutes.login}>
+              <Link to={webRoutes.login} className="linkStyle">
                 Login
               </Link>
             </li>
             <li className="liStyle">
-              <Link className="linkStyle" to={webRoutes.register}>
+              <Link to={webRoutes.register} className="linkStyle">
                 Register
               </Link>
             </li>

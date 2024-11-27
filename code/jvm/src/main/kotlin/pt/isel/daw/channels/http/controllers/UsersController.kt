@@ -27,8 +27,6 @@ class UsersController(
         const val HEADER_SET_COOKIE_NAME = "Set-Cookie"
         const val COOKIE_NAME_LOGIN = "login"
         const val COOKIE_NAME_TOKEN = "token"
-
-
     }
 
     @PostMapping(Uris.Users.CREATE)
@@ -53,6 +51,18 @@ class UsersController(
         }
     }
 
+    /**
+     * Token creation
+     * @param input UserCreateTokenInputModel
+     * @param response HttpServletResponse
+     * @return ResponseEntity<*>
+     *
+     * HttpOnly: The HttpOnly attribute is used to help prevent attacks such as cross-site scripting, since it does not allow the cookie to be accessed via JavaScript.
+     * SameSite: The SameSite attribute is used to prevent the browser from sending this cookie along with cross-site requests. The main goal is mitigate the risk of cross-origin information leakage.
+     * Path: The Path attribute indicates a URL path that must exist in the requested URL in order to send the Cookie header.
+     * Max-age: The Max-age attribute is used to set the time in seconds for a cookie to expire.
+     */
+
     @PostMapping(Uris.Users.TOKEN)
     fun token(
         @RequestBody input: UserCreateTokenInputModel,
@@ -62,6 +72,7 @@ class UsersController(
         val token = userService.createToken(input.username, input.password)
         return when (token) {
             is Success -> {
+                // Cookie max age is the difference between the token expiration and the current time
                 val cookieMaxAge = token.value.tokenExpiration.epochSeconds - Clock.System.now().epochSeconds
                 ResponseEntity.status(200)
                     .header(
