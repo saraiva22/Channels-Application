@@ -186,7 +186,7 @@ class ChannelsControllerTests {
 
         // when: join in private channel
         // then: the response is a 200 with a proper Location header
-        val channel = client.post().uri("/channels/${channelId}/private/${code}")
+        val channel = client.post().uri("/channels/${channelId}/invite/${code}")
             .header("Authorization", "Bearer ${resultNewUser.token}")
             .bodyValue(
                 mapOf(
@@ -203,8 +203,8 @@ class ChannelsControllerTests {
         assertEquals(channelPrivateName, channel.name)
         assertEquals(USERNAME_TEST, channel.owner.username)
         assertEquals(2, channel.members.size)
-        assertEquals(USERNAME_TEST1, channel.members[0].username)
-        assertEquals(USERNAME_TEST, channel.members[1].username)
+        assertEquals(USERNAME_TEST1, channel.members[1].username)
+        assertEquals(USERNAME_TEST, channel.members[0].username)
 
         // when: leave a channel
         // then: the response is a 200
@@ -216,7 +216,7 @@ class ChannelsControllerTests {
 
         // when: try join a channel
         // then: the response is a 400
-        client.post().uri("/channels/${channelId}/private/${code}")
+        client.post().uri("/channels/${channelId}/invite/${code}")
             .header("Authorization", "Bearer ${resultNewUser.token}")
             .bodyValue(
                 mapOf(
@@ -293,7 +293,7 @@ class ChannelsControllerTests {
 
         // when: reject invite to private channel
         // then: the response is a 200 with a proper Location header
-        client.post().uri("/channels/${channelId}/private/${code}")
+        client.post().uri("/channels/${channelId}/invite/${code}")
             .header("Authorization", "Bearer ${resultNewUser.token}")
             .bodyValue(
                 mapOf(
@@ -324,7 +324,7 @@ class ChannelsControllerTests {
 
         // when: try join a channel
         // then: the response is a 400
-        client.post().uri("/channels/${channelId}/private/${code}")
+        client.post().uri("/channels/${channelId}/invite/${code}")
             .header("Authorization", "Bearer ${resultNewUser.token}")
             .bodyValue(
                 mapOf(
@@ -390,7 +390,7 @@ class ChannelsControllerTests {
 
         // when: join in public channel
         // then: the response is a 200 with a proper Location header
-        val channelJoin = client.post().uri("/channels/${channelId}/public")
+        val channelJoin = client.post().uri("/channels/${channelId}")
             .header("Authorization", "Bearer ${resultUserRandom.token}")
             .exchange()
             .expectStatus().isOk
@@ -402,8 +402,8 @@ class ChannelsControllerTests {
         assertEquals(channelPublicName, channelJoin.name)
         assertEquals(USERNAME_TEST, channelJoin.owner.username)
         assertEquals(2, channelJoin.members.size)
-        assertEquals(USERNAME_TEST1, channelJoin.members[0].username)
-        assertEquals(USERNAME_TEST, channelJoin.members[1].username)
+        assertEquals(USERNAME_TEST1, channelJoin.members[1].username)
+        assertEquals(USERNAME_TEST, channelJoin.members[0].username)
 
         //when: leave user random channel
         //then: the response is a 200
@@ -474,7 +474,7 @@ class ChannelsControllerTests {
 
         // when: join in public channel
         // then: the response is a 200 with a proper Location header
-        val channelJoin = client.post().uri("/channels/${channelId}/public")
+        val channelJoin = client.post().uri("/channels/${channelId}")
             .header("Authorization", "Bearer ${resultUserRandom.token}")
             .exchange()
             .expectStatus().isOk
@@ -536,8 +536,8 @@ class ChannelsControllerTests {
         private const val READ_WRITE = "READ_WRITE"
 
         // and: user exist in the database
-        private const val USERNAME_TEST = "admin"
-        private const val PASSWORD_TEST = "Admin@123"
+        private const val USERNAME_TEST = "Test99"
+        private const val PASSWORD_TEST = "Test_999"
 
         // and random user
         private const val USERNAME_TEST1 = "random"

@@ -479,7 +479,7 @@ class ChannelsServiceTests: ServiceTests() {
         val code = inviteLink.value.split("/").last()
 
         // when: user joins the private channel
-        val joinChannelResult = service.joinUsersInPrivateChannel(
+        val joinChannelResult = service.validateChannelInvite(
             testUserInfo2.id,
             createPrivateChannelResult.value,
             code,
@@ -551,7 +551,7 @@ class ChannelsServiceTests: ServiceTests() {
         val code = inviteLink.value.split("/").last()
 
         // when: user joins the private channel
-        val joinChannelResult = service.joinUsersInPrivateChannel(
+        val joinChannelResult = service.validateChannelInvite(
             testUserInfo2.id,
             createPrivateChannelResult.value,
             code,
@@ -623,7 +623,7 @@ class ChannelsServiceTests: ServiceTests() {
         val code = inviteLink.value.split("/").last()
 
         // when: user joins the private channel
-        val joinChannelResult = service.joinUsersInPrivateChannel(
+        val joinChannelResult = service.validateChannelInvite(
             testUserInfo2.id,
             createPrivateChannelResult.value,
             code,
@@ -766,7 +766,7 @@ class ChannelsServiceTests: ServiceTests() {
         val code = inviteLink.value.split("/").last()
 
         // when: user joins the private channel
-        val joinChannelResult = service.joinUsersInPrivateChannel(
+        val joinChannelResult = service.validateChannelInvite(
             testUserInfo2.id,
             createPrivateChannelResult.value,
             code,

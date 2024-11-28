@@ -55,15 +55,15 @@ sealed class JoinUserInChannelPublicError{
 typealias JoinUserInChannelPublicResult = Either<JoinUserInChannelPublicError, Channel>
 
 
-sealed class JoinUserInChannelPrivateError{
-    data object UserAlreadyInChannel : JoinUserInChannelPrivateError()
-    data object InvalidCode : JoinUserInChannelPrivateError()
-    data object ChannelNotFound : JoinUserInChannelPrivateError()
-    data object InviteRejected : JoinUserInChannelPrivateError()
-    data object GuestIsBanned : JoinUserInChannelPrivateError()
+sealed class ValidateChannelInviteError{
+    data object UserAlreadyInChannel : ValidateChannelInviteError()
+    data object InvalidCode : ValidateChannelInviteError()
+    data object ChannelNotFound : ValidateChannelInviteError()
+    data object InviteRejected : ValidateChannelInviteError()
+    data object GuestIsBanned : ValidateChannelInviteError()
 }
 
-typealias JoinUserInChannelPrivateResult = Either<JoinUserInChannelPrivateError, Channel>
+typealias ValidateChannelInviteResult = Either<ValidateChannelInviteError, Channel>
 
 sealed class InvitePrivateChannelError{
     data object UserAlreadyInChannel : InvitePrivateChannelError()

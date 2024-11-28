@@ -1,5 +1,7 @@
 import { Problem, problemMediaType } from '../media/Problem';
 
+export const api = 'http://localhost:8080/api';
+
 
 export default function httpService() {
   return {

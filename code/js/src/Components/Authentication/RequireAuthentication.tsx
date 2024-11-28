@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { webRoutes } from '../../App';
 
 const cookieName = 'login';
 
@@ -10,7 +11,7 @@ export function RequireAuthentication({ children }) {
     return <>{children}</>;
   } else {
     console.log('redirecting to login');
-    return <Navigate to="/login" state={{ source: location.pathname }} replace={true} />;
+    return <Navigate to={webRoutes.login} state={{ source: location.pathname }} replace={true} />;
   }
 }
 

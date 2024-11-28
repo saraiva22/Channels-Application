@@ -72,7 +72,6 @@ class MessagesController(
                         it.created.toString()
                     )
                 }
-
                 ResponseEntity
                     .status(200)
                     .body(MessageListOutputModel(outputRes))

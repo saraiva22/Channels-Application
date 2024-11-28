@@ -2,9 +2,9 @@ import { RegisterOutput } from './models/RegisterOutputModel';
 import { LoginOutput } from './models/LoginOutputModel';
 import { LogoutOutput } from './models/LogoutOutput';
 import httpServiceInit from '../utils/HttpService';
-const httpService = httpServiceInit();
+import { api } from '../utils/HttpService';
 
-const api = 'http://localhost:8080/api';
+const httpService = httpServiceInit();
 
 export async function register(
   username: string,

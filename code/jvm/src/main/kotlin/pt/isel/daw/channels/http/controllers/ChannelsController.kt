@@ -92,7 +92,7 @@ class ChannelsController(
 
             is Failure -> when (res.value) {
                 GetChannelByIdError.ChannelNotFound -> Problem.channelNotFound(id, instance)
-                GetChannelByIdError.PermissionDenied -> Problem.unauthorized(instance)
+                GetChannelByIdError.PermissionDenied -> Problem.userPermissionsDenied(instance)
             }
         }
     }
@@ -229,16 +229,16 @@ class ChannelsController(
     }
 
 
-    @PostMapping(Uris.Channels.JOIN_PRIVATE_CHANNELS)
-    fun joinPrivateChannel(
+    @PostMapping(Uris.Channels.VALIDATE_CHANNEL_INVITE)
+    fun validateChannelInvite(
         @PathVariable id: Int,
         @PathVariable code: String,
-        @RequestBody status: JoinPrivateChannelInputModel,
+        @RequestBody status: ChannelInviteStatusInputModel,
         userAuthenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
-        val instance = Uris.Channels.joinPrivateChannel(id, code)
+        val instance = Uris.Channels.validateChannelInvite(id, code)
         return when (
-            val channel = channelsService.joinUsersInPrivateChannel(
+            val channel = channelsService.validateChannelInvite(
                 userAuthenticatedUser.user.id,
                 id,
                 code,
@@ -259,25 +259,24 @@ class ChannelsController(
                 )
 
             is Failure -> when (channel.value) {
-                JoinUserInChannelPrivateError.GuestIsBanned -> Problem.userIsBanned(
+                ValidateChannelInviteError.GuestIsBanned -> Problem.userIsBanned(
                     userAuthenticatedUser.user.username,
                     id,
                     instance
                 )
 
-                JoinUserInChannelPrivateError.UserAlreadyInChannel -> Problem.userAlreadyInChannel(
+                ValidateChannelInviteError.UserAlreadyInChannel -> Problem.userAlreadyInChannel(
                     userAuthenticatedUser.user.username,
                     instance
                 )
 
-                JoinUserInChannelPrivateError.InvalidCode -> Problem.codeInvalidOrExpiredChannel(
+                ValidateChannelInviteError.InvalidCode -> Problem.codeInvalidOrExpiredChannel(
                     code,
                     instance
                 )
 
-                JoinUserInChannelPrivateError.ChannelNotFound -> Problem.channelNotFound(id, instance)
-
-                JoinUserInChannelPrivateError.InviteRejected -> ResponseEntity.status(200).build<Unit>()
+                ValidateChannelInviteError.ChannelNotFound -> Problem.channelNotFound(id, instance)
+                ValidateChannelInviteError.InviteRejected -> ResponseEntity.status(200).build<Unit>()
             }
         }
     }
@@ -396,7 +395,7 @@ class ChannelsController(
         authenticatedUser: AuthenticatedUser,
         @RequestParam(required = false) limit: Int?,
         @RequestParam(required = false) offset: Int?,
-    ): ResponseEntity<*>{
+    ): ResponseEntity<*> {
         val setLimit = limit ?: DEFAULT_LIMIT
         val setOffset = offset ?: DEFAULT_OFFSET
         val res = channelsService.getSentChannelInvites(authenticatedUser.user.id, setLimit, setOffset)

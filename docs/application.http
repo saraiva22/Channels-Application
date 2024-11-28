@@ -1,10 +1,12 @@
 ### Variables 
 @apiurl = http://localhost:8080/api
-@tokenUserTest= iFhv6QqvVtiwfEzIxc9rCKOqZaR4-U0F5jakRyPtjHE=
-@tokenUserAdmin = brEe0zHwtD5kElECZq6Efdqp7z0V_OkcAGrOvkwtR6w=
+@tokenUserTest= V6Rel0WGXKVxsEoTd8g_8jiQJuEh9Y-mALU9wvqzV1M=
 
-@tokenUserTest1 = UywWxVaIwLbFwY1_zth1POFbGyZviuDNNRpc42iY1qg=
 
+@tokenUserAdmin = rNtzk8juF1kCLbfTPym-MplQiUKMVL1hxyV14rM0esE=
+
+
+@tokenUserTest1 = oBefzKUQ45dit8vseP9NWIH1eUBIEGv-6SXxQfXaIns=
 ### USER 
 
 ### Create Token Test
@@ -75,10 +77,18 @@ Content-Type: application/json
 Authorization: Bearer {{tokenUserTest}}
 
 
+
+### HOME Admin
+GET {{apiurl}}/home HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{tokenUserAdmin}}
+
+
+
 ### Invite User
 POST {{apiurl}}/users/invite  HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer {{tokenUserTest}}
+Authorization: Bearer "DU7_ifPu4sKPwp4_EOQVVtTEIfdNUKsCHyF40QIzPNY="
 
 
 ### Logout User Test
@@ -160,33 +170,36 @@ Authorization: Bearer {{tokenUserTest}}
 
 ### Join Public Channel 
 @id = 7
-POST {{apiurl}}/channels/7/public HTTP/1.1
+POST {{apiurl}}/channels/7 HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{tokenUserAdmin}}
 
 
 ### Create Private Channel Invite
-@idtest=4
-POST {{{{apiurl}}}}/channels/4/private-invite HTTP/1.1
+POST {{apiurl}}/channels/4/private-invite HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{tokenUserTest}}
 
 {
     "privacy": "READ_WRITE",
-    "username": "Test00"
+    "username": "admin"
 }
 
 ### Reject Private Channel Invite
+@invitecode1= 3ee9eb75-a6e9-45ea-8ee8-2411da236fbc
+POST {{apiurl}}/channels/4/invite/{{invitecode1}}  HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer {{tokenUserAdmin}}
+Authorization: Bearer rNtzk8juF1kCLbfTPym-MplQiUKMVL1hxyV14rM0esE=
 
 {
     "status": "REJECT"
 }
 
 ### Accept Private Channel Invite
+@invitecode2= df2658f1-42a7-4ded-b3d6-5f0b891306e5
+POST {{apiurl}}/channels/4/invite/{{invitecode2}}  HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer {{tokenUserAdmin}}
+Authorization: Bearer rNtzk8juF1kCLbfTPym-MplQiUKMVL1hxyV14rM0esE=
 
 {
     "status": "ACCEPT"

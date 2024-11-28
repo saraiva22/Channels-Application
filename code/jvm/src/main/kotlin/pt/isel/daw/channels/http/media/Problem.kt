@@ -229,7 +229,7 @@ class Problem(
         fun userIsNotChannelOwner(username: String, instance: URI?): ResponseEntity<*> = Problem(
             type = userIsNotChannelOwner,
             title = "User is not channel owner",
-            status = HttpStatus.BAD_REQUEST.value(),
+            status = HttpStatus.FORBIDDEN.value(),
             detail = "User $username is not channel owner",
             instance = instance
         ).toResponse()
@@ -269,7 +269,7 @@ class Problem(
         fun userPermissionsDeniedType(username: String, instance: URI?): ResponseEntity<*> = Problem(
             type = userPermissionsDeniedType,
             title = "User not permissions type",
-            status = HttpStatus.BAD_REQUEST.value(),
+            status = HttpStatus.FORBIDDEN.value(),
             detail = "User $username not permissions type",
             instance = instance
         ).toResponse()

@@ -26,7 +26,7 @@ interface ChannelsRepository {
 
     fun joinChannel(userId: Int, channelId: Int): Channel
 
-    fun joinMemberInChannelPrivate(userId: Int, channelId: Int, codHash: String): Channel
+    fun channelInviteAccepted(userId: Int, channelId: Int, codHash: String): Channel
 
     fun getPublicChannels(sort: Sort?): List<Channel>
 

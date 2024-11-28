@@ -283,9 +283,9 @@ class UsersControllerTests: ApplicationTests() {
         private fun newTestUserName() = "user-${abs(Random.nextLong())}"
         private fun newTestEmail() = "email-${abs(Random.nextLong())}@example.com"
 
-        private const val ADMIN_USERNAME = "admin"
+        private const val ADMIN_USERNAME = "Test99"
         private const val ADMIN_EMAIL = "admin@gmail.com"
-        private const val ADMIN_PASSWORD = "Admin@123"
+        private const val ADMIN_PASSWORD = "Test_999"
 
         val PASSWORD = newTestPassword()
 

@@ -14,7 +14,7 @@ class ChannelsDomain {
 
     fun generateInvitation(id: Int): String {
         val code = UUID.randomUUID().toString()
-        return UriTemplate(Uris.Channels.JOIN_PRIVATE_CHANNELS).expand(id, code).toString()
+        return code
     }
 
     fun isUserMember(userId: Int, channel: Channel): Boolean =

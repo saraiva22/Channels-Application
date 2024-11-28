@@ -165,7 +165,7 @@ class JdbiChannelsRepository(
         return channelDbModel.copy(members = members, bannedMembers = bannedMembers).toChannel()
     }
 
-    override fun joinMemberInChannelPrivate(userId: Int, channelId: Int, codHash: String): Channel {
+    override fun channelInviteAccepted(userId: Int, channelId: Int, codHash: String): Channel {
         updateInviteStatus(Status.ACCEPT, codHash)
 
         val channelDbModel = secureGetChannelById(channelId)

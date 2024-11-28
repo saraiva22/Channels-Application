@@ -384,7 +384,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             )
 
             // and: user joins the channel
-            repo.joinMemberInChannelPrivate(testUserInfo2.id, channelId, code)
+            repo.channelInviteAccepted(testUserInfo2.id, channelId, code)
 
             // when: getting the type of the invite
             val inviteType = repo.getMemberPermissions(testUserInfo2.id, channelId)
@@ -426,7 +426,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             )
 
             // and: user joins the channel
-            repo.joinMemberInChannelPrivate(testUserInfo2.id, channelId, code)
+            repo.channelInviteAccepted(testUserInfo2.id, channelId, code)
 
             // when: getting the type of the invite
             val inviteType = repo.getMemberPermissions(testUserInfo2.id, channelId)
@@ -546,7 +546,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             )
 
             // and: user joins the channel
-            repo.joinMemberInChannelPrivate(testUserInfo2.id, channelId, code)
+            repo.channelInviteAccepted(testUserInfo2.id, channelId, code)
 
             // when: banning the user from the channel
             repo.updateChannelUserState(testUserInfo2.id, channelId, State.BANNED)
@@ -599,7 +599,7 @@ class JdbiChannelsRepositoryTests: RepositoryTests() {
             )
 
             // and: user joins the channel
-            repo.joinMemberInChannelPrivate(testUserInfo2.id, channelId, code)
+            repo.channelInviteAccepted(testUserInfo2.id, channelId, code)
 
             // when: user leaves the channel
             repo.leaveChannel(testUserInfo2.id, channelId)
