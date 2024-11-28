@@ -30,7 +30,7 @@ function NavBar() {
         {loggedIn ? (
           <>
             <li className="liStyle">
-              <Link to={webRoutes.channels} className="linkStyle">
+              <Link to={webRoutes.channelsMembers} className="linkStyle">
                 Channel
               </Link>
             </li>

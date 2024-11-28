@@ -7,6 +7,8 @@ import { RequireAuthentication } from './components/authentication/RequireAuthen
 import { HomePage } from './components/home/Home';
 import { About } from './components/about/About';
 import { Notifications } from './components/notifications/Notifications';
+import { Fetch } from './services/Fetch';
+import { getMemberChannels } from './services/channels/ChannelsServices';
 
 export const webRoutes = {
   home: '/',
@@ -14,9 +16,15 @@ export const webRoutes = {
   login: '/login',
   register: '/register',
   logout: '/logout',
-  channels: '/channels',
+  channelsMembers: '/channels-members',
+  channelsOwned: '/channels-owned',
   about: '/about',
   notifications: '/notifications',
+};
+
+const apiRoutes = {
+  GET_USER_MEMBER_CHANNELS: '/channels/member',
+  GET_USER_OWNED_CHANNELS: '/channels/owner',
 };
 
 const router = createBrowserRouter([
@@ -43,6 +51,22 @@ const router = createBrowserRouter([
       {
         path: webRoutes.notifications,
         element: <Notifications />,
+      },
+      {
+        path: webRoutes.channelsMembers,
+        element: (
+          <RequireAuthentication>
+            <Fetch fetchFunction={getMemberChannels} fetchArgs={[apiRoutes.GET_USER_MEMBER_CHANNELS]} />
+          </RequireAuthentication>
+        ),
+      },
+      {
+        path: webRoutes.channelsOwned,
+        element: (
+          <RequireAuthentication>
+            <Fetch fetchFunction={getMemberChannels} fetchArgs={[apiRoutes.GET_USER_OWNED_CHANNELS]} />
+          </RequireAuthentication>
+        ),
       },
     ],
   },
