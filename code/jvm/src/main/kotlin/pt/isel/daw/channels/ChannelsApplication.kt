@@ -22,53 +22,47 @@ import kotlin.time.Duration.Companion.hours
 @SpringBootApplication
 class ChannelsApplication {
 
-	@Bean
-	fun jdbi(): Jdbi = Jdbi.create(
-		PGSimpleDataSource().apply {
-			setURL(Environment.getDbUrl())
-		}
-	).configureWithAppRequirements()
+    @Bean
+    fun jdbi(): Jdbi = Jdbi.create(
+        PGSimpleDataSource().apply {
+            setURL(Environment.getDbUrl())
+        }
+    ).configureWithAppRequirements()
 
-	@Bean
-	fun passwordEncoder() = BCryptPasswordEncoder()
+    @Bean
+    fun passwordEncoder() = BCryptPasswordEncoder()
 
-	@Bean
-	fun tokenEncoder() = Sha256TokenEncoder()
+    @Bean
+    fun tokenEncoder() = Sha256TokenEncoder()
 
-	@Bean
-	fun clock() = Clock.System
+    @Bean
+    fun clock() = Clock.System
 
-	@Bean
-	fun usersDomainConfig() = UsersDomainConfig(
-		tokenSizeInBytes = 256 / 8,
-		tokenTtl = 24.hours,
-		tokenRollingTtl = 1.hours,
-		maxTokensPerUser = 3,
-	)
+    @Bean
+    fun usersDomainConfig() = UsersDomainConfig(
+        tokenSizeInBytes = 256 / 8,
+        tokenTtl = 24.hours,
+        tokenRollingTtl = 1.hours,
+        maxTokensPerUser = 3,
+    )
 }
 
 @Configuration
 class PipelineConfig(
-	val authenticationInterceptor: AuthenticationInterceptor,
-	val authenticatedUserArgumentResolver: AuthenticatedUserArgumentResolver,
+    val authenticationInterceptor: AuthenticationInterceptor,
+    val authenticatedUserArgumentResolver: AuthenticatedUserArgumentResolver,
 ) : WebMvcConfigurer {
-	override fun addInterceptors(registry: InterceptorRegistry) {
-		registry.addInterceptor(authenticationInterceptor)
-	}
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        registry.addInterceptor(authenticationInterceptor)
+    }
 
-	override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-		resolvers.add(authenticatedUserArgumentResolver)
-	}
+    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+        resolvers.add(authenticatedUserArgumentResolver)
+    }
 
-	override fun addCorsMappings(registry: CorsRegistry) {
-		registry.addMapping("/**")
-			.allowCredentials(true)
-			.allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-			.allowedOrigins("http://localhost:9000", "http://localhost")
-	}
 }
 
 
 fun main(args: Array<String>) {
-	runApplication<ChannelsApplication>(*args)
+    runApplication<ChannelsApplication>(*args)
 }

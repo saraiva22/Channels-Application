@@ -2,7 +2,7 @@ import { RegisterOutput } from './models/RegisterOutputModel';
 import { LoginOutput } from './models/LoginOutputModel';
 import { LogoutOutput } from './models/LogoutOutput';
 import httpServiceInit from '../utils/HttpService';
-import { api } from '../utils/HttpService';
+import { PREFIX_API } from '../utils/HttpService';
 
 const httpService = httpServiceInit();
 
@@ -12,7 +12,7 @@ export async function register(
   password: string,
   inviteCode?: string
 ): Promise<RegisterOutput> {
-  const path = `${api}/users`;
+  const path = `${PREFIX_API}/users`;
   return await httpService.post<RegisterOutput>(
     path,
     JSON.stringify({
@@ -25,7 +25,7 @@ export async function register(
 }
 
 export async function login(username: string, password: string): Promise<LoginOutput> {
-  const path = `${api}/users/token`;
+  const path = `${PREFIX_API}/users/token`;
   return await httpService.post<LoginOutput>(
     path,
     JSON.stringify({
@@ -36,6 +36,6 @@ export async function login(username: string, password: string): Promise<LoginOu
 }
 
 export async function logout(): Promise<LogoutOutput> {
-  const path = `${api}/logout`;
+  const path = `${PREFIX_API}/logout`;
   return await httpService.post<LogoutOutput>(path);
 }

@@ -1,10 +1,15 @@
-import { server } from 'typescript';
-
 export default {
   mode: 'development',
   devServer: {
     historyApiFallback: true,
-    port: 9000,
+    port: 3000,
+    proxy: [
+      {
+        context: ['/api'],
+        target: 'http://localhost:8080',
+        router: () => 'http://localhost:8080',
+      },
+    ],
   },
   resolve: {
     extensions: ['.js', '.ts', '.tsx'],
