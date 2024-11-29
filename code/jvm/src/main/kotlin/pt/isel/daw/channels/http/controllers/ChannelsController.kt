@@ -1,6 +1,7 @@
 package pt.isel.daw.channels.http.controllers
 
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -32,7 +33,7 @@ class ChannelsController(
 
     @PostMapping(Uris.Channels.CREATE)
     fun createChannel(
-        @RequestBody input: ChannelCreateInputModel,
+        @Validated @RequestBody input: ChannelCreateInputModel,
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val instance = Uris.Channels.register()

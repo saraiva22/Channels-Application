@@ -1,6 +1,7 @@
 import React, { useReducer } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { register } from '../../services/users/UserServices';
+import { webRoutes } from '../../App';
 
 type State =
   | {
@@ -79,7 +80,7 @@ export function Register() {
   const location = useLocation();
 
   if (state.tag === 'redirect') {
-    return <Navigate to={location.state?.source || '/login'} replace={true} />;
+    return <Navigate to={location.state?.source || webRoutes.login} replace={true} />;
   }
 
   function handleChange(ev: React.FormEvent<HTMLInputElement>) {

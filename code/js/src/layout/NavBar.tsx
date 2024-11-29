@@ -30,19 +30,24 @@ function NavBar() {
         {loggedIn ? (
           <>
             <li className="liStyle">
+              <Link to={webRoutes.channelCreate} className="linkStyle">
+                Create Channel
+              </Link>
+            </li>
+            <li className="liStyle">
               <Link to={webRoutes.channelsMembers} className="linkStyle">
                 Channel
+              </Link>
+            </li>
+            <li className="liStyle">
+              <Link to={webRoutes.notifications} className="linkStyle">
+                Notifications
               </Link>
             </li>
             <li className="liStyle">
               <button className="bStyle" onClick={handleLogout}>
                 Logout
               </button>
-            </li>
-            <li className="liStyle">
-              <Link to={webRoutes.notifications} className="linkStyle">
-                Notifications
-              </Link>
             </li>
           </>
         ) : (

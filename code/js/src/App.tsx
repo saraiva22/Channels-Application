@@ -9,6 +9,7 @@ import { About } from './components/about/About';
 import { Notifications } from './components/notifications/Notifications';
 import { Fetch } from './services/Fetch';
 import { getMemberChannels } from './services/channels/ChannelsServices';
+import { ChannelCreate } from './components/channels/ChannelCreate';
 
 export const webRoutes = {
   home: '/',
@@ -16,8 +17,10 @@ export const webRoutes = {
   login: '/login',
   register: '/register',
   logout: '/logout',
+  channel: 'channel/:id',
   channelsMembers: '/channels-members',
   channelsOwned: '/channels-owned',
+  channelCreate: '/channels/create',
   about: '/about',
   notifications: '/notifications',
 };
@@ -47,6 +50,14 @@ const router = createBrowserRouter([
       {
         path: webRoutes.about,
         element: <About />,
+      },
+      {
+        path: webRoutes.channelCreate,
+        element: (
+          <RequireAuthentication>
+            <ChannelCreate />
+          </RequireAuthentication>
+        ),
       },
       {
         path: webRoutes.notifications,

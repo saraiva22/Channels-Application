@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useEffect, useReducer } from 'react';
-import { ChannelListOutputModel } from './channels/models/ChannelsListOutputModel';
+import { ChannelsListOutputModel } from './channels/models/ChannelsListOutputModel';
 import { useLocation } from 'react-router-dom';
 import { ChannelList } from '../components/channels/ChannelList';
 
-type ReturnType = ChannelListOutputModel;
+type ReturnType = ChannelsListOutputModel;
 
 type FetchProps = {
   fetchFunction: (...args: Array<string | number | null>) => Promise<ReturnType>;
@@ -92,7 +92,7 @@ export function Fetch(props: FetchProps) {
       return <p>Error: {state.error.message}</p>;
     case 'success': {
       switch (state.rsp) {
-        case state.rsp as ChannelListOutputModel:
+        case state.rsp as ChannelsListOutputModel:
           return ChannelList(state.rsp);
       }
     }
