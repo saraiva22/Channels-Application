@@ -3,5 +3,6 @@
     "noImplicitAny": false,
     "jsx": "react",
     "esModuleInterop": true
-  }
+  },
+  "include": ["src", "src/declaration.d.ts"]
 }
