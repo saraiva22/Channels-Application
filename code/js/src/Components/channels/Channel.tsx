@@ -1,15 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { ChannelOutputModel } from '../../services/channels/models/ChannelOutputModel';
 import privatechannel from '../../assets/privatechannel.png';
 import publicchannel from '../../assets/publicchannel.png';
 import './Channel.css';
+import { webRoutes } from '../../services/utils/HttpService';
 
 export function Channel({ channel }: ChannelOutputModel) {
   const isPublic = channel.type.toString() === 'PUBLIC';
+  const [navigateToChannel, setNavigateToChannel] = useState<string | null>(null);
 
-  const handleClick = () => {
-    console.log(`Clicked on channel:`, channel);
-  };
+  function handleClick() {
+    const route = webRoutes.channelMessages;
+    setNavigateToChannel(route);
+  }
+
+  if (navigateToChannel) {
+    return <Navigate to={navigateToChannel} state={{ channel }} replace={true} />;
+  }
 
   return (
     <div className="card" onClick={handleClick}>
@@ -24,9 +32,6 @@ export function Channel({ channel }: ChannelOutputModel) {
       </p>
       <p className="card-text">
         <b>Owner:</b> {channel.owner.username}
-      </p>
-      <p className="card-text">
-        <b>Type:</b> {channel.type}
       </p>
     </div>
   );

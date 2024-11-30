@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../components/authentication/RequireAuthentication';
-import { webRoutes } from '../App';
 import { logout } from '../services/users/UserServices';
 import './NavBar.css';
+import { webRoutes } from '../services/utils/HttpService';
 
 function NavBar() {
   const loggedIn = isLoggedIn();
@@ -30,24 +30,24 @@ function NavBar() {
         {loggedIn ? (
           <>
             <li className="liStyle">
-              <Link to={webRoutes.channelCreate} className="linkStyle">
-                Create Channel
-              </Link>
-            </li>
-            <li className="liStyle">
               <Link to={webRoutes.channelsMembers} className="linkStyle">
-                Channel
+                Member Channel
               </Link>
             </li>
             <li className="liStyle">
-              <Link to={webRoutes.notifications} className="linkStyle">
-                Notifications
+              <Link to={webRoutes.channelsOwned} className="linkStyle">
+                Owned Channel
               </Link>
             </li>
             <li className="liStyle">
               <button className="bStyle" onClick={handleLogout}>
                 Logout
               </button>
+            </li>
+            <li className="liStyle">
+              <Link to={webRoutes.notifications} className="linkStyle">
+                Notifications
+              </Link>
             </li>
           </>
         ) : (

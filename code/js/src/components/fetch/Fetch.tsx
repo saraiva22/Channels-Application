@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { useEffect, useReducer } from 'react';
-import { ChannelsListOutputModel } from './channels/models/ChannelsListOutputModel';
 import { useLocation } from 'react-router-dom';
-import { ChannelList } from '../components/channels/ChannelList';
-
-type ReturnType = ChannelsListOutputModel;
+import { ChannelsListOutputModel } from '../../services/channels/models/ChannelsListOutputModel';
+import { ChannelList } from '../channels/ChannelList';
+import { ReturnType } from './ReturnType';
+import { InputType } from './InputType';
 
 type FetchProps = {
-  fetchFunction: (...args: Array<string | number | null>) => Promise<ReturnType>;
-  fetchArgs: Array<string | number>;
+  fetchFunction: (...args: Array<InputType>) => Promise<ReturnType>;
+  fetchArgs: Array<InputType>;
 };
 
 export type State =

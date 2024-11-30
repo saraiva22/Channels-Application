@@ -105,7 +105,7 @@ class ChannelsController(
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val userId = authenticatedUser.user.id
-        val sortParam = sort?.let { Sort.fromString(sort) }
+        val sortParam = Sort.fromString(sort ?: "")
         val res = channelsService.searchChannelsByName(userId, name, sortParam)
         return ResponseEntity
             .status(200)
@@ -131,7 +131,7 @@ class ChannelsController(
         authenticatedUser: AuthenticatedUser
     ): ResponseEntity<*> {
         val userId = authenticatedUser.user.id
-        val sortParam = sort?.let { Sort.fromString(sort) }
+        val sortParam = Sort.fromString(sort ?: "")
         val res = channelsService.getUserMemberChannels(userId, sortParam)
         return ResponseEntity
             .status(200)

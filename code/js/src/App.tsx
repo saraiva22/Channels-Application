@@ -7,28 +7,12 @@ import { RequireAuthentication } from './components/authentication/RequireAuthen
 import { HomePage } from './components/home/Home';
 import { About } from './components/about/About';
 import { Notifications } from './components/notifications/Notifications';
-import { Fetch } from './services/Fetch';
-import { getMemberChannels } from './services/channels/ChannelsServices';
+import { Fetch } from './components/fetch/Fetch';
+import { getChannelsList } from './services/channels/ChannelsServices';
 import { ChannelCreate } from './components/channels/ChannelCreate';
-
-export const webRoutes = {
-  home: '/',
-  me: '/me',
-  login: '/login',
-  register: '/register',
-  logout: '/logout',
-  channel: 'channel/:id',
-  channelsMembers: '/channels-members',
-  channelsOwned: '/channels-owned',
-  channelCreate: '/channels/create',
-  about: '/about',
-  notifications: '/notifications',
-};
-
-const apiRoutes = {
-  GET_USER_MEMBER_CHANNELS: '/channels/member',
-  GET_USER_OWNED_CHANNELS: '/channels/owner',
-};
+import { apiRoutes, webRoutes } from './services/utils/HttpService';
+import { getChannelMessages } from './services/messages/MessagesService';
+import { MessageList } from './components/messages/MessageList';
 
 const router = createBrowserRouter([
   {
@@ -67,7 +51,7 @@ const router = createBrowserRouter([
         path: webRoutes.channelsMembers,
         element: (
           <RequireAuthentication>
-            <Fetch fetchFunction={getMemberChannels} fetchArgs={[apiRoutes.GET_USER_MEMBER_CHANNELS]} />
+            <Fetch fetchFunction={getChannelsList} fetchArgs={[apiRoutes.GET_USER_MEMBER_CHANNELS]} />
           </RequireAuthentication>
         ),
       },
@@ -75,7 +59,15 @@ const router = createBrowserRouter([
         path: webRoutes.channelsOwned,
         element: (
           <RequireAuthentication>
-            <Fetch fetchFunction={getMemberChannels} fetchArgs={[apiRoutes.GET_USER_OWNED_CHANNELS]} />
+            <Fetch fetchFunction={getChannelsList} fetchArgs={[apiRoutes.GET_USER_OWNED_CHANNELS]} />
+          </RequireAuthentication>
+        ),
+      },
+      {
+        path: webRoutes.channelMessages,
+        element: (
+          <RequireAuthentication>
+            <MessageList />
           </RequireAuthentication>
         ),
       },

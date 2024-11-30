@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { webRoutes } from '../../App';
+import { webRoutes } from '../../services/utils/HttpService';
 
 const cookieName = 'login';
 
