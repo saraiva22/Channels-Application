@@ -1,7 +1,7 @@
 import React, { useReducer } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { register } from '../../services/users/UserServices';
-import { webRoutes } from '../../services/utils/HttpService';
+import { webRoutes } from '../../App';
 
 type State =
   | {

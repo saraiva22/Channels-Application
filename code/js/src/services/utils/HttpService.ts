@@ -1,29 +1,15 @@
 import { Problem, problemMediaType } from '../media/Problem';
 
-export const PREFIX_API = 'http://192.168.1.72:3000/api';
-
-export const webRoutes = {
-  home: '/',
-  me: '/me',
-  login: '/login',
-  register: '/register',
-  logout: '/logout',
-  channel: 'channel/:id',
-  channelsMembers: '/channels-members',
-  channelsOwned: '/channels-owned',
-  channelCreate: '/channels/create',
-  channelMessages: '/channel/messages',
-  about: '/about',
-  notifications: '/notifications',
-};
+export const PREFIX_API = 'http://localhost:8080/api';
 
 export const apiRoutes = {
   // Channel
+  GET_PUBLIC_CHANNELS: '/channels/public',
   GET_CHANNEL_BY_ID: '/channels/:id',
   GET_USER_MEMBER_CHANNELS: '/channels/member',
   GET_USER_OWNED_CHANNELS: '/channels/owner',
   // Messages
-  GET_CHANNEL_MESSAGES: '/channels/{id}/messages',
+  GET_CHANNEL_MESSAGES: '/channels/:id/messages',
 };
 
 export default function httpService() {

@@ -10,9 +10,25 @@ import { Notifications } from './components/notifications/Notifications';
 import { Fetch } from './components/fetch/Fetch';
 import { getChannelsList } from './services/channels/ChannelsServices';
 import { ChannelCreate } from './components/channels/ChannelCreate';
-import { apiRoutes, webRoutes } from './services/utils/HttpService';
+import { apiRoutes } from './services/utils/HttpService';
 import { getChannelMessages } from './services/messages/MessagesService';
 import { MessageList } from './components/messages/MessageList';
+
+export const webRoutes = {
+  home: '/',
+  me: '/me',
+  login: '/login',
+  register: '/register',
+  logout: '/logout',
+  channel: 'channel/:id',
+  publicChannels: '/public-channels',
+  channelsMembers: '/channels-members',
+  channelsOwned: '/channels-owned',
+  channelCreate: '/channels/create',
+  channelMessages: '/channel/messages',
+  about: '/about',
+  notifications: '/notifications',
+};
 
 const router = createBrowserRouter([
   {
@@ -46,6 +62,14 @@ const router = createBrowserRouter([
       {
         path: webRoutes.notifications,
         element: <Notifications />,
+      },
+      {
+        path: webRoutes.publicChannels,
+        element: (
+          <RequireAuthentication>
+            <Fetch fetchFunction={getChannelsList} fetchArgs={[apiRoutes.GET_PUBLIC_CHANNELS]} />
+          </RequireAuthentication>
+        ),
       },
       {
         path: webRoutes.channelsMembers,

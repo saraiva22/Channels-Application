@@ -1,10 +1,10 @@
 import { ChannelsListOutputModel } from './models/ChannelsListOutputModel';
-import httpServiceInit, { apiRoutes, webRoutes } from '../utils/HttpService';
+import httpServiceInit, { apiRoutes } from '../utils/HttpService';
 import { PREFIX_API } from '../utils/HttpService';
 import { Type } from '../../domain/channels/Type';
 import { IdOutputModel } from '../utils/models/IdOutputModel';
-import { InputType } from '../../components/fetch/InputType';
 import { ChannelOutputModel } from './models/ChannelOutputModel';
+import { webRoutes } from '../../App';
 
 const httpService = httpServiceInit();
 

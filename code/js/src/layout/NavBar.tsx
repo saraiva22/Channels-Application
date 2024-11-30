@@ -2,8 +2,8 @@ import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../components/authentication/RequireAuthentication';
 import { logout } from '../services/users/UserServices';
+import { webRoutes } from '../App';
 import './NavBar.css';
-import { webRoutes } from '../services/utils/HttpService';
 
 function NavBar() {
   const loggedIn = isLoggedIn();
@@ -30,6 +30,16 @@ function NavBar() {
         {loggedIn ? (
           <>
             <li className="liStyle">
+              <Link to={webRoutes.channelCreate} className="linkStyle">
+                Create Channel
+              </Link>
+            </li>
+            <li className="liStyle">
+              <Link to={webRoutes.publicChannels} className="linkStyle">
+                Public Channels
+              </Link>
+            </li>
+            <li className="liStyle">
               <Link to={webRoutes.channelsMembers} className="linkStyle">
                 Member Channel
               </Link>
@@ -40,14 +50,14 @@ function NavBar() {
               </Link>
             </li>
             <li className="liStyle">
-              <button className="bStyle" onClick={handleLogout}>
-                Logout
-              </button>
-            </li>
-            <li className="liStyle">
               <Link to={webRoutes.notifications} className="linkStyle">
                 Notifications
               </Link>
+            </li>
+            <li className="liStyle">
+              <button className="bStyle" onClick={handleLogout}>
+                Logout
+              </button>
             </li>
           </>
         ) : (

@@ -4,7 +4,7 @@ import { ChannelOutputModel } from '../../services/channels/models/ChannelOutput
 import privatechannel from '../../assets/privatechannel.png';
 import publicchannel from '../../assets/publicchannel.png';
 import './Channel.css';
-import { webRoutes } from '../../services/utils/HttpService';
+import { webRoutes } from '../../App';
 
 export function Channel({ channel }: ChannelOutputModel) {
   const isPublic = channel.type.toString() === 'PUBLIC';

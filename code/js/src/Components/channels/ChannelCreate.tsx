@@ -2,7 +2,7 @@ import React, { useReducer } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Type } from '../../domain/channels/Type';
 import { createChannel } from '../../services/channels/ChannelsServices';
-import { webRoutes } from '../../services/utils/HttpService';
+import { webRoutes } from '../../App';
 
 type State =
   | { tag: 'editing'; error?: string; inputs: { name: string; type: Type } }
@@ -119,7 +119,7 @@ export function ChannelCreate() {
           </label>
         </div>
         <div>
-          <button type="submit">Create Game</button>
+          <button type="submit">Create Channel</button>
         </div>
       </fieldset>
     </form>
