@@ -84,7 +84,7 @@ export function MessageList() {
     case 'loading':
       return <p>loading...</p>;
     case 'error':
-      return <ProblemComponent problem={state.error}/>
+      return <ProblemComponent problem={state.error} />;
     case 'success': {
       return (
         <div>

@@ -25,9 +25,15 @@ export function isProblem(object: object): object is Problem {
 export function ProblemComponent({ problem }: { problem: Problem }) {
   return (
     <div>
-      <h1><b>{problem.status}:</b>{problem.title}</h1>
-      <p><b>Detail:</b>{problem.detail}</p>
+      <h1>
+        <b>{problem.status}:</b>
+        {problem.title}
+      </h1>
+      <p>
+        <b>Detail:</b>
+        {problem.detail}
+      </p>
       <Link to={problem.type}>{problem.type}</Link>
     </div>
-  )
+  );
 }

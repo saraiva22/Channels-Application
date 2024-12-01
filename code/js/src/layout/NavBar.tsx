@@ -40,13 +40,18 @@ function NavBar() {
               </Link>
             </li>
             <li className="liStyle">
+              <Link to='/' className="linkStyle">
+                Search Channels
+              </Link>
+            </li>
+            <li className="liStyle">
               <Link to={webRoutes.channelsMembers} className="linkStyle">
-                Member Channel
+                Member Channels
               </Link>
             </li>
             <li className="liStyle">
               <Link to={webRoutes.channelsOwned} className="linkStyle">
-                Owned Channel
+                Owned Channels
               </Link>
             </li>
             <li className="liStyle">
