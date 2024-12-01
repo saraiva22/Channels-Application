@@ -11,7 +11,6 @@ import { Fetch } from './components/fetch/Fetch';
 import { getChannelsList } from './services/channels/ChannelsServices';
 import { ChannelCreate } from './components/channels/ChannelCreate';
 import { apiRoutes } from './services/utils/HttpService';
-import { getChannelMessages } from './services/messages/MessagesService';
 import { MessageList } from './components/messages/MessageList';
 
 export const webRoutes = {

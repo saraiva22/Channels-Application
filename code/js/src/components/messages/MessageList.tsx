@@ -3,17 +3,18 @@ import { MessageListOutputModel } from '../../services/messages/models/MessageLi
 import { Message } from './Messages';
 import { useLocation } from 'react-router-dom';
 import { getChannelMessages } from '../../services/messages/MessagesService';
+import { Problem, ProblemComponent } from '../../services/media/Problem';
 
 type State =
   | { type: 'start' }
   | { type: 'loading' }
   | { type: 'success'; rsp: MessageListOutputModel }
-  | { type: 'error'; error: Error };
+  | { type: 'error'; error: Problem };
 
 type Action =
   | { type: 'started-loading' }
   | { type: 'success'; rsp: MessageListOutputModel }
-  | { type: 'error'; error: Error }
+  | { type: 'error'; error: Problem }
   | { type: 'cancel' };
 
 function unexpectedAction(action: Action, state: State): State {
@@ -83,7 +84,7 @@ export function MessageList() {
     case 'loading':
       return <p>loading...</p>;
     case 'error':
-      return <p>Error: {state.error.message}</p>;
+      return <ProblemComponent problem={state.error}/>
     case 'success': {
       return (
         <div>
@@ -91,7 +92,7 @@ export function MessageList() {
           <ul className="message-list">
             {state.rsp.messages.length === 0 ? (
               <div>
-                <p>This channel is waiting for you!</p>
+                <p>This channel is waiting for your voice!</p>
                 <p>Send a message and start the conversation.</p>
               </div>
             ) : (

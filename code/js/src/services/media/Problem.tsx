@@ -1,3 +1,6 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
 export type Problem = {
   type: string;
   title: string;
@@ -17,4 +20,14 @@ export function isProblem(object: object): object is Problem {
     'status' in object &&
     typeof object.status === 'number'
   );
+}
+
+export function ProblemComponent({ problem }: { problem: Problem }) {
+  return (
+    <div>
+      <h1><b>{problem.status}:</b>{problem.title}</h1>
+      <p><b>Detail:</b>{problem.detail}</p>
+      <Link to={problem.type}>{problem.type}</Link>
+    </div>
+  )
 }
