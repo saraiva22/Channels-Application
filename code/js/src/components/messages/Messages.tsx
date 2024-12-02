@@ -1,6 +1,7 @@
 import React from 'react';
 import { MessageOutputModel } from '../../services/messages/models/MessageOutputModel';
 import { deleteMessage } from '../../services/messages/MessagesService';
+import './Message.css';
 
 export function Message({ message }: MessageOutputModel) {
   const specificDate = new Date(message.created);
@@ -18,13 +19,11 @@ export function Message({ message }: MessageOutputModel) {
 
   return (
     <div className="message">
-      <small>
-        <b style={{ marginRight: '30px' }}>{message.user.username}</b> {localFormattedDate}
-        <button onClick={handleOnClick} style={{ marginLeft: '30px' }}>
-          Delete
-        </button>
+      <small className="message small">
+        <b>{message.user.username}</b> {localFormattedDate}
+        <button onClick={handleOnClick}>Delete</button>
       </small>
-      <p>{message.text}</p>
+      <p className="message p">{message.text}</p>
     </div>
   );
 }

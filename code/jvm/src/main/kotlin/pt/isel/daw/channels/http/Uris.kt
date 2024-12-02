@@ -26,19 +26,19 @@ object Uris {
     }
 
     object Channels {
-        const val CREATE = "$PREFIX/channels/create" // done
-        const val JOIN_PUBLIC_CHANNELS = "$PREFIX/channels/{id}" // done
-        const val VALIDATE_CHANNEL_INVITE = "$PREFIX/channels/{id}/invite/{code}" // done
-        const val UPDATE = "$PREFIX/channels/{id}/update" // done
-        const val GET_BY_ID = "$PREFIX/channels/{id}" // done
-        const val GET_BY_NAME = "$PREFIX/channels" // equals 1)
+        const val CREATE = "$PREFIX/channels/create"
+        const val JOIN_PUBLIC_CHANNELS = "$PREFIX/channels/{id}"
+        const val VALIDATE_CHANNEL_INVITE = "$PREFIX/channels/{id}/invite/{code}"
+        const val UPDATE = "$PREFIX/channels/{id}/update"
+        const val GET_BY_ID = "$PREFIX/channels/{id}"
+        const val GET_BY_NAME = "$PREFIX/channels"
         const val GET_USER_OWNED_CHANNELS = "$PREFIX/channels/owner"
         const val GET_USER_MEMBER_CHANNELS = "$PREFIX/channels/member"
-        const val GET_PUBLIC_CHANNELS = "$PREFIX/channels/public" // equals 1)
-        const val CREATE_PRIVATE_INVITE = "$PREFIX/channels/{id}/private-invite" // done
+        const val GET_PUBLIC_CHANNELS = "$PREFIX/channels/public"
+        const val CREATE_PRIVATE_INVITE = "$PREFIX/channels/{id}/private-invite"
         const val LEAVE_CHANNEL = "$PREFIX/channels/{id}/leave"
-        const val RECEIVED_CHANNEL_INVITES = "$PREFIX/channels/invites/received"// done
-        const val SENT_CHANNEL_INVITES = "$PREFIX/channels/invites/sent" // done
+        const val RECEIVED_CHANNEL_INVITES = "$PREFIX/channels/invites/received"
+        const val SENT_CHANNEL_INVITES = "$PREFIX/channels/invites/sent"
         const val BAN_USER = "$PREFIX/channels/{id}/ban"
         const val UNBAN_USER = "$PREFIX/channels/{id}/unban"
 
