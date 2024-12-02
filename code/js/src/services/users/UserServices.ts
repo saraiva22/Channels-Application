@@ -4,6 +4,7 @@ import { LogoutOutput } from './models/LogoutOutput';
 import httpServiceInit from '../utils/HttpService';
 import { PREFIX_API } from '../utils/HttpService';
 
+
 const httpService = httpServiceInit();
 
 export async function register(

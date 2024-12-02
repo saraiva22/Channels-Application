@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../components/authentication/RequireAuthentication';
 import { logout } from '../services/users/UserServices';
 import { webRoutes } from '../App';
 import './NavBar.css';
+import { useAuthentication } from '../components/authentication/AuthProvider';
 
 function NavBar() {
   const loggedIn = isLoggedIn();
   const navigate = useNavigate();
+  const [username, setUsername] = useAuthentication();
+  console.log(`Username : ${username}`);
 
   const handleLogout = async () => {
     await logout();
+    setUsername(undefined);
     navigate(webRoutes.home);
   };
 
@@ -57,6 +61,11 @@ function NavBar() {
             <li className="liStyle">
               <Link to={webRoutes.notifications} className="linkStyle">
                 Notifications
+              </Link>
+            </li>
+            <li className="liStyle">
+              <Link to={webRoutes.me} className="linkStyle">
+                {username}
               </Link>
             </li>
             <li className="liStyle">

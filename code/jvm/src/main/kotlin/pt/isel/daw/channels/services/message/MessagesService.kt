@@ -54,7 +54,7 @@ class MessagesService(
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(GetMessagesError.ChannelNotFound)
 
-            if (!channelsDomain.isUserMember(userId, channel))
+            if (!channelsDomain.isOwner(userId,channel) && !channelsDomain.isUserMember(userId, channel))
                 return@run failure(GetMessagesError.PermissionDenied)
 
             val messageList = it.messagesRepository.getChannelMessages(channel)

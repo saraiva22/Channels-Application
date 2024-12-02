@@ -79,7 +79,7 @@ class MessagesController(
 
             is Failure -> when (res.value) {
                 GetMessagesError.ChannelNotFound -> Problem.channelNotFound(id, instance)
-                GetMessagesError.PermissionDenied -> Problem.unauthorized(instance)
+                GetMessagesError.PermissionDenied -> Problem.userPermissionsDenied(instance)
             }
         }
     }

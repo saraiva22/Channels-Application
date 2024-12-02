@@ -12,6 +12,8 @@ import { Notifications } from './components/notifications/Notifications';
 import { RequireAuthentication } from './components/authentication/RequireAuthentication';
 import { ChannelCreate } from './components/channels/ChannelCreate';
 import { getChannelsList } from './services/channels/ChannelsServices';
+import { AuthProvider } from './components/authentication/AuthProvider';
+import { Me } from './components/authentication/Me';
 import { Fetch } from './components/fetch/Fetch';
 
 export const webRoutes = {
@@ -107,13 +109,22 @@ const router = createBrowserRouter([
           </RequireAuthentication>
         ),
       },
+      {
+        path: webRoutes.me,
+        element: (
+          <RequireAuthentication>
+            <Me />
+          </RequireAuthentication>
+        ),
+      },
     ],
   },
 ]);
 
-
-
-
 export function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }

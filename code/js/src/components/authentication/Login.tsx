@@ -2,6 +2,7 @@ import React, { useReducer } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { login } from '../../services/users/UserServices';
 import { webRoutes } from '../../App';
+import { useAuthentication } from './AuthProvider';
 
 type State =
   | { tag: 'editing'; error?: string; inputs: { username: string; password: string } }
@@ -48,6 +49,7 @@ function reduce(state: State, action: Action): State {
 
 export function Login() {
   const [state, dispatch] = useReducer(reduce, { tag: 'editing', inputs: { username: '', password: '' } });
+  const [_, setUsername] = useAuthentication();
   const location = useLocation();
 
   if (state.tag === 'redirect') {
@@ -71,6 +73,7 @@ export function Login() {
     try {
       const result = await login(username, password);
       if (result) {
+        setUsername(username);
         dispatch({ type: 'success' });
       } else {
         dispatch({ type: 'error', message: 'Invalid username or password' });
