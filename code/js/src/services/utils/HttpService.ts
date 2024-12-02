@@ -1,15 +1,17 @@
 import { Problem, problemMediaType } from '../media/Problem';
 
-export const PREFIX_API = 'http://192.168.1.72:3000/api';
+export const PREFIX_API = 'http://10.11.71.51:3000/api';
 
 export const apiRoutes = {
   // Channel
+  GET_BY_NAME: '/channels?name=:name&sort=:sort',
   GET_PUBLIC_CHANNELS: '/channels/public',
   GET_CHANNEL_BY_ID: '/channels/:id',
   GET_USER_MEMBER_CHANNELS: '/channels/member',
   GET_USER_OWNED_CHANNELS: '/channels/owner',
   // Messages
   GET_CHANNEL_MESSAGES: '/channels/:id/messages',
+  DELETE_MESSAGE: '/channels/:channelId/messages/:messageId',
 };
 
 export default function httpService() {
@@ -17,7 +19,7 @@ export default function httpService() {
     get: get,
     post: post,
     put: put,
-    del: del,
+    delete: del,
   };
 
   async function processRequest<T>(uri: string, method: string, body?: string): Promise<T> {
@@ -38,6 +40,12 @@ export default function httpService() {
         throw res as Problem;
       } else throw new Error(`HTTP error! Status: ${response.status}`);
     }
+
+    const contentType = response.headers.get('Content-Type');
+    if (!contentType || !contentType.includes('application/json')) {
+      return {} as T;
+    }
+
     return (await response.json()) as T;
   }
 
