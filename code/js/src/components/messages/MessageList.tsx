@@ -1,9 +1,10 @@
 import React, { useEffect, useReducer } from 'react';
 import { MessageListOutputModel } from '../../services/messages/models/MessageListOutputModel';
-import { Message } from './Messages';
+
 import { useLocation } from 'react-router-dom';
 import { getChannelMessages } from '../../services/messages/MessagesService';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
+import { Message } from './Messages';
 
 type State =
   | { type: 'start' }

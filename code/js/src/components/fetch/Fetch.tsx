@@ -3,8 +3,8 @@ import { useEffect, useReducer } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ChannelsListOutputModel } from '../../services/channels/models/ChannelsListOutputModel';
 import { ChannelList } from '../channels/ChannelList';
-import { ReturnType } from './ReturnType';
 import { InputType } from './InputType';
+import { ReturnType } from './ReturnType';
 
 type FetchProps = {
   fetchFunction: (...args: Array<InputType>) => Promise<ReturnType>;

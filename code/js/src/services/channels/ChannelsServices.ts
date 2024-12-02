@@ -19,6 +19,11 @@ export async function createChannel(name: string, type: Type): Promise<IdOutputM
   );
 }
 
+export async function searchChannels(name?: string, sort?: string): Promise<ChannelsListOutputModel> {
+  const path = PREFIX_API + apiRoutes.GET_BY_NAME.replace('name', name)
+  return await httpService.get<ChannelsListOutputModel>(path)
+}
+
 export async function getChannelById(channelId: number): Promise<ChannelOutputModel> {
   const path = PREFIX_API + apiRoutes.GET_CHANNEL_BY_ID.replace(':id', String(channelId));
   return await httpService.get<ChannelOutputModel>(path);

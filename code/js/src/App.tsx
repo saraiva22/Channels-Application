@@ -1,17 +1,18 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { LayoutWithNavBar } from './layout/NavBar';
-import { Login } from './components/authentication/Login';
-import { Register } from './components/authentication/Register';
-import { RequireAuthentication } from './components/authentication/RequireAuthentication';
-import { HomePage } from './components/home/Home';
-import { About } from './components/about/About';
-import { Notifications } from './components/notifications/Notifications';
-import { Fetch } from './components/fetch/Fetch';
-import { getChannelsList } from './services/channels/ChannelsServices';
-import { ChannelCreate } from './components/channels/ChannelCreate';
 import { apiRoutes } from './services/utils/HttpService';
 import { MessageList } from './components/messages/MessageList';
+import { SearchChannels } from './components/channels/SearchChannels';
+import { Login } from './components/authentication/Login';
+import { HomePage } from './components/home/Home';
+import { Register } from './components/authentication/Register';
+import { About } from './components/about/About';
+import { Notifications } from './components/notifications/Notifications';
+import { RequireAuthentication } from './components/authentication/RequireAuthentication';
+import { ChannelCreate } from './components/channels/ChannelCreate';
+import { getChannelsList } from './services/channels/ChannelsServices';
+import { Fetch } from './components/fetch/Fetch';
 
 export const webRoutes = {
   home: '/',
@@ -21,6 +22,7 @@ export const webRoutes = {
   logout: '/logout',
   channel: 'channel/:id',
   publicChannels: '/public-channels',
+  searchChannels: '/channels/search',
   channelsMembers: '/channels-members',
   channelsOwned: '/channels-owned',
   channelCreate: '/channels/create',
@@ -34,6 +36,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <LayoutWithNavBar />,
     children: [
+      // User
       {
         path: webRoutes.home,
         element: <HomePage />,
@@ -51,6 +54,11 @@ const router = createBrowserRouter([
         element: <About />,
       },
       {
+        path: webRoutes.notifications,
+        element: <Notifications />,
+      },
+      // Channels
+      {
         path: webRoutes.channelCreate,
         element: (
           <RequireAuthentication>
@@ -59,14 +67,18 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: webRoutes.notifications,
-        element: <Notifications />,
-      },
-      {
         path: webRoutes.publicChannels,
         element: (
           <RequireAuthentication>
             <Fetch fetchFunction={getChannelsList} fetchArgs={[apiRoutes.GET_PUBLIC_CHANNELS]} />
+          </RequireAuthentication>
+        ),
+      },
+      {
+        path: webRoutes.searchChannels,
+        element: (
+          <RequireAuthentication>
+            <SearchChannels />
           </RequireAuthentication>
         ),
       },
@@ -86,6 +98,7 @@ const router = createBrowserRouter([
           </RequireAuthentication>
         ),
       },
+      // Messages
       {
         path: webRoutes.channelMessages,
         element: (

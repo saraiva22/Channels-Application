@@ -40,7 +40,7 @@ function NavBar() {
               </Link>
             </li>
             <li className="liStyle">
-              <Link to='/' className="linkStyle">
+              <Link to={webRoutes.searchChannels} className="linkStyle">
                 Search Channels
               </Link>
             </li>
