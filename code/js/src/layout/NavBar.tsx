@@ -26,11 +26,6 @@ function NavBar() {
             Home
           </Link>
         </li>
-        <li className="liStyle">
-          <Link to={webRoutes.about} className="linkStyle">
-            About
-          </Link>
-        </li>
         {loggedIn ? (
           <>
             <li className="liStyle">
@@ -59,6 +54,16 @@ function NavBar() {
               </Link>
             </li>
             <li className="liStyle">
+              <Link to={webRoutes.receivedChannelInvites} className="linkStyle">
+                My Received Invites
+              </Link>
+            </li>
+            <li className="liStyle">
+              <Link to={webRoutes.sentChannelInvites} className="linkStyle">
+                My Sent Invites
+              </Link>
+            </li>
+            <li className="liStyle">
               <Link to={webRoutes.notifications} className="linkStyle">
                 Notifications
               </Link>
@@ -69,6 +74,11 @@ function NavBar() {
               </Link>
             </li>
             <li className="liStyle">
+              <Link to={webRoutes.about} className="linkStyle">
+                About
+              </Link>
+            </li>
+            <li className="liStyle">
               <button className="bStyle" onClick={handleLogout}>
                 Logout
               </button>
@@ -76,6 +86,11 @@ function NavBar() {
           </>
         ) : (
           <>
+            <li className="liStyle">
+              <Link to={webRoutes.about} className="linkStyle">
+                About
+              </Link>
+            </li>
             <li className="liStyle">
               <Link to={webRoutes.login} className="linkStyle">
                 Login

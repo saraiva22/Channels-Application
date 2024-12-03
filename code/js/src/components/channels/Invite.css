@@ -1,0 +1,60 @@
+.invite-container {
+  border: 1px solid hsl(210, 36%, 80%);
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px;
+  max-width: 400px;
+  background-color: #ffffff;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  text-align: center;
+  cursor: pointer;
+}
+
+.invite-container h3 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: hsl(210, 40%, 30%);
+}
+
+.invite-container img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+  object-fit: cover;
+  border: 2px solid hsl(210, 36%, 80%);
+}
+
+.invite-container p {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 5px 0;
+}
+
+.invite-container b {
+  display: block;
+  font-size: 14px;
+  margin: 5px 0;
+  color: hsl(0, 0%, 40%);
+}
+
+.invite-container .highlight {
+  color: hsl(210, 50%, 50%);
+  font-weight: bold;
+}
+
+.invite-container .channel-info {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: hsl(210, 36%, 90%);
+  border-radius: 5px;
+}
+
+.invite-container .channel-info p {
+  margin: 0;
+  font-size: 14px;
+  color: hsl(210, 30%, 40%);
+}

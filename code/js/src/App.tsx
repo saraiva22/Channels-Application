@@ -15,6 +15,9 @@ import { getChannelsList } from './services/channels/ChannelsServices';
 import { AuthProvider } from './components/authentication/AuthProvider';
 import { Me } from './components/authentication/Me';
 import { Fetch } from './components/fetch/Fetch';
+import { SendInvites } from './components/channels/SendInvites';
+import { ReceivedInvites } from './components/channels/ReceivedInvites';
+import { ValidateChannelInvite } from './components/channels/ValidateChannelInvite';
 
 export const webRoutes = {
   home: '/',
@@ -29,6 +32,9 @@ export const webRoutes = {
   channelsOwned: '/channels-owned',
   channelCreate: '/channels/create',
   channelMessages: '/channel/messages',
+  receivedChannelInvites: '/channels/inv/received',
+  sentChannelInvites: '/channels/inv/sent',
+  validateChannelInvite: '/channels/invite/validate',
   about: '/about',
   notifications: '/notifications',
 };
@@ -65,6 +71,30 @@ const router = createBrowserRouter([
         element: (
           <RequireAuthentication>
             <ChannelCreate />
+          </RequireAuthentication>
+        ),
+      },
+      {
+        path: webRoutes.validateChannelInvite,
+        element: (
+          <RequireAuthentication>
+            <ValidateChannelInvite />
+          </RequireAuthentication>
+        ),
+      },
+      {
+        path: webRoutes.sentChannelInvites,
+        element: (
+          <RequireAuthentication>
+            <SendInvites />
+          </RequireAuthentication>
+        ),
+      },
+      {
+        path: webRoutes.receivedChannelInvites,
+        element: (
+          <RequireAuthentication>
+            <ReceivedInvites />
           </RequireAuthentication>
         ),
       },

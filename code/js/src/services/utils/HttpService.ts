@@ -9,6 +9,9 @@ export const apiRoutes = {
   GET_CHANNEL_BY_ID: '/channels/:id',
   GET_USER_MEMBER_CHANNELS: '/channels/member',
   GET_USER_OWNED_CHANNELS: '/channels/owner',
+  RECEIVED_CHANNEL_INVITES: '/channels/invites/received',
+  SENT_CHANNEL_INVITES: '/channels/invites/sent',
+  VALIDATE_CHANNEL_INVITE: '/channels/:id/invite/:code',
   // Messages
   GET_CHANNEL_MESSAGES: '/channels/:id/messages',
   DELETE_MESSAGE: '/channels/:channelId/messages/:messageId',
