@@ -7,11 +7,15 @@ export function ChannelList(channelsList: ChannelsListOutputModel) {
   return (
     <div>
       <h1>Channels</h1>
-      <ul className="channels-list">
-        {channelsList.channels.map(channel => (
-          <Channel key={channel.id} channel={channel} />
-        ))}
-      </ul>
+      {channelsList.channels && channelsList.channels.length > 0 ? (
+        <ul className="channels-list">
+          {channelsList.channels.map(channel => (
+            <Channel key={channel.id} channel={channel} />
+          ))}
+        </ul>
+      ) : (
+        <p>No channels to show.</p>
+      )}
     </div>
   );
 }

@@ -56,8 +56,6 @@ export function ChannelCreate() {
   const location = useLocation();
 
   if (state.tag === 'redirect') {
-    console.log(state);
-
     return <Navigate to={location.state?.source || webRoutes.channelsMembers} replace={true} />;
   }
 

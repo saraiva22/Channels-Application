@@ -81,7 +81,7 @@ export function Fetch(props: FetchProps) {
       abort.abort();
       cancelled = true;
     };
-  }, [dispatch, location]);
+  }, [dispatch, location, props.fetchArgs]);
 
   switch (state.type) {
     case 'start':

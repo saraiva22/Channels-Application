@@ -1,10 +1,10 @@
 import { Problem, problemMediaType } from '../media/Problem';
 
-export const PREFIX_API = 'http://192.168.1.72:3000/api';
+export const PREFIX_API = 'http://172.20.10.12:3000/api';
 
 export const apiRoutes = {
   // Channel
-  GET_BY_NAME: '/channels?name=:name&sort=:sort',
+  GET_BY_NAME: '/channels',
   GET_PUBLIC_CHANNELS: '/channels/public',
   GET_CHANNEL_BY_ID: '/channels/:id',
   GET_USER_MEMBER_CHANNELS: '/channels/member',
