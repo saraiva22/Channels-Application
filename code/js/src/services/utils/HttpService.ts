@@ -17,6 +17,8 @@ export const apiRoutes = {
   DELETE_MESSAGE: '/channels/:channelId/messages/:messageId',
   // Users
   GET_USER_BY_ID: '/users/:id',
+  // Chat
+  LISTEN_CHAT: '/users/notifications',
 };
 
 export default function httpService() {

@@ -1,16 +1,25 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { createContext, useState } from 'react';
+import { getCookie } from './RequireAuthentication';
 
 type State = {
   username: string | undefined;
   setUsername: (username: string | undefined) => void;
 };
 
+const cookieName = 'login';
+
 const AuthContext = createContext({ username: undefined, setUsername: _ => {} });
 
 export function AuthProvider({ children }) {
   const [observedUsername, setUsername] = useState(undefined);
-  console.log(`provider ${observedUsername}`);
+
+  useEffect(() => {
+    const getUserName = getCookie(cookieName);
+    if (getUserName) {
+      setUsername(getUserName);
+    }
+  }, []);
 
   const value = {
     username: observedUsername,
