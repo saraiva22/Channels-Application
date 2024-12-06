@@ -1,6 +1,6 @@
 import { Problem, problemMediaType } from '../media/Problem';
 
-export const PREFIX_API = 'http://172.20.10.12:3000/api';
+export const PREFIX_API = 'http://192.168.1.52:3000/api';
 
 export const apiRoutes = {
   // Channel
@@ -16,7 +16,11 @@ export const apiRoutes = {
   GET_CHANNEL_MESSAGES: '/channels/:id/messages',
   DELETE_MESSAGE: '/channels/:channelId/messages/:messageId',
   // Users
+  REGISTER_USER: '/users',
+  LOGIN: '/users/token',
+  LOGOUT: '/logout',
   GET_USER_BY_ID: '/users/:id',
+  INVITE_USERS: '/users/invite',
   // Chat
   LISTEN_CHAT: '/users/notifications',
 };

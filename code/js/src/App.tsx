@@ -25,7 +25,7 @@ export const webRoutes = {
   login: '/login',
   register: '/register',
   logout: '/logout',
-  channel: 'channel/:id',
+  channel: 'channel/details',
   publicChannels: '/public-channels',
   searchChannels: '/channels/search',
   channelsMembers: '/channels-members',

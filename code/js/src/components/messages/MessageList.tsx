@@ -1,10 +1,11 @@
 import React, { useEffect, useReducer } from 'react';
 import { MessageListOutputModel } from '../../services/messages/models/MessageListOutputModel';
-
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { getChannelMessages } from '../../services/messages/MessagesService';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
-import { Message } from './Messages';
+import { MessageGroup } from './MessageGroup';
+import { webRoutes } from '../../App';
+import './MessageList.css';
 
 type State =
   | { type: 'start' }
@@ -49,6 +50,23 @@ function reducer(state: State, action: Action): State {
 
 const firstState: State = { type: 'start' };
 
+function groupMessagesByUser(messages) {
+  const grouped = [];
+  let currentGroup = null;
+
+  messages.forEach(message => {
+    if (!currentGroup || currentGroup.user.id !== message.user.id) {
+      if (currentGroup) grouped.push(currentGroup);
+      currentGroup = { user: message.user, messages: [] };
+    }
+    currentGroup.messages.push(message);
+  });
+
+  if (currentGroup) grouped.push(currentGroup);
+
+  return grouped;
+}
+
 export function MessageList() {
   const [state, dispatch] = useReducer(reducer, firstState);
   const location = useLocation();
@@ -89,15 +107,19 @@ export function MessageList() {
     case 'success': {
       return (
         <div>
-          <h1>{channel.name}</h1>
+          <h1>
+            <Link to={webRoutes.channel}>{channel.name}</Link>
+          </h1>
           <ul className="message-list">
             {state.rsp.messages.length === 0 ? (
               <div>
-                <p>This channel is waiting for your voice!</p>
+                <p>This channel is waiting for you!</p>
                 <p>Send a message and start the conversation.</p>
               </div>
             ) : (
-              state.rsp.messages.map(message => <Message key={message.id} message={message} />)
+              groupMessagesByUser(state.rsp.messages).map((group, index) => (
+                <MessageGroup key={index} user={group.user} messages={group.messages} />
+              ))
             )}
           </ul>
         </div>

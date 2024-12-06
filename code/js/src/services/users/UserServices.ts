@@ -1,9 +1,9 @@
 import { RegisterOutput } from './models/RegisterOutputModel';
 import { LoginOutput } from './models/LoginOutputModel';
 import { LogoutOutput } from './models/LogoutOutput';
-import httpServiceInit from '../utils/HttpService';
+import httpServiceInit, { apiRoutes } from '../utils/HttpService';
 import { PREFIX_API } from '../utils/HttpService';
-
+import { UserInviteOutput } from './models/UserInviteOutputModel';
 
 const httpService = httpServiceInit();
 
@@ -13,7 +13,7 @@ export async function register(
   password: string,
   inviteCode?: string
 ): Promise<RegisterOutput> {
-  const path = `${PREFIX_API}/users`;
+  const path = PREFIX_API + apiRoutes.REGISTER_USER;
   return await httpService.post<RegisterOutput>(
     path,
     JSON.stringify({
@@ -26,7 +26,7 @@ export async function register(
 }
 
 export async function login(username: string, password: string): Promise<LoginOutput> {
-  const path = `${PREFIX_API}/users/token`;
+  const path = PREFIX_API + apiRoutes.LOGIN;
   return await httpService.post<LoginOutput>(
     path,
     JSON.stringify({
@@ -37,6 +37,11 @@ export async function login(username: string, password: string): Promise<LoginOu
 }
 
 export async function logout(): Promise<LogoutOutput> {
-  const path = `${PREFIX_API}/logout`;
+  const path = PREFIX_API + apiRoutes.LOGOUT;
   return await httpService.post<LogoutOutput>(path);
+}
+
+export async function createInvitationRegster(): Promise<UserInviteOutput> {
+  const path = PREFIX_API + apiRoutes.INVITE_USERS;
+  return await httpService.post<UserInviteOutput>(path);
 }
