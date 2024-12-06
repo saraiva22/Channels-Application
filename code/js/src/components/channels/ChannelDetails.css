@@ -1,0 +1,42 @@
+.details {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #444;
+  text-align: center;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+}
+
+p {
+  margin: 10px 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+p b {
+  color: #555;
+}
+
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.user {
+  margin: 15px 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.user p {
+  margin: 5px 0;
+  font-size: 0.95rem;
+}
+
+.user p b {
+  font-weight: bold;
+  color: #333;
+}

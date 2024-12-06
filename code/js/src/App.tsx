@@ -18,6 +18,8 @@ import { Fetch } from './components/fetch/Fetch';
 import { SendInvites } from './components/channels/SendInvites';
 import { ReceivedInvites } from './components/channels/ReceivedInvites';
 import { ValidateChannelInvite } from './components/channels/ValidateChannelInvite';
+import { ChannelProvider } from './components/channels/ChannelProvider';
+import { ChannelDetails } from './components/channels/ChannelDetails';
 
 export const webRoutes = {
   home: '/',
@@ -25,7 +27,7 @@ export const webRoutes = {
   login: '/login',
   register: '/register',
   logout: '/logout',
-  channel: 'channel/details',
+  channel: '/channel/details',
   publicChannels: '/public-channels',
   searchChannels: '/channels/search',
   channelsMembers: '/channels-members',
@@ -66,6 +68,14 @@ const router = createBrowserRouter([
         element: <Notifications />,
       },
       // Channels
+      {
+        path: webRoutes.channel,
+        element: (
+          <RequireAuthentication>
+            <ChannelDetails />
+          </RequireAuthentication>
+        ),
+      },
       {
         path: webRoutes.channelCreate,
         element: (
@@ -154,7 +164,9 @@ const router = createBrowserRouter([
 export function App() {
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
+      <ChannelProvider>
+        <RouterProvider router={router} />
+      </ChannelProvider>
     </AuthProvider>
   );
 }

@@ -1,10 +1,11 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { MessageListOutputModel } from '../../services/messages/models/MessageListOutputModel';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { getChannelMessages } from '../../services/messages/MessagesService';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
 import { MessageGroup } from './MessageGroup';
 import { webRoutes } from '../../App';
+import { useChannel } from '../channels/ChannelProvider';
 import './MessageList.css';
 
 type State =
@@ -69,8 +70,11 @@ function groupMessagesByUser(messages) {
 
 export function MessageList() {
   const [state, dispatch] = useReducer(reducer, firstState);
-  const location = useLocation();
-  const { channel } = location.state || {};
+  const { selectedChannel } = useChannel();
+
+  if (!selectedChannel) {
+    return <p>No channel selected</p>; // redirect !!!!
+  }
 
   useEffect(() => {
     const abort = new AbortController();
@@ -78,7 +82,7 @@ export function MessageList() {
     async function doFetch() {
       dispatch({ type: 'started-loading' });
       try {
-        const resp = await getChannelMessages(channel.id);
+        const resp = await getChannelMessages(selectedChannel.id);
         console.log(cancelled);
         if (!cancelled) {
           dispatch({ type: 'success', rsp: resp });
@@ -95,7 +99,14 @@ export function MessageList() {
       abort.abort();
       cancelled = true;
     };
-  }, [dispatch, location]);
+  }, [dispatch, selectedChannel]);
+
+  const navigate = useNavigate();
+
+  function handleClick() {
+    const route = webRoutes.channel;
+    navigate(route, { replace: true });
+  }
 
   switch (state.type) {
     case 'start':
@@ -107,9 +118,9 @@ export function MessageList() {
     case 'success': {
       return (
         <div>
-          <h1>
-            <Link to={webRoutes.channel}>{channel.name}</Link>
-          </h1>
+          <div className="clickable-title" onClick={handleClick}>
+            {selectedChannel.name}
+          </div>
           <ul className="message-list">
             {state.rsp.messages.length === 0 ? (
               <div>

@@ -5,18 +5,26 @@ import privatechannel from '../../assets/privatechannel.png';
 import publicchannel from '../../assets/publicchannel.png';
 import './Channel.css';
 import { webRoutes } from '../../App';
+import { useChannel } from './ChannelProvider';
 
-export function Channel({ channel }: ChannelOutputModel) {
+type ChannelProps = {
+  channel: ChannelOutputModel;
+};
+
+export function Channel({ channel }: ChannelProps) {
   const isPublic = channel.type.toString() === 'PUBLIC';
   const [navigateToChannel, setNavigateToChannel] = useState<string | null>(null);
 
+  const { setChannel } = useChannel();
+
   function handleClick() {
+    setChannel(channel);
     const route = webRoutes.channelMessages;
     setNavigateToChannel(route);
   }
 
   if (navigateToChannel) {
-    return <Navigate to={navigateToChannel} state={{ channel }} replace={true} />;
+    return <Navigate to={navigateToChannel} replace={true} />;
   }
 
   return (
