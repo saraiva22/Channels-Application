@@ -134,6 +134,16 @@ class UsersController(
         }
     }
 
+    @GetMapping(Uris.Users.SEARCH_USERS)
+    fun searchUsers(
+        @RequestParam username: String,
+        authUser: AuthenticatedUser
+    ): ResponseEntity<*> {
+        val user = userService.searchUsers(username)
+        return ResponseEntity.status(200)
+            .body(UserListOutputModel(user.map { UserHomeOutputModel(it.id, it.username) }))
+    }
+
     @PostMapping(Uris.Users.INVITE)
     fun createInvitationRegister(
         authenticatedUser: AuthenticatedUser

@@ -64,6 +64,37 @@ kotlin {
 	}
 }
 
+
+kotlin {
+	jvmToolchain(21)
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+task<Copy>("extractUberJar") {
+	dependsOn("assemble")
+	// opens the JAR containing everything...
+	from(zipTree("$buildDir/libs/daw-$version.jar"))
+	// ... into the 'build/dependency' folder
+	into("build/dependency")
+}
+
+task<Exec>("composeUp") {
+	commandLine("docker-compose", "up", "--build", "--force-recreate")
+	dependsOn("extractUberJar")
+}
+
+task<Exec>("composeStart") {
+	commandLine("docker-compose", "up", "-d")
+	dependsOn("extractUberJar")
+}
+
+task<Exec>("composeDown") {
+	commandLine("docker-compose", "down")
+}
+
+task<Exec>("composeStop") {
+	commandLine("docker-compose", "stop")
 }

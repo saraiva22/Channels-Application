@@ -17,6 +17,7 @@ object Uris {
         const val INVITE = "$PREFIX/users/invite"
         const val HOME = "$PREFIX/home"
         const val NOTIFICATIONS = "$PREFIX/users/notifications"
+        const val SEARCH_USERS = "$PREFIX/users"
 
         fun byId(id: Int): URI = UriTemplate(GET_BY_ID).expand(id)
         fun home(): URI = URI(HOME)

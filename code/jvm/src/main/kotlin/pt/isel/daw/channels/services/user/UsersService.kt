@@ -99,10 +99,8 @@ class UsersService(
         success(user)
     }
 
-    fun getUserByName(username: String): UserSearchResult = transactionManager.run {
-        val usersRepository = it.usersRepository
-        val user = usersRepository.getUserByUsername(username) ?: return@run failure(UserSearchError.UserNotFound)
-        success(user)
+    fun searchUsers(username: String): List<User> = transactionManager.run {
+        it.usersRepository.searchUsers(username)
     }
 
 

@@ -44,6 +44,11 @@ class JdbiUsersRepository(
             .mapTo<User>()
             .singleOrNull()
 
+    override fun searchUsers(username: String): List<User> =
+        handle.createQuery("select * from dbo.Users where username like :username")
+            .bind("username", "$username%")
+            .mapTo<User>()
+            .list()
     override fun getUserById(id: Int): User? =
         handle.createQuery("select * from dbo.Users where id = :id")
             .bind("id", id)

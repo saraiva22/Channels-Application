@@ -1,6 +1,7 @@
 services:
   db-tests:
     container_name: db-tests
+    image: channel-postgres-test
     build:
       context: .
       dockerfile: code/jvm/tests/Dockerfile-db-test
@@ -10,3 +11,61 @@ services:
       - POSTGRES_DB=db
     ports:
       - 5432:5432
+
+  # ttt-jvm-1 and ttt-jvm-2 are used to illustrate scenarios with a fixed number of servers
+  # with static and well know names.
+  jvm-service-1:
+    container_name: jvm-service-1
+    hostname: jvm-service-1
+    image: channelapp-jvm
+    build:
+      context: .
+      dockerfile: code/jvm/tests/Dockerfile-jvm
+    environment:
+      PORT: 8081
+      DB_URL: "jdbc:postgresql://db-tests:5432/db?user=dbuser&password=changeit"
+    ports:
+      - 8081:8081
+
+  jvm-service-2:
+    container_name: jvm-service-2
+    hostname: jvm-service-2
+    image: channelapp-jvm
+    environment:
+      PORT: 8082
+      DB_URL: "jdbc:postgresql://db-tests:5432/db?user=dbuser&password=changeit"
+    ports:
+      - 8082:8082
+
+  # ttt-jvm-dynamic is used to illustrate scenarios with a dynamic number of servers
+  # without static and well know names.
+  # We will use docker compose scaling to create multiple instances of this service
+  channel-jvm-dynamic:
+    image: channelapp-jvm
+    hostname: channel-jvm-dynamic
+    environment:
+      PORT: 8080
+      DB_URL: "jdbc:postgresql://db-tests:5432/db?user=dbuser&password=changeit"
+
+  # The service running the load-balancer
+  nginx:
+    container_name: channel-nginx
+    image: channel-nginx
+    build:
+      context: .
+      dockerfile: code/jvm/tests/Dockerfile-nginx
+    ports:
+      - 8080:8080
+      - 8088:8088
+    depends_on:
+      - jvm-service-1
+      - jvm-service-2
+
+  # Just a machine running ubuntu, with 'dig' installed so that we can observe the docker compose environment.
+  ubuntu:
+    container_name: ubuntu
+    image: channel-ubuntu
+    build:
+      context: .
+      dockerfile: code/jvm/tests/Dockerfile-ubuntu
+    tty: true

@@ -21,6 +21,8 @@ interface UsersRepository {
 
     fun getUserById(id: Int): User?
 
+    fun searchUsers(username: String): List<User>
+
     fun getUserByEmail(email: String): User?
 
     fun getTokenByTokenValidationInfo(tokenValidationInfo: TokenValidationInfo): Pair<User, Token>?
