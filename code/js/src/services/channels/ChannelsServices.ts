@@ -55,3 +55,23 @@ export async function validateChannelInvite(
     PREFIX_API + apiRoutes.VALIDATE_CHANNEL_INVITE.replace(':id', channelId.toString()).replace(':code', code);
   return await httpService.post<ChannelOutputModel>(path, JSON.stringify({ status }));
 }
+
+export async function banUserFromChannel(username: string, channelId: number): Promise<ChannelOutputModel> {
+  const path = PREFIX_API + apiRoutes.BAN_USER.replace(':id', channelId.toString());
+  return await httpService.post<ChannelOutputModel>(
+    path,
+    JSON.stringify({
+      username,
+    })
+  );
+}
+
+export async function unbanUserFromChannel(username: string, channelId: number): Promise<ChannelOutputModel> {
+  const path = PREFIX_API + apiRoutes.UNBAN_USER.replace(':id', channelId.toString());
+  return await httpService.post<ChannelOutputModel>(
+    path,
+    JSON.stringify({
+      username,
+    })
+  );
+}

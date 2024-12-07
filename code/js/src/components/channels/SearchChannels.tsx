@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { searchChannels } from '../../services/channels/ChannelsServices';
 import { Fetch } from '../fetch/Fetch';
-import './SearchChannels.css';
+import './css/SearchChannels.css';
 
 export function SearchChannels() {
   const [text, setText] = useState('');

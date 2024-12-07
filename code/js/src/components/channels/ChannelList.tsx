@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChannelsListOutputModel } from '../../services/channels/models/ChannelsListOutputModel';
 import { Channel } from './Channel';
-import './ChannelList.css';
+import './css/ChannelList.css';
 
 export function ChannelList(channelsList: ChannelsListOutputModel) {
   return (

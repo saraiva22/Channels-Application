@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useEffect, useReducer } from 'react';
 import { ChannelOutputModel } from '../../services/channels/models/ChannelOutputModel';
 import { useChannel } from './ChannelProvider';
-import { getChannelById } from '../../services/channels/ChannelsServices';
+import { banUserFromChannel, getChannelById, unbanUserFromChannel } from '../../services/channels/ChannelsServices';
 import { User } from '../user/User';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
-import './ChannelDetails.css';
+import './css/ChannelDetails.css';
 import { useAuthentication } from '../authentication/AuthProvider';
 
 type State =
@@ -55,6 +55,7 @@ export function ChannelDetails() {
   const [state, dispatch] = useReducer(reducer, firstState);
   const { selectedChannel } = useChannel();
   const [username] = useAuthentication();
+  const [channelState, setChannelState] = useState<ChannelOutputModel>(selectedChannel);
 
   useEffect(() => {
     const abort = new AbortController();
@@ -82,7 +83,29 @@ export function ChannelDetails() {
       abort.abort();
       cancelled = true;
     };
-  }, [dispatch]);
+  }, [dispatch, channelState]);
+
+  async function handleBan(username: string, channelId: number) {
+    try {
+      const channel = await banUserFromChannel(username, channelId);
+      if (channel) {
+        setChannelState(channel);
+      }
+    } catch (error) {
+      console.log(error); // melhorar
+    }
+  }
+
+  async function handleUnban(username: string, channelId: number) {
+    try {
+      const channel = await unbanUserFromChannel(username, channelId);
+      if (channel) {
+        setChannelState(channel);
+      }
+    } catch (error) {
+      console.log(error); // melhorar
+    }
+  }
 
   switch (state.type) {
     case 'start':
@@ -112,7 +135,14 @@ export function ChannelDetails() {
             <b>Members:</b>
           </p>
           {channel.members.map(member => (
-            <User key={member.id} user={member} />
+            <li key={member.id}>
+              <User user={member} />
+              {channel.owner.username === username && member.username !== channel.owner.username && (
+                <button className="button-ban" onClick={() => handleBan(member.username, selectedChannel.id)}>
+                  Ban
+                </button>
+              )}
+            </li>
           ))}
           {channel.owner.username === username && (
             <>
@@ -124,6 +154,9 @@ export function ChannelDetails() {
                   {channel.bannedMembers.map(member => (
                     <li key={member.id}>
                       <User user={member} />
+                      <button className="button-unban" onClick={() => handleUnban(member.username, selectedChannel.id)}>
+                        Unban
+                      </button>
                     </li>
                   ))}
                 </ul>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import invitation from '../../assets/invitation.png';
-import './Invite.css';
+import './css/Invite.css';
 import { webRoutes } from '../../App';
 import { InviteProps } from '../../services/channels/models/InviteProps';
 

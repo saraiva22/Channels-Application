@@ -27,9 +27,9 @@
 }
 
 .message-group p small {
-  font-size: 0.7rem;
-  color: #888;
-  margin-bottom: 5px;
+  font-size: 0.7rem; 
+  color: #888; 
+  margin-bottom: 5px; 
 }
 
 .delete-button {

@@ -12,6 +12,8 @@ export const apiRoutes = {
   RECEIVED_CHANNEL_INVITES: '/channels/invites/received',
   SENT_CHANNEL_INVITES: '/channels/invites/sent',
   VALIDATE_CHANNEL_INVITE: '/channels/:id/invite/:code',
+  BAN_USER: '/channels/:id/ban',
+  UNBAN_USER: '/channels/:id/unban',
   // Messages
   GET_CHANNEL_MESSAGES: '/channels/:id/messages',
   DELETE_MESSAGE: '/channels/:channelId/messages/:messageId',
