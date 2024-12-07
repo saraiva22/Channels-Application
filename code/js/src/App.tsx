@@ -12,13 +12,13 @@ import { Notifications } from './components/notifications/Notifications';
 import { RequireAuthentication } from './components/authentication/RequireAuthentication';
 import { ChannelCreate } from './components/channels/ChannelCreate';
 import { getChannelsList } from './services/channels/ChannelsServices';
-import { AuthProvider } from './components/authentication/AuthProvider';
+import { AuthProvider } from './context/AuthProvider';
 import { Me } from './components/authentication/Me';
 import { Fetch } from './components/fetch/Fetch';
 import { SendInvites } from './components/channels/SendInvites';
 import { ReceivedInvites } from './components/channels/ReceivedInvites';
 import { ValidateChannelInvite } from './components/channels/ValidateChannelInvite';
-import { ChannelProvider } from './components/channels/ChannelProvider';
+import { ChannelProvider } from './context/ChannelProvider';
 import { ChannelDetails } from './components/channels/ChannelDetails';
 
 export const webRoutes = {
@@ -37,6 +37,7 @@ export const webRoutes = {
   receivedChannelInvites: '/channels/inv/received',
   sentChannelInvites: '/channels/inv/sent',
   validateChannelInvite: '/channels/invite/validate',
+  createMessage: '/create/messages',
   about: '/about',
   notifications: '/notifications',
 };

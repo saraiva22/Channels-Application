@@ -4,14 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { deleteMessage, getChannelMessages } from '../../services/messages/MessagesService';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
 import { webRoutes } from '../../App';
-import { useChannel } from '../channels/ChannelProvider';
+import { useChannel } from '../../context/ChannelProvider';
 import { Message } from '../../domain/messages/Message';
-import { useAuthentication } from '../authentication/AuthProvider';
+import { useAuthentication } from '../../context/AuthProvider';
 import './css/MessageList.css';
-import './css/MessageGroup.css';
 import { UserInfo } from '../../domain/users/UserInfo';
 import { ChannelOutputModel } from '../../services/channels/models/ChannelOutputModel';
 import { getChannelById } from '../../services/channels/ChannelsServices';
+import { MessageCreate } from './MessageCreate';
+import { MessageGroup } from './MessageGroup';
 
 type State =
   | { type: 'start' }
@@ -83,9 +84,10 @@ export function MessageList() {
   const { selectedChannel } = useChannel();
   const [username] = useAuthentication();
   const [channelState, setChannelState] = useState<ChannelOutputModel>(selectedChannel);
+  const [newMessage, setNewMessage] = useState(0);
 
   if (!selectedChannel) {
-    return <p>No channel selected</p>; // redirect !!!!
+    return <p>No channel selected</p>;
   }
 
   useEffect(() => {
@@ -111,7 +113,7 @@ export function MessageList() {
       abort.abort();
       cancelled = true;
     };
-  }, [dispatch, channelState]);
+  }, [dispatch, channelState, newMessage]);
 
   const navigate = useNavigate();
 
@@ -132,16 +134,6 @@ export function MessageList() {
     }
   }
 
-  const formatDate = (date: string) => {
-    const specificDate = new Date(date);
-    const day = String(specificDate.getDate()).padStart(2, '0');
-    const month = String(specificDate.getMonth() + 1).padStart(2, '0');
-    const year = specificDate.getFullYear();
-    const hours = String(specificDate.getHours()).padStart(2, '0');
-    const minutes = String(specificDate.getMinutes()).padStart(2, '0');
-    return `${day}/${month}/${year} at ${hours}:${minutes}`;
-  };
-
   switch (state.type) {
     case 'start':
       return <p>Idle</p>;
@@ -150,41 +142,32 @@ export function MessageList() {
     case 'error':
       return <ProblemComponent problem={state.error} />;
     case 'success': {
+      const groupedMessages = groupMessagesByUser(state.rsp.messages);
+
       return (
         <div>
           <div className="clickable-title" onClick={handleClick}>
             {selectedChannel.name}
           </div>
           <ul className="message-list">
-            {state.rsp.messages.length === 0 ? (
+            {groupedMessages.length === 0 ? (
               <div>
                 <p>This channel is waiting for you!</p>
                 <p>Send a message and start the conversation.</p>
               </div>
             ) : (
-              groupMessagesByUser(state.rsp.messages).map(group => (
-                <div className="message-group">
-                  <small className="message-group small">
-                    <b>{group.user.username}</b>
-                  </small>
-                  {group.messagesList.map(message => (
-                    <p key={message.id}>
-                      <small className="message-group p small">{formatDate(message.created)}</small>
-                      {message.text}
-                      {(username === message.user.username || username === message.channel.owner.username) && (
-                        <button
-                          className="delete-button"
-                          onClick={() => handleOnClickDelete(message.channel.id, message.id)}
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </p>
-                  ))}
-                </div>
+              groupedMessages.map(group => (
+                <MessageGroup
+                  key={group.user.id}
+                  groupUser={group.user}
+                  messagesList={group.messagesList}
+                  onDeleteMessage={handleOnClickDelete}
+                />
               ))
             )}
           </ul>
+
+          <MessageCreate onMessageCreated={() => setNewMessage(prev => prev + 1)} />
         </div>
       );
     }

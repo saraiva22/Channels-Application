@@ -4,7 +4,7 @@ import { isLoggedIn } from '../components/authentication/RequireAuthentication';
 import { logout } from '../services/users/UserServices';
 import { webRoutes } from '../App';
 import './NavBar.css';
-import { useAuthentication } from '../components/authentication/AuthProvider';
+import { useAuthentication } from '../context/AuthProvider';
 
 function NavBar() {
   const loggedIn = isLoggedIn();

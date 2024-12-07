@@ -4,8 +4,8 @@ import { ChannelOutputModel } from '../../services/channels/models/ChannelOutput
 import privatechannel from '../../assets/privatechannel.png';
 import publicchannel from '../../assets/publicchannel.png';
 import { webRoutes } from '../../App';
-import { useChannel } from './ChannelProvider';
-import './css/Channel.css'
+import { useChannel } from '../../context/ChannelProvider';
+import './css/Channel.css';
 
 type ChannelProps = {
   channel: ChannelOutputModel;

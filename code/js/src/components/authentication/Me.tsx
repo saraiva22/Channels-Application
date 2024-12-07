@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuthentication } from './AuthProvider';
+import { useAuthentication } from '../../context/AuthProvider';
 import { createInvitationRegster } from '../../services/users/UserServices';
 import './css/Me.css';
 

@@ -15,6 +15,7 @@ export const apiRoutes = {
   BAN_USER: '/channels/:id/ban',
   UNBAN_USER: '/channels/:id/unban',
   // Messages
+  CREATE_MESSAGE: '/channels/:id/messages',
   GET_CHANNEL_MESSAGES: '/channels/:id/messages',
   DELETE_MESSAGE: '/channels/:channelId/messages/:messageId',
   // Users

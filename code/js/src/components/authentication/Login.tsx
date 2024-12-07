@@ -2,7 +2,7 @@ import React, { useReducer } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { login } from '../../services/users/UserServices';
 import { webRoutes } from '../../App';
-import { useAuthentication } from './AuthProvider';
+import { useAuthentication } from '../../context/AuthProvider';
 
 type State =
   | { tag: 'editing'; error?: string; inputs: { username: string; password: string } }

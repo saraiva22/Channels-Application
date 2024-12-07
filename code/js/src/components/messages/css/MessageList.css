@@ -3,12 +3,16 @@
   font-weight: 700;
   color: inherit;
   cursor: pointer;
-  position: relative;
+  position: sticky;
+  top: 0;
   text-decoration: none;
   display: inline-block;
   line-height: 1.2;
   margin: 0;
   padding-top: 20px;
+  background-color: white;
+  z-index: 1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .clickable-title::after {
@@ -24,4 +28,13 @@
 
 .clickable-title:hover::after {
   width: 100%;
+}
+
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  padding-bottom: 70px;
+  max-height: calc(100vh - 140px);
+  box-sizing: border-box;
 }

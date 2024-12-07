@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useEffect, useReducer } from 'react';
 import { ChannelOutputModel } from '../../services/channels/models/ChannelOutputModel';
-import { useChannel } from './ChannelProvider';
+import { useChannel } from '../../context/ChannelProvider';
 import { banUserFromChannel, getChannelById, unbanUserFromChannel } from '../../services/channels/ChannelsServices';
 import { User } from '../user/User';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
 import './css/ChannelDetails.css';
-import { useAuthentication } from '../authentication/AuthProvider';
+import { useAuthentication } from '../../context/AuthProvider';
 
 type State =
   | { type: 'start' }
