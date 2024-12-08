@@ -73,6 +73,10 @@ export function Login() {
     const password = state.inputs.password;
 
     try {
+      if (!username?.trim() || !password?.trim()) {
+        dispatch({ type: 'error', message: 'Invalid username or password' });
+        return;
+      }
       const result = await login(username, password);
       if (result) {
         setUsername(username);
