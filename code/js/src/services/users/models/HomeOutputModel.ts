@@ -1,7 +1,10 @@
 type HomeOutputModel = {
   id: string;
-  email: string;
-  password: string;
+  username: string;
 };
 
 export type HomeOutput = HomeOutputModel;
+
+export type UserListOutputModel = {
+  users: Array<HomeOutputModel>;
+};

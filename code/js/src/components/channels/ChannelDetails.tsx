@@ -1,5 +1,6 @@
 import React from 'react';
 import { useEffect, useReducer } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChannelOutputModel } from '../../services/channels/models/ChannelOutputModel';
 import { useChannel } from './ChannelProvider';
 import { getChannelById } from '../../services/channels/ChannelsServices';
@@ -7,6 +8,7 @@ import { User } from '../user/User';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
 import './ChannelDetails.css';
 import { useAuthentication } from '../authentication/AuthProvider';
+import { webRoutes } from '../../App';
 
 type State =
   | { type: 'start' }
@@ -55,6 +57,15 @@ export function ChannelDetails() {
   const [state, dispatch] = useReducer(reducer, firstState);
   const { selectedChannel } = useChannel();
   const [username] = useAuthentication();
+  const navigate = useNavigate();
+
+  const handleNavigateCreate = () => {
+    navigate(webRoutes.createPrivateInvite);
+  };
+
+  const handleNavigateUpdate = () => {
+    navigate(webRoutes.updateChannel);
+  };
 
   useEffect(() => {
     const abort = new AbortController();
@@ -94,20 +105,27 @@ export function ChannelDetails() {
     case 'success': {
       const channel = state.rsp;
       return (
-        <div>
-          <h1 className="details">Channel Details</h1>
-          <p>
-            <b>Name: </b>
-            {channel.name}
-          </p>
-          <p>
-            <b>Owner: </b>
-            {channel.owner.username}
-          </p>
-          <p>
-            <b>Type: </b>
-            {channel.type}
-          </p>
+        <div className="channel-details">
+          <h1>Channel Details</h1>
+          <div className="details-container">
+            <div className="details-info">
+              <p>
+                <b>Name:</b> {channel.name}
+              </p>
+              <p>
+                <b>Owner:</b> {channel.owner.username}
+              </p>
+              <p>
+                <b>Type:</b> {channel.type}
+              </p>
+            </div>
+            {channel.type.toString() === 'PRIVATE' && (
+              <div className="details-action">
+                <button onClick={handleNavigateCreate}>Create Private Invite</button>
+                {channel.owner.username === username && <button onClick={handleNavigateUpdate}>Update Channel</button>}
+              </div>
+            )}
+          </div>
           <p>
             <b>Members:</b>
           </p>

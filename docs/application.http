@@ -1,7 +1,6 @@
 ### Variables 
 @apiurl = http://localhost:8080/api
-@tokenUserTest= V6Rel0WGXKVxsEoTd8g_8jiQJuEh9Y-mALU9wvqzV1M=
-
+@tokenUserTest= cEoycZJJ5bb55vx_tRa8X8gNFs2_xwizGuc0AhjcSAA=
 
 @tokenUserAdmin = rNtzk8juF1kCLbfTPym-MplQiUKMVL1hxyV14rM0esE=
 
@@ -240,7 +239,8 @@ Authorization: Bearer {{tokenUserAdmin}}
 
 ### Message
 
-### Create/Send MessagePOST {{apiurl}}/channels/4/messages HTTP/1.1
+### Create/Send Message
+POST {{apiurl}}/channels/13/messages HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{tokenUserTest}}
 

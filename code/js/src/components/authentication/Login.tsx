@@ -19,7 +19,7 @@ function logUnexpectedAction(state: State, action: Action) {
   console.log(`Unexpected action '${action.type} on state '${state.tag}'`);
 }
 
-function reduce(state: State, action: Action): State {
+function reducer(state: State, action: Action): State {
   switch (state.tag) {
     case 'editing':
       if (action.type === 'edit') {
@@ -48,7 +48,7 @@ function reduce(state: State, action: Action): State {
 }
 
 export function Login() {
-  const [state, dispatch] = useReducer(reduce, { tag: 'editing', inputs: { username: '', password: '' } });
+  const [state, dispatch] = useReducer(reducer, { tag: 'editing', inputs: { username: '', password: '' } });
   const [_, setUsername] = useAuthentication();
   const location = useLocation();
 

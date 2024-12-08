@@ -7,6 +7,8 @@ import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.http.Uris
 import pt.isel.daw.channels.http.util.SseEmitterBasedEventEmitter
 import pt.isel.daw.channels.services.message.ChatService
+
+
 import java.util.concurrent.TimeUnit
 
 @RestController

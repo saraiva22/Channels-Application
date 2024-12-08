@@ -4,11 +4,9 @@ import jakarta.inject.Named
 import kotlinx.datetime.Clock
 import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.channels.Privacy
-import pt.isel.daw.channels.domain.messages.Message
 import pt.isel.daw.channels.domain.messages.MessageDomain
 import pt.isel.daw.channels.domain.user.User
 import pt.isel.daw.channels.repository.TransactionManager
-import pt.isel.daw.channels.utils.Either
 import pt.isel.daw.channels.utils.failure
 import pt.isel.daw.channels.utils.success
 
@@ -41,7 +39,9 @@ class MessagesService(
                     channelId,
                     user.username,
                     text,
-                    channel.members.map { userId -> userId.id })
+                    channel.members.map { userId -> userId.id },
+                    now.toString()
+                )
                 success(messageId)
             } else {
                 failure(CreateMessageError.PrivacyIsNotReadWrite)
@@ -54,7 +54,7 @@ class MessagesService(
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(GetMessagesError.ChannelNotFound)
 
-            if (!channelsDomain.isOwner(userId,channel) && !channelsDomain.isUserMember(userId, channel))
+            if (!channelsDomain.isOwner(userId, channel) && !channelsDomain.isUserMember(userId, channel))
                 return@run failure(GetMessagesError.PermissionDenied)
 
             val messageList = it.messagesRepository.getChannelMessages(channel)

@@ -3,20 +3,22 @@ import { MessageOutputModel } from '../../services/messages/models/MessageOutput
 import { deleteMessage } from '../../services/messages/MessagesService';
 import './Message.css';
 
-export function Message({ message }: MessageOutputModel) {
-  const specificDate = new Date(message.created);
+export function formatDate(dateString: string): string {
+  const specificDate = new Date(dateString);
   const day = String(specificDate.getDate()).padStart(2, '0');
   const month = String(specificDate.getMonth() + 1).padStart(2, '0');
   const year = specificDate.getFullYear();
   const hours = String(specificDate.getHours()).padStart(2, '0');
   const minutes = String(specificDate.getMinutes()).padStart(2, '0');
-  const localFormattedDate = `${day}/${month}/${year} at ${hours}:${minutes}`;
+  return `${day}/${month}/${year} at ${hours}:${minutes}`;
+}
 
+export function Message({ message }: MessageOutputModel) {
+  const localFormattedDate = formatDate(message.created);
   async function handleOnClick() {
     await deleteMessage(message.channel.id, message.id);
     window.location.reload();
   }
-
   return (
     <div className="message">
       <small className="message small">

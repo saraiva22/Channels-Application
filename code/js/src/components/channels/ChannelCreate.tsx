@@ -19,7 +19,7 @@ function logUnexpectedAction(state: State, action: Action) {
   console.log(`Unexpected action '${action.type} on state '${state.tag}'`);
 }
 
-function reduce(state: State, action: Action): State {
+function reducer(state: State, action: Action): State {
   switch (state.tag) {
     case 'editing':
       if (action.type === 'edit') {
@@ -52,7 +52,7 @@ function reduce(state: State, action: Action): State {
 }
 
 export function ChannelCreate() {
-  const [state, dispatch] = useReducer(reduce, { tag: 'editing', inputs: { name: '', type: undefined } });
+  const [state, dispatch] = useReducer(reducer, { tag: 'editing', inputs: { name: '', type: undefined } });
   const location = useLocation();
 
   if (state.tag === 'redirect') {

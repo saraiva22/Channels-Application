@@ -7,6 +7,8 @@ import { ChannelOutputModel } from './models/ChannelOutputModel';
 import { webRoutes } from '../../App';
 import { PrivateListInviteOutputModel } from './models/PrivateListInviteOutputModel';
 import { Status } from '../../domain/channels/Status';
+import { Privacy } from '../../domain/channels/Privacy';
+import { RegisterPrivateInviteOutputModel } from './models/RegisterPrivateInviteOutputModel';
 
 const httpService = httpServiceInit();
 
@@ -54,4 +56,28 @@ export async function validateChannelInvite(
   const path =
     PREFIX_API + apiRoutes.VALIDATE_CHANNEL_INVITE.replace(':id', channelId.toString()).replace(':code', code);
   return await httpService.post<ChannelOutputModel>(path, JSON.stringify({ status }));
+}
+
+export async function createPrivateInvite(
+  channelId: number,
+  privacy: Privacy,
+  username: string
+): Promise<RegisterPrivateInviteOutputModel> {
+  const path = PREFIX_API + apiRoutes.CREATE_PRIVATE_INVITE.replace(':id', channelId.toString());
+  return await httpService.post<RegisterPrivateInviteOutputModel>(path, JSON.stringify({ privacy, username }));
+}
+
+export async function updateChannel(channelId: number, name: string, type: Type): Promise<ChannelsListOutputModel> {
+  const path = PREFIX_API + apiRoutes.UPDATE_CHANNEL.replace(':id', channelId.toString());
+  return await httpService.patch<ChannelsListOutputModel>(path, JSON.stringify({ name, type }));
+}
+
+export async function joinPublicChannel(channelId: number): Promise<ChannelsListOutputModel> {
+  const path = PREFIX_API + apiRoutes.JOIN_PUBLIC_CHANNELS.replace(':id', channelId.toString());
+  return await httpService.post<ChannelsListOutputModel>(path);
+}
+
+export async function leaveInChannel(channelId: number): Promise<Response> {
+  const path = PREFIX_API + apiRoutes.LEAVE_CHANNEL.replace(':id', channelId.toString());
+  return await httpService.post<undefined>(path);
 }

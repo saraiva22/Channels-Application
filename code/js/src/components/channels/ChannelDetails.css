@@ -40,3 +40,52 @@ li {
   font-weight: bold;
   color: #333;
 }
+
+.channel-details {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.details-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  padding-right: 400px;
+}
+
+.details-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.details-action button {
+  width: 200px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 15px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.details-action button:nth-child(1) {
+  background-color: #28a745;
+}
+
+.details-action button:nth-child(2) {
+  background-color: #007bff;
+}
+
+.details-action button:hover {
+  background-color: #4d565e;
+}

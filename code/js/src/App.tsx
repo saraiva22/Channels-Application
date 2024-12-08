@@ -11,7 +11,7 @@ import { About } from './components/about/About';
 import { Notifications } from './components/notifications/Notifications';
 import { RequireAuthentication } from './components/authentication/RequireAuthentication';
 import { ChannelCreate } from './components/channels/ChannelCreate';
-import { getChannelsList } from './services/channels/ChannelsServices';
+import { getChannelsList, updateChannel } from './services/channels/ChannelsServices';
 import { AuthProvider } from './components/authentication/AuthProvider';
 import { Me } from './components/authentication/Me';
 import { Fetch } from './components/fetch/Fetch';
@@ -20,6 +20,8 @@ import { ReceivedInvites } from './components/channels/ReceivedInvites';
 import { ValidateChannelInvite } from './components/channels/ValidateChannelInvite';
 import { ChannelProvider } from './components/channels/ChannelProvider';
 import { ChannelDetails } from './components/channels/ChannelDetails';
+import { CreatePrivateInvite } from './components/channels/CreatePrivateInvite';
+import { UpdateChannel } from './components/channels/UpdateChannel';
 
 export const webRoutes = {
   home: '/',
@@ -39,6 +41,8 @@ export const webRoutes = {
   validateChannelInvite: '/channels/invite/validate',
   about: '/about',
   notifications: '/notifications',
+  createPrivateInvite: '/channels/private-invite',
+  updateChannel: '/channels/update',
 };
 
 const router = createBrowserRouter([
@@ -154,6 +158,22 @@ const router = createBrowserRouter([
         element: (
           <RequireAuthentication>
             <Me />
+          </RequireAuthentication>
+        ),
+      },
+      {
+        path: webRoutes.createPrivateInvite,
+        element: (
+          <RequireAuthentication>
+            <CreatePrivateInvite />
+          </RequireAuthentication>
+        ),
+      },
+      {
+        path: webRoutes.updateChannel,
+        element: (
+          <RequireAuthentication>
+            <UpdateChannel />
           </RequireAuthentication>
         ),
       },

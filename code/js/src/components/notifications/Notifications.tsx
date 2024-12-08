@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
 import { Event_Message } from '../../services/chat/ChatService';
 import { apiRoutes, PREFIX_API } from '../../services/utils/HttpService';
-import { Message } from '../messages/Messages';
+import { formatDate } from '../messages/Messages';
 
 type State =
   | { type: 'begin' }
@@ -46,21 +46,23 @@ export function Notifications() {
   const [state, dispatch] = useReducer(reducer, firstState);
   const [data, setData] = useState<any>(null);
   const location = useLocation();
+
   useEffect(() => {
     const abort = new AbortController();
     let cancelled = false;
+
     async function doFetch() {
       dispatch({ type: 'start-loading' });
+
       try {
         const sse = new EventSource(PREFIX_API + apiRoutes.LISTEN_CHAT);
-        sse.onmessage = event => {
-          if (!cancelled && event.type === 'message') {
-            const eventData = JSON.parse(event.data);
-            setData(eventData);
-            console.log(eventData);
-            dispatch({ type: 'loading-success', data: eventData });
-          }
-        };
+
+        sse.addEventListener('message', event => {
+          const eventData = JSON.parse(event.data);
+          setData(eventData);
+          console.log('Mensagem recebida:', eventData);
+          dispatch({ type: 'loading-success', data: eventData });
+        });
 
         sse.onerror = error => {
           console.error('EventSource failed:', error);
@@ -99,6 +101,7 @@ export function Notifications() {
           <p>Channel ID: {data.channelId}</p>
           <p>Username: {data.username}</p>
           <p>Message: {data.msg}</p>
+          <p>CreateAt: {formatDate(data.created)}</p>
         </div>
       );
   }

@@ -4,6 +4,7 @@ import { LogoutOutput } from './models/LogoutOutput';
 import httpServiceInit, { apiRoutes } from '../utils/HttpService';
 import { PREFIX_API } from '../utils/HttpService';
 import { UserInviteOutput } from './models/UserInviteOutputModel';
+import { UserListOutputModel } from './models/HomeOutputModel';
 
 const httpService = httpServiceInit();
 
@@ -44,4 +45,9 @@ export async function logout(): Promise<LogoutOutput> {
 export async function createInvitationRegster(): Promise<UserInviteOutput> {
   const path = PREFIX_API + apiRoutes.INVITE_USERS;
   return await httpService.post<UserInviteOutput>(path);
+}
+
+export async function searchUsers(username: string): Promise<UserListOutputModel> {
+  const path = PREFIX_API + apiRoutes.SEARCH_USERS + username;
+  return await httpService.get(path);
 }

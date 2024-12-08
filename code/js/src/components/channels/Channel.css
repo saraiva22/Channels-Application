@@ -42,3 +42,52 @@
   justify-content: center;
   gap: 20px;
 }
+
+.card-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Espaço entre os botões */
+  margin-top: 15px;
+}
+
+.btn {
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.btn.view-messages {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn.view-messages:hover {
+  background-color: #0056b3;
+}
+
+.btn.join-channel {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn.join-channel:hover {
+  background-color: #1e7e34;
+}
+
+.btn.leave-channel {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn.leave-channel:hover {
+  background-color: #b21f2d;
+}

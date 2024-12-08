@@ -4,4 +4,5 @@ export type Event_Message = {
   channelId: number;
   username: string;
   msg: string;
+  created: string
 };

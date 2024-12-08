@@ -2,6 +2,7 @@ package pt.isel.daw.channels.services.message
 
 import jakarta.inject.Named
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import org.slf4j.LoggerFactory
 import pt.isel.daw.channels.domain.sse.Event
 import pt.isel.daw.channels.domain.sse.EventEmitter
@@ -45,11 +46,18 @@ class ChatService : NeedsShutdown {
         listener
     }
 
-    fun sendMessage(messageId: Int, channelId: Int, username: String, msg: String, membersChannel: List<Int>) =
+    fun sendMessage(
+        messageId: Int,
+        channelId: Int,
+        username: String,
+        msg: String,
+        membersChannel: List<Int>,
+        created: String
+    ) =
         lock.withLock {
             logger.info("sendMessage")
             val id = currentId++
-            sendEventToAll(membersChannel, Event.Message(id, messageId, channelId, username, msg))
+            sendEventToAll(membersChannel, Event.Message(id, messageId, channelId, username, msg, created))
         }
 
 
