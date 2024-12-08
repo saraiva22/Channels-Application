@@ -5,6 +5,8 @@ import { webRoutes } from '../../App';
 import { useAuthentication } from '../../context/AuthProvider';
 import '../utils/css/Alert.css';
 import { Problem } from '../../services/media/Problem';
+import { initializeSSE } from '../notifications/SSEManager';
+import { apiRoutes, PREFIX_API } from '../../services/utils/HttpService';
 
 type State =
   | { tag: 'editing'; error?: Problem | string; inputs: { username: string; password: string } }
@@ -80,6 +82,7 @@ export function Login() {
       const result = await login(username, password);
       if (result) {
         setUsername(username);
+        initializeSSE(PREFIX_API + apiRoutes.LISTEN_CHAT);
         dispatch({ type: 'success' });
       } else {
         dispatch({ type: 'error', message: 'Invalid username or password' });

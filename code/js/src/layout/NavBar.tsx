@@ -5,6 +5,7 @@ import { logout } from '../services/users/UserServices';
 import { webRoutes } from '../App';
 import './NavBar.css';
 import { useAuthentication } from '../context/AuthProvider';
+import { closeSSE } from '../components/notifications/SSEManager';
 
 function NavBar() {
   const loggedIn = isLoggedIn();
@@ -15,6 +16,7 @@ function NavBar() {
   const handleLogout = async () => {
     await logout();
     setUsername(undefined);
+    closeSSE();
     navigate(webRoutes.home);
   };
 
@@ -61,11 +63,6 @@ function NavBar() {
             <li className="liStyle">
               <Link to={webRoutes.sentChannelInvites} className="linkStyle">
                 My Sent Invites
-              </Link>
-            </li>
-            <li className="liStyle">
-              <Link to={webRoutes.notifications} className="linkStyle">
-                Notifications
               </Link>
             </li>
             <li className="liStyle">

@@ -8,7 +8,6 @@ import { Login } from './components/authentication/Login';
 import { HomePage } from './components/home/Home';
 import { Register } from './components/authentication/Register';
 import { About } from './components/about/About';
-import { Notifications } from './components/notifications/Notifications';
 import { RequireAuthentication } from './components/authentication/RequireAuthentication';
 import { ChannelCreate } from './components/channels/ChannelCreate';
 import { getChannelsList, updateChannel } from './services/channels/ChannelsServices';
@@ -67,10 +66,6 @@ const router = createBrowserRouter([
       {
         path: webRoutes.about,
         element: <About />,
-      },
-      {
-        path: webRoutes.notifications,
-        element: <Notifications />,
       },
       // Channels
       {

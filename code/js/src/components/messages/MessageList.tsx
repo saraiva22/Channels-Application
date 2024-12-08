@@ -13,6 +13,7 @@ import { ChannelOutputModel } from '../../services/channels/models/ChannelOutput
 import { getChannelById } from '../../services/channels/ChannelsServices';
 import { MessageCreate } from './MessageCreate';
 import { MessageGroup } from './MessageGroup';
+import { getSSE } from '../notifications/SSEManager';
 
 type State =
   | { type: 'start' }
@@ -82,9 +83,8 @@ function groupMessagesByUser(messages: Array<Message>): Array<MessageGroupProps>
 export function MessageList() {
   const [state, dispatch] = useReducer(reducer, firstState);
   const { selectedChannel } = useChannel();
-  const [username] = useAuthentication();
   const [channelState, setChannelState] = useState<ChannelOutputModel>(selectedChannel);
-  const [newMessage, setNewMessage] = useState(0);
+  const [messages, setMessages] = useState<Array<Message>>([]);
 
   if (!selectedChannel) {
     return <p>No channel selected</p>;
@@ -97,9 +97,9 @@ export function MessageList() {
       dispatch({ type: 'started-loading' });
       try {
         const resp = await getChannelMessages(selectedChannel.id);
-        console.log(cancelled);
         if (!cancelled) {
           dispatch({ type: 'success', rsp: resp });
+          setMessages(resp.messages);
         }
       } catch (error) {
         if (!cancelled) {
@@ -113,7 +113,20 @@ export function MessageList() {
       abort.abort();
       cancelled = true;
     };
-  }, [dispatch, channelState, newMessage]);
+  }, [dispatch, channelState]);
+
+  useEffect(() => {
+    const eventSource = getSSE();
+
+    if (eventSource) {
+      eventSource.addEventListener('message', event => {
+        const eventData = JSON.parse(event.data);
+
+        setMessages(prevMessages => [...messages, eventData]);
+        eventSource.removeEventListener('message', eventData);
+      });
+    }
+  }, [messages]);
 
   const navigate = useNavigate();
 
@@ -142,7 +155,7 @@ export function MessageList() {
     case 'error':
       return <ProblemComponent problem={state.error} />;
     case 'success': {
-      const groupedMessages = groupMessagesByUser(state.rsp.messages);
+      const groupedMessages = groupMessagesByUser(messages);
 
       return (
         <div>
@@ -167,7 +180,7 @@ export function MessageList() {
             )}
           </ul>
 
-          <MessageCreate onMessageCreated={() => setNewMessage(prev => prev + 1)} />
+          <MessageCreate onMessageCreated={() => setMessages(prev => [...prev])} />
         </div>
       );
     }

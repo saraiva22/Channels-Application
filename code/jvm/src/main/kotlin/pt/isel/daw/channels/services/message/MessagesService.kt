@@ -6,6 +6,7 @@ import pt.isel.daw.channels.domain.channels.ChannelsDomain
 import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.messages.MessageDomain
 import pt.isel.daw.channels.domain.user.User
+import pt.isel.daw.channels.domain.user.UserInfo
 import pt.isel.daw.channels.repository.TransactionManager
 import pt.isel.daw.channels.utils.failure
 import pt.isel.daw.channels.utils.success
@@ -36,10 +37,9 @@ class MessagesService(
                 val messageId = it.messagesRepository.createMessage(channelId, user.id, text, now)
                 chatService.sendMessage(
                     messageId,
-                    channelId,
-                    user.username,
                     text,
-                    channel.members.map { userId -> userId.id },
+                    channel,
+                    UserInfo(user.id,user.username,user.email),
                     now.toString()
                 )
                 success(messageId)

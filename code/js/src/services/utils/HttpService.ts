@@ -1,6 +1,6 @@
 import { Problem, problemMediaType } from '../media/Problem';
 
-export const PREFIX_API = 'http://192.168.1.72:3000/api';
+export const PREFIX_API = 'http://192.168.1.6:3000/api';
 
 export const apiRoutes = {
   // Channel
