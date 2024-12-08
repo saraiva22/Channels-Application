@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { createContext, useState } from 'react';
-import { getCookie } from './RequireAuthentication';
+import { getCookie } from '../components/authentication/RequireAuthentication';
 
 type State = {
   username: string | undefined;

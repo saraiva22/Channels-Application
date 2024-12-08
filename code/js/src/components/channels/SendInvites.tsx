@@ -4,7 +4,7 @@ import { PrivateListInviteOutputModel } from '../../services/channels/models/Pri
 import { Problem, ProblemComponent } from '../../services/media/Problem';
 import { getSentChannelInvites } from '../../services/channels/ChannelsServices';
 import { Invite } from './Invite';
-import './InviteList.css';
+import './css/InviteList.css';
 
 type State =
   | { type: 'begin' }

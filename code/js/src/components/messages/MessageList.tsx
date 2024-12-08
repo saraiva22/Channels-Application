@@ -1,12 +1,18 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import { MessageListOutputModel } from '../../services/messages/models/MessageListOutputModel';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { getChannelMessages } from '../../services/messages/MessagesService';
+import { useNavigate } from 'react-router-dom';
+import { deleteMessage, getChannelMessages } from '../../services/messages/MessagesService';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
-import { MessageGroup } from './MessageGroup';
 import { webRoutes } from '../../App';
-import { useChannel } from '../channels/ChannelProvider';
-import './MessageList.css';
+import { useChannel } from '../../context/ChannelProvider';
+import { Message } from '../../domain/messages/Message';
+import { useAuthentication } from '../../context/AuthProvider';
+import './css/MessageList.css';
+import { UserInfo } from '../../domain/users/UserInfo';
+import { ChannelOutputModel } from '../../services/channels/models/ChannelOutputModel';
+import { getChannelById } from '../../services/channels/ChannelsServices';
+import { MessageCreate } from './MessageCreate';
+import { MessageGroup } from './MessageGroup';
 
 type State =
   | { type: 'start' }
@@ -51,16 +57,21 @@ function reducer(state: State, action: Action): State {
 
 const firstState: State = { type: 'start' };
 
-function groupMessagesByUser(messages) {
-  const grouped = [];
-  let currentGroup = null;
+type MessageGroupProps = {
+  user: UserInfo;
+  messagesList: Array<Message>;
+};
+
+function groupMessagesByUser(messages: Array<Message>): Array<MessageGroupProps> {
+  const grouped: Array<MessageGroupProps> = [];
+  let currentGroup: MessageGroupProps = null;
 
   messages.forEach(message => {
     if (!currentGroup || currentGroup.user.id !== message.user.id) {
       if (currentGroup) grouped.push(currentGroup);
-      currentGroup = { user: message.user, messages: [] };
+      currentGroup = { user: message.user, messagesList: [] };
     }
-    currentGroup.messages.push(message);
+    currentGroup.messagesList.push(message);
   });
 
   if (currentGroup) grouped.push(currentGroup);
@@ -71,9 +82,12 @@ function groupMessagesByUser(messages) {
 export function MessageList() {
   const [state, dispatch] = useReducer(reducer, firstState);
   const { selectedChannel } = useChannel();
+  const [username] = useAuthentication();
+  const [channelState, setChannelState] = useState<ChannelOutputModel>(selectedChannel);
+  const [newMessage, setNewMessage] = useState(0);
 
   if (!selectedChannel) {
-    return <p>No channel selected</p>; // redirect !!!!
+    return <p>No channel selected</p>;
   }
 
   useEffect(() => {
@@ -99,13 +113,25 @@ export function MessageList() {
       abort.abort();
       cancelled = true;
     };
-  }, [dispatch, selectedChannel]);
+  }, [dispatch, channelState, newMessage]);
 
   const navigate = useNavigate();
 
   function handleClick() {
     const route = webRoutes.channel;
     navigate(route, { replace: true });
+  }
+
+  async function handleOnClickDelete(channelId: number, messageId: number) {
+    try {
+      await deleteMessage(channelId, messageId);
+      const channel = await getChannelById(channelId);
+      if (channel) {
+        setChannelState(channel);
+      }
+    } catch (error) {
+      console.log(error); // melhorar
+    }
   }
 
   switch (state.type) {
@@ -116,23 +142,32 @@ export function MessageList() {
     case 'error':
       return <ProblemComponent problem={state.error} />;
     case 'success': {
+      const groupedMessages = groupMessagesByUser(state.rsp.messages);
+
       return (
         <div>
           <div className="clickable-title" onClick={handleClick}>
             {selectedChannel.name}
           </div>
           <ul className="message-list">
-            {state.rsp.messages.length === 0 ? (
+            {groupedMessages.length === 0 ? (
               <div>
                 <p>This channel is waiting for you!</p>
                 <p>Send a message and start the conversation.</p>
               </div>
             ) : (
-              groupMessagesByUser(state.rsp.messages).map((group, index) => (
-                <MessageGroup key={index} user={group.user} messages={group.messages} />
+              groupedMessages.map(group => (
+                <MessageGroup
+                  key={group.user.id}
+                  groupUser={group.user}
+                  messagesList={group.messagesList}
+                  onDeleteMessage={handleOnClickDelete}
+                />
               ))
             )}
           </ul>
+
+          <MessageCreate onMessageCreated={() => setNewMessage(prev => prev + 1)} />
         </div>
       );
     }

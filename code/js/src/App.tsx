@@ -18,7 +18,7 @@ import { Fetch } from './components/fetch/Fetch';
 import { SendInvites } from './components/channels/SendInvites';
 import { ReceivedInvites } from './components/channels/ReceivedInvites';
 import { ValidateChannelInvite } from './components/channels/ValidateChannelInvite';
-import { ChannelProvider } from './components/channels/ChannelProvider';
+import { ChannelProvider } from './context/ChannelProvider';
 import { ChannelDetails } from './components/channels/ChannelDetails';
 import { CreatePrivateInvite } from './components/channels/CreatePrivateInvite';
 import { UpdateChannel } from './components/channels/UpdateChannel';
@@ -39,6 +39,7 @@ export const webRoutes = {
   receivedChannelInvites: '/channels/inv/received',
   sentChannelInvites: '/channels/inv/sent',
   validateChannelInvite: '/channels/invite/validate',
+  createMessage: '/create/messages',
   about: '/about',
   notifications: '/notifications',
   createPrivateInvite: '/channels/private-invite',

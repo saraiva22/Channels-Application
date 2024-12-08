@@ -1,12 +1,17 @@
 import React from 'react';
-import './MessageGroup.css';
-import { deleteMessage } from '../../services/messages/MessagesService';
+import { UserInfo } from '../../domain/users/UserInfo';
+import { useAuthentication } from '../../context/AuthProvider';
+import { Message } from '../../domain/messages/Message';
+import './css/MessageGroup.css';
 
-export function MessageGroup({ user, messages }) {
-  async function handleOnClick(channelId: number, messageId: number) {
-    await deleteMessage(channelId, messageId);
-    window.location.reload();
-  }
+interface MessageGroupProps {
+  groupUser: UserInfo;
+  messagesList: Array<Message>;
+  onDeleteMessage: (channelId: number, messageId: number) => void;
+}
+
+export function MessageGroup({ groupUser, messagesList, onDeleteMessage }: MessageGroupProps) {
+  const [username] = useAuthentication();
 
   const formatDate = (date: string) => {
     const specificDate = new Date(date);
@@ -21,15 +26,17 @@ export function MessageGroup({ user, messages }) {
   return (
     <div className="message-group">
       <small className="message-group small">
-        <b>{user.username}</b>
+        <b>{groupUser.username}</b>
       </small>
-      {messages.map(message => (
+      {messagesList.map(message => (
         <p key={message.id}>
           <small className="message-group p small">{formatDate(message.created)}</small>
           {message.text}
-          <button className="delete-button" onClick={() => handleOnClick(message.channel.id, message.id)}>
-            Delete
-          </button>
+          {(username === message.user.username || username === message.channel.owner.username) && (
+            <button className="delete-button" onClick={() => onDeleteMessage(message.channel.id, message.id)}>
+              Delete
+            </button>
+          )}
         </p>
       ))}
     </div>

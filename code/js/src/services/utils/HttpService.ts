@@ -17,6 +17,7 @@ export const apiRoutes = {
   JOIN_PUBLIC_CHANNELS: '/channels/:id',
   LEAVE_CHANNEL: '/channels/:id/leave',
   // Messages
+  CREATE_MESSAGE: '/channels/:id/messages',
   GET_CHANNEL_MESSAGES: '/channels/:id/messages',
   DELETE_MESSAGE: '/channels/:channelId/messages/:messageId',
   // Users

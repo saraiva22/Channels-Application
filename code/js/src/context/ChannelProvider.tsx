@@ -1,6 +1,6 @@
 import React, { ReactNode, useContext, useState } from 'react';
 import { createContext } from 'react';
-import { ChannelOutputModel } from '../../services/channels/models/ChannelOutputModel';
+import { ChannelOutputModel } from '../services/channels/models/ChannelOutputModel';
 
 type State = {
   selectedChannel: ChannelOutputModel | undefined;
@@ -10,7 +10,19 @@ type State = {
 const ChannelContext = createContext<State | undefined>(undefined);
 
 export function ChannelProvider({ children }: { children: ReactNode }) {
-  const [selectedChannel, setChannel] = useState<ChannelOutputModel | null>(null);
+  const [selectedChannel, setSelectedChannel] = useState<ChannelOutputModel | undefined>(() => {
+    const storedChannel = localStorage.getItem('selectedChannel');
+    return storedChannel ? JSON.parse(storedChannel) : undefined;
+  });
+
+  const setChannel = (channel: ChannelOutputModel | undefined) => {
+    if (channel) {
+      localStorage.setItem('selectedChannel', JSON.stringify(channel));
+    } else {
+      localStorage.removeItem('selectedChannel');
+    }
+    setSelectedChannel(channel);
+  };
 
   const value = {
     selectedChannel: selectedChannel,

@@ -1,7 +1,14 @@
 import httpServiceInit, { apiRoutes, PREFIX_API } from '../utils/HttpService';
+import { IdOutputModel } from '../utils/models/IdOutputModel';
 import { MessageListOutputModel } from './models/MessageListOutputModel';
 
 const httpService = httpServiceInit();
+
+export function createMessage(channelId: number, text: string): Promise<IdOutputModel> {
+  const path = PREFIX_API + apiRoutes.CREATE_MESSAGE.replace(':id', String(channelId));
+  console.log(channelId);
+  return httpService.post<IdOutputModel>(path, JSON.stringify({ text }));
+}
 
 export function getChannelMessages(channelId: number): Promise<MessageListOutputModel> {
   const path = PREFIX_API + apiRoutes.GET_CHANNEL_MESSAGES.replace(':id', String(channelId));

@@ -3,7 +3,6 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ChannelOutputModel } from '../../services/channels/models/ChannelOutputModel';
 import privatechannel from '../../assets/privatechannel.png';
 import publicchannel from '../../assets/publicchannel.png';
-import './Channel.css';
 import { webRoutes } from '../../App';
 import { useChannel } from './ChannelProvider';
 import { useAuthentication } from '../authentication/AuthProvider';
