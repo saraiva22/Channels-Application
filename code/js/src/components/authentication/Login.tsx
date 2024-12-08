@@ -3,16 +3,18 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { login } from '../../services/users/UserServices';
 import { webRoutes } from '../../App';
 import { useAuthentication } from '../../context/AuthProvider';
+import '../utils/css/Alert.css';
+import { Problem } from '../../services/media/Problem';
 
 type State =
-  | { tag: 'editing'; error?: string; inputs: { username: string; password: string } }
+  | { tag: 'editing'; error?: Problem | string; inputs: { username: string; password: string } }
   | { tag: 'submitting'; username: string }
   | { tag: 'redirect' };
 
 type Action =
   | { type: 'edit'; inputName: string; inputValue: string }
   | { type: 'submit' }
-  | { type: 'error'; message: string }
+  | { type: 'error'; message: Problem | string }
   | { type: 'success' };
 
 function logUnexpectedAction(state: State, action: Action) {
@@ -78,8 +80,8 @@ export function Login() {
       } else {
         dispatch({ type: 'error', message: 'Invalid username or password' });
       }
-    } catch (e) {
-      dispatch({ type: 'error', message: e.message });
+    } catch (error) {
+      dispatch({ type: 'error', message: error });
     }
   }
 
@@ -87,21 +89,23 @@ export function Login() {
   const password = state.tag === 'submitting' ? '' : state.inputs.password;
 
   return (
-    <form onSubmit={handleSubmit}>
-      <fieldset disabled={state.tag !== 'editing'}>
-        <div>
-          <label htmlFor="username">Username</label>
-          <input id="username" type="text" name="username" value={username} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input id="password" type="text" name="password" value={password} onChange={handleChange} />
-        </div>
-        <div>
-          <button type="submit">Login</button>
-        </div>
-      </fieldset>
-      {state.tag === 'editing' && state.error}
-    </form>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <fieldset disabled={state.tag !== 'editing'}>
+          <div>
+            <label htmlFor="username">Username</label>
+            <input id="username" type="text" name="username" value={username} onChange={handleChange} />
+          </div>
+          <div>
+            <label htmlFor="password">Password</label>
+            <input id="password" type="text" name="password" value={password} onChange={handleChange} />
+          </div>
+          <div>
+            <button type="submit">Login</button>
+          </div>
+        </fieldset>
+      </form>
+      
+    </div>
   );
 }

@@ -3,12 +3,11 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { Privacy } from '../../domain/channels/Privacy';
 import { webRoutes } from '../../App';
 import { createPrivateInvite } from '../../services/channels/ChannelsServices';
-import { Problem, ProblemComponent } from '../../services/media/Problem';
+import { Problem } from '../../services/media/Problem';
 import { searchUsers } from '../../services/users/UserServices';
 import { HomeOutput } from '../../services/users/models/HomeOutputModel';
 import './css/CreatePrivateInvite.css';
 import { useChannel } from '../../context/ChannelProvider';
-import { channel } from 'diagnostics_channel';
 
 type State =
   | { type: 'editing'; error?: Problem | string; inputs: { privacy: Privacy; username: string } }

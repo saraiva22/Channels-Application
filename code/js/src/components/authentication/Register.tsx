@@ -2,11 +2,12 @@ import React, { useReducer } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { register } from '../../services/users/UserServices';
 import { webRoutes } from '../../App';
+import { Problem } from '../../services/media/Problem';
 
 type State =
   | {
       tag: 'editing';
-      error?: string;
+      error?: Problem | string;
       inputs: {
         username: string;
         email: string;
@@ -21,7 +22,7 @@ type State =
 type Action =
   | { type: 'edit'; inputName: string; inputValue: string }
   | { type: 'submit' }
-  | { type: 'error'; message: string }
+  | { type: 'error'; message: Problem | string }
   | { type: 'success' };
 
 function logUnexpectedAction(state: State, action: Action) {
@@ -97,9 +98,14 @@ export function Register() {
     const username = state.inputs.username;
     const email = state.inputs.email;
     const password = state.inputs.password;
+    const confirmPassword = state.inputs.confirmPassword;
     const inviteCode = state.inputs.inviteCode;
 
     try {
+      if (password !== confirmPassword) {
+        dispatch({ type: 'error', message: 'invalid' });
+        return;
+      }
       const result = await register(username, email, password, inviteCode);
       if (!result) {
         dispatch({ type: 'error', message: 'invalid' });
@@ -107,7 +113,7 @@ export function Register() {
       }
       dispatch({ type: 'success' });
     } catch (error) {
-      dispatch({ type: 'error', message: 'operation could not be completed' });
+      dispatch({ type: 'error', message: error });
     }
   }
 
@@ -117,39 +123,46 @@ export function Register() {
       : state.inputs;
 
   return (
-    <form onSubmit={handleSubmit}>
-      <fieldset disabled={state.tag !== 'editing'}>
-        <div>
-          <label htmlFor="username">Username</label>
-          <input id="username" type="text" name="username" value={username} onChange={handleChange} />
+    <div>
+      <form onSubmit={handleSubmit}>
+        <fieldset disabled={state.tag !== 'editing'}>
+          <div>
+            <label htmlFor="username">Username</label>
+            <input id="username" type="text" name="username" value={username} onChange={handleChange} />
+          </div>
+          <div>
+            <label htmlFor="email">Email</label>
+            <input id="email" type="text" name="email" value={email} onChange={handleChange} />
+          </div>
+          <div>
+            <label htmlFor="password">Password</label>
+            <input id="password" type="text" name="password" value={password} onChange={handleChange} />
+          </div>
+          <div>
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              id="confirmPassword"
+              type="text"
+              name="confirmPassword"
+              value={confirmPassword}
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            <label htmlFor="inviteCode">Invite Code</label>
+            <input id="inviteCode" type="text" name="inviteCode" value={inviteCode} onChange={handleChange} />
+          </div>
+          <div>
+            <button type="submit">Register</button>
+          </div>
+        </fieldset>
+      </form>
+      {state.tag === 'editing' && state.error && (
+        <div className="error-alert">
+          <span className="error-icon">❗</span>
+          <span className="error-message">{typeof state.error === 'string' ? state.error : state.error.detail}</span>
         </div>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input id="email" type="text" name="email" value={email} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input id="password" type="text" name="password" value={password} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <input
-            id="confirmPassword"
-            type="text"
-            name="confirmPassword"
-            value={confirmPassword}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="inviteCode">Invite Code</label>
-          <input id="inviteCode" type="text" name="inviteCode" value={inviteCode} onChange={handleChange} />
-        </div>
-        <div>
-          <button type="submit">Register</button>
-        </div>
-      </fieldset>
-      {state.tag === 'editing' && state.error}
-    </form>
+      )}
+    </div>
   );
 }
