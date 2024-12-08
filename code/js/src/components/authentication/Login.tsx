@@ -105,7 +105,12 @@ export function Login() {
           </div>
         </fieldset>
       </form>
-      
+      {state.tag === 'editing' && state.error && (
+        <div className="error-alert">
+          <span className="error-icon">❗</span>
+          <span className="error-message">{typeof state.error === 'string' ? state.error : state.error.detail}</span>
+        </div>
+      )}
     </div>
   );
 }
