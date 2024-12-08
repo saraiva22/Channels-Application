@@ -6,8 +6,8 @@ import { createPrivateInvite } from '../../services/channels/ChannelsServices';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
 import { searchUsers } from '../../services/users/UserServices';
 import { HomeOutput } from '../../services/users/models/HomeOutputModel';
-import './CreatePrivateInvite.css';
-import { useChannel } from './ChannelProvider';
+import './css/CreatePrivateInvite.css';
+import { useChannel } from '../../context/ChannelProvider';
 import { channel } from 'diagnostics_channel';
 
 type State =

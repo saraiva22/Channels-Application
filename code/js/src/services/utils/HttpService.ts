@@ -16,6 +16,8 @@ export const apiRoutes = {
   UPDATE_CHANNEL: '/channels/:id/update',
   JOIN_PUBLIC_CHANNELS: '/channels/:id',
   LEAVE_CHANNEL: '/channels/:id/leave',
+  BAN_USER: '/channels/:id/ban',
+  UNBAN_USER: '/channels/:id/unban',
   // Messages
   CREATE_MESSAGE: '/channels/:id/messages',
   GET_CHANNEL_MESSAGES: '/channels/:id/messages',

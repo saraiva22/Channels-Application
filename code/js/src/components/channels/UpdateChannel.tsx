@@ -2,10 +2,10 @@ import React, { useReducer } from 'react';
 import { Problem } from '../../services/media/Problem';
 import { Type } from '../../domain/channels/Type';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useChannel } from './ChannelProvider';
+import { useChannel } from '../../context/ChannelProvider';
 import { updateChannel } from '../../services/channels/ChannelsServices';
 import { webRoutes } from '../../App';
-import './UpdateChannel.css';
+import './css/UpdateChannel.css';
 
 type State =
   | { type: 'editing'; error?: Problem | string; inputs: { name: string; typeChannel: Type } }

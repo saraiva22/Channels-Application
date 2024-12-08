@@ -145,9 +145,6 @@ class ChannelsService(
             val channel = channelsRepository.getChannelById(channelId)
                 ?: return@run failure(UpdateChannelError.ChannelNotFound)
 
-            if (!channelsDomain.isUserMember(userId, channel)) {
-                return@run failure(UpdateChannelError.UserNotInChannel)
-            }
 
             if (channelsDomain.isOwner(userId, channel)) {
                 if (updateInputModel.name != null && channelsRepository.isChannelStoredByName(updateInputModel.name)) {

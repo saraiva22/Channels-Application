@@ -12,7 +12,7 @@ import { Notifications } from './components/notifications/Notifications';
 import { RequireAuthentication } from './components/authentication/RequireAuthentication';
 import { ChannelCreate } from './components/channels/ChannelCreate';
 import { getChannelsList, updateChannel } from './services/channels/ChannelsServices';
-import { AuthProvider } from './components/authentication/AuthProvider';
+import { AuthProvider } from './context/AuthProvider';
 import { Me } from './components/authentication/Me';
 import { Fetch } from './components/fetch/Fetch';
 import { SendInvites } from './components/channels/SendInvites';

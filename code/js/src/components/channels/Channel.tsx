@@ -4,9 +4,10 @@ import { ChannelOutputModel } from '../../services/channels/models/ChannelOutput
 import privatechannel from '../../assets/privatechannel.png';
 import publicchannel from '../../assets/publicchannel.png';
 import { webRoutes } from '../../App';
-import { useChannel } from './ChannelProvider';
-import { useAuthentication } from '../authentication/AuthProvider';
+import { useChannel } from '../../context/ChannelProvider';
+import { useAuthentication } from '../../context/AuthProvider';
 import { joinPublicChannel, leaveInChannel } from '../../services/channels/ChannelsServices';
+import './css/Channel.css'
 
 type ChannelProps = {
   channel: ChannelOutputModel;

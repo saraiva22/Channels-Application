@@ -81,3 +81,23 @@ export async function leaveInChannel(channelId: number): Promise<Response> {
   const path = PREFIX_API + apiRoutes.LEAVE_CHANNEL.replace(':id', channelId.toString());
   return await httpService.post<undefined>(path);
 }
+
+export async function banUserFromChannel(username: string, channelId: number): Promise<ChannelOutputModel> {
+  const path = PREFIX_API + apiRoutes.BAN_USER.replace(':id', String(channelId));
+  return await httpService.post<ChannelOutputModel>(
+    path,
+    JSON.stringify({
+      username,
+    })
+  );
+}
+
+export async function unbanUserFromChannel(username: string, channelId: number): Promise<ChannelOutputModel> {
+  const path = PREFIX_API + apiRoutes.UNBAN_USER.replace(':id', String(channelId));
+  return await httpService.post<ChannelOutputModel>(
+    path,
+    JSON.stringify({
+      username,
+    })
+  );
+}

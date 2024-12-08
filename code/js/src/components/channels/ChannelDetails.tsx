@@ -6,9 +6,9 @@ import { useChannel } from '../../context/ChannelProvider';
 import { banUserFromChannel, getChannelById, unbanUserFromChannel } from '../../services/channels/ChannelsServices';
 import { User } from '../user/User';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
-import './ChannelDetails.css';
-import { useAuthentication } from '../authentication/AuthProvider';
+import { useAuthentication } from '../../context/AuthProvider';
 import { webRoutes } from '../../App';
+import './css/ChannelDetails.css';
 
 type State =
   | { type: 'start' }
@@ -57,6 +57,7 @@ export function ChannelDetails() {
   const [state, dispatch] = useReducer(reducer, firstState);
   const { selectedChannel } = useChannel();
   const [username] = useAuthentication();
+  const [channelState, setChannelState] = useState<ChannelOutputModel>(selectedChannel);
   const navigate = useNavigate();
 
   const handleNavigateCreate = () => {
@@ -151,16 +152,22 @@ export function ChannelDetails() {
           <p>
             <b>Members:</b>
           </p>
-          {channel.members.map(member => (
-            <li key={member.id}>
-              <User user={member} />
-              {channel.owner.username === username && member.username !== channel.owner.username && (
-                <button className="button-ban" onClick={() => handleBan(member.username, selectedChannel.id)}>
-                  Ban
-                </button>
-              )}
-            </li>
-          ))}
+          {channel.members.length > 0 ? (
+            <ul>
+              {channel.members.map(member => (
+                <li key={member.id}>
+                  <User user={member} />
+                  {channel.owner.username === username && member.username !== channel.owner.username && (
+                    <button className="button-ban" onClick={() => handleBan(member.username, selectedChannel.id)}>
+                      Ban
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No members.</p>
+          )}
           {channel.owner.username === username && (
             <>
               <p>

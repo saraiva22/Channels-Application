@@ -1,7 +1,7 @@
 import React from 'react';
 import { MessageOutputModel } from '../../services/messages/models/MessageOutputModel';
 import { deleteMessage } from '../../services/messages/MessagesService';
-import './Message.css';
+import './css/Message.css';
 
 export function formatDate(dateString: string): string {
   const specificDate = new Date(dateString);

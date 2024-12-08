@@ -163,11 +163,6 @@ class ChannelsController(
 
             is Failure -> {
                 when (updateChannel.value) {
-                    UpdateChannelError.UserNotInChannel -> Problem.userNotInChannel(
-                        authenticatedUser.user.username,
-                        instance
-                    )
-
                     UpdateChannelError.UserNotChannelOwner -> Problem.userIsNotChannelOwner(
                         authenticatedUser.user.username,
                         instance
