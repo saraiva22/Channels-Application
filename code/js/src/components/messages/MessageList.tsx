@@ -169,9 +169,9 @@ export function MessageList() {
                 <p>Send a message and start the conversation.</p>
               </div>
             ) : (
-              groupedMessages.map(group => (
+              groupedMessages.map((group, idx) => (
                 <MessageGroup
-                  key={group.user.id}
+                  key={idx}
                   groupUser={group.user}
                   messagesList={group.messagesList}
                   onDeleteMessage={handleOnClickDelete}
