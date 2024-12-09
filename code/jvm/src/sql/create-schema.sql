@@ -96,4 +96,21 @@ create trigger trg_insert_new_member_into_private_channel
     on dbo.Invitation_Channels
     for each row
     when (OLD.status = 0 and NEW.status = 1)
-execute function insert_new_member_into_private_channel()
+execute function insert_new_member_into_private_channel();
+
+
+create or replace function delete_previous_invite_to_private_channel()
+    returns trigger as
+$$
+begin
+    delete from dbo.Invitation_Channels
+    where guest_id = OLD.user_id and private_ch = OLD.ch_id;
+    return OLD;
+end;
+$$ language plpgsql;
+
+create trigger trg_delete_previous_invite_to_private_channel
+    after delete
+    on dbo.Join_Channels
+    for each row
+execute function delete_previous_invite_to_private_channel();
