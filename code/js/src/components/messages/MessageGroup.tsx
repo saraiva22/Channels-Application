@@ -28,8 +28,8 @@ export function MessageGroup({ groupUser, messagesList, onDeleteMessage }: Messa
       <small className="message-group small">
         <b>{groupUser.username}</b>
       </small>
-      {messagesList.map(message => (
-        <p key={message.id}>
+      {messagesList.map((message, idx) => (
+        <p key={idx}>
           <small className="message-group p small">{formatDate(message.created)}</small>
           {message.text}
           {(username === message.user.username || username === message.channel.owner.username) && (

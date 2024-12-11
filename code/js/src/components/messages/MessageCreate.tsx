@@ -76,7 +76,7 @@ export function MessageCreate({ onMessageCreated }: { onMessageCreated: () => vo
     <form className="create-message-form" onSubmit={handleSubmit}>
       <fieldset className="fieldset-message" disabled={state.tag !== 'editing'}>
         <input className="input-message" id="name" type="text" name="message" value={message} onChange={handleChange} />
-        <button className="send-message" type="submit">
+        <button className="send-message" type="submit" disabled={state.tag !== 'editing' || !message.trim()}>
           Send Message
         </button>
       </fieldset>
