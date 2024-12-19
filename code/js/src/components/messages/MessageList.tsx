@@ -7,7 +7,6 @@ import { webRoutes } from '../../App';
 import { Message } from '../../domain/messages/Message';
 import './css/MessageList.css';
 import { UserInfo } from '../../domain/users/UserInfo';
-import { ChannelOutputModel } from '../../services/channels/models/ChannelOutputModel';
 import { getChannelById } from '../../services/channels/ChannelsServices';
 import { MessageCreate } from './MessageCreate';
 import { MessageGroup } from './MessageGroup';
@@ -85,6 +84,7 @@ export function MessageList() {
   const [channelName, setChannelName] = useState<String>(undefined);
   const { id } = useParams<IdStringOutputModel>();
   const location = useLocation();
+  const eventSource = getSSE();
 
   if (!id) {
     return <p>No channel selected</p>;
@@ -123,17 +123,20 @@ export function MessageList() {
   }, [dispatch, location]);
 
   useEffect(() => {
-    const eventSource = getSSE();
-
     if (eventSource) {
-      eventSource.addEventListener('message', event => {
+      const handleMessage = (event: MessageEvent) => {
         const eventData = JSON.parse(event.data);
 
-        setMessages(prevMessages => [...messages, eventData]);
-        eventSource.removeEventListener('message', eventData);
-      });
+        setMessages(prevMessages => [...prevMessages, eventData]);
+      };
+
+      eventSource.addEventListener('message', handleMessage);
+
+      return () => {
+        eventSource.removeEventListener('message', handleMessage);
+      };
     }
-  }, [messages]);
+  }, [eventSource]);
 
   const navigate = useNavigate();
 

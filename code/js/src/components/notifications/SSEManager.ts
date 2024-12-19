@@ -17,6 +17,10 @@ export function getSSE(): EventSource | null {
   return sseInstance;
 }
 
+export function setSSE(newSSE: EventSource) {
+  sseInstance = newSSE;
+}
+
 export function closeSSE() {
   if (sseInstance) {
     sseInstance.close();

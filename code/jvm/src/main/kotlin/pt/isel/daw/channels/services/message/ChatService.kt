@@ -35,7 +35,10 @@ class ChatService : NeedsShutdown {
     fun addEventEmitter(user: Int, token: String, listener: EventEmitter) = lock.withLock {
         logger.info("adding listener")
         val element = Pair(token, listener)
-        userListeners.computeIfAbsent(user) { mutableListOf() }.add(element)
+        val listeners = userListeners.computeIfAbsent(user) { mutableListOf() }
+
+        listeners.removeIf{it.first == token }
+        listeners.add(element)
         listener.onCompletion {
             logger.info("onCompletion")
             removeListener(user, token)
