@@ -26,7 +26,7 @@ function reduce(state: State, action: Action): State {
     case 'editing':
       if (action.type === 'edit') {
         const statusValue = action.inputStatus === Status.ACCEPT.toString() ? Status.ACCEPT : Status.REJECT;
-        return { type: 'editing', error: undefined, status: statusValue };;
+        return { type: 'editing', error: undefined, status: statusValue };
       } else if (action.type === 'submit') {
         return { type: 'submitting', status: state.status };
       } else {
@@ -87,37 +87,45 @@ export function ValidateChannelInvite() {
   const status = state.type === 'submitting' ? '' : state.status;
 
   return (
-    <form onSubmit={handleSubmit}>
-      <fieldset disabled={state.type !== 'editing'}>
-        <h1>Validation Channel Invite</h1>
-        <div>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <fieldset disabled={state.type !== 'editing'}>
+          <h1>Validation Channel Invite</h1>
           <div>
-            <label>
-              <input
-                type="radio"
-                name="status"
-                value={Status.ACCEPT}
-                checked={status === Status.ACCEPT}
-                onChange={handleChange}
-              />
-              Accept
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="status"
-                value={Status.REJECT}
-                checked={status === Status.REJECT}
-                onChange={handleChange}
-              />
-              Reject
-            </label>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  name="status"
+                  value={Status.ACCEPT}
+                  checked={status === Status.ACCEPT}
+                  onChange={handleChange}
+                />
+                Accept
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="status"
+                  value={Status.REJECT}
+                  checked={status === Status.REJECT}
+                  onChange={handleChange}
+                />
+                Reject
+              </label>
+            </div>
           </div>
+          <div>
+            <button type="submit">Validate Invitate</button>
+          </div>
+        </fieldset>
+      </form>
+      {state.type === 'editing' && state.error && (
+        <div className="error-alert">
+          <span className="error-icon">❗</span>
+          <span className="error-message">{typeof state.error === 'string' ? state.error : state.error.detail}</span>
         </div>
-        <div>
-          <button type="submit">Validate Invitate</button>
-        </div>
-      </fieldset>
-    </form>
+      )}
+    </div>
   );
 }

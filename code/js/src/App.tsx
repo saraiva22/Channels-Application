@@ -17,7 +17,6 @@ import { Fetch } from './components/fetch/Fetch';
 import { SendInvites } from './components/channels/SendInvites';
 import { ReceivedInvites } from './components/channels/ReceivedInvites';
 import { ValidateChannelInvite } from './components/channels/ValidateChannelInvite';
-import { ChannelProvider } from './context/ChannelProvider';
 import { ChannelDetails } from './components/channels/ChannelDetails';
 import { CreatePrivateInvite } from './components/channels/CreatePrivateInvite';
 import { UpdateChannel } from './components/channels/UpdateChannel';
@@ -25,25 +24,28 @@ import { UpdateChannel } from './components/channels/UpdateChannel';
 export const webRoutes = {
   home: '/',
   me: '/me',
+  userHome: '/home',
   login: '/login',
   register: '/register',
   logout: '/logout',
-  channel: '/channel/details',
-  publicChannels: '/public-channels',
+  channel: '/channels/:id/details',
+  publicChannels: '/channels/public',
   searchChannels: '/channels/search',
-  channelsMembers: '/channels-members',
-  channelsOwned: '/channels-owned',
+  channelsMembers: '/channels/members',
+  channelsOwned: '/channels/owned',
   channelCreate: '/channels/create',
-  channelMessages: '/channel/messages',
-  receivedChannelInvites: '/channels/inv/received',
-  sentChannelInvites: '/channels/inv/sent',
+  channelMessages: '/channels/:id/messages',
+  receivedChannelInvites: '/channels/invite/received',
+  sentChannelInvites: '/channels/invite/sent',
   validateChannelInvite: '/channels/invite/validate',
   createMessage: '/create/messages',
   about: '/about',
   notifications: '/notifications',
-  createPrivateInvite: '/channels/private-invite',
-  updateChannel: '/channels/update',
+  createPrivateInvite: '/channels/:id/private-invite',
+  updateChannel: '/channels/:id/update',
 };
+
+
 
 const router = createBrowserRouter([
   {
@@ -53,6 +55,10 @@ const router = createBrowserRouter([
       // User
       {
         path: webRoutes.home,
+        element: <HomePage />,
+      },
+      {
+        path: webRoutes.userHome,
         element: <HomePage />,
       },
       {
@@ -180,9 +186,7 @@ const router = createBrowserRouter([
 export function App() {
   return (
     <AuthProvider>
-      <ChannelProvider>
-        <RouterProvider router={router} />
-      </ChannelProvider>
+      <RouterProvider router={router} />
     </AuthProvider>
   );
 }

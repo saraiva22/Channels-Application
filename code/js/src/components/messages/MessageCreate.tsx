@@ -1,8 +1,9 @@
 import { useReducer } from 'react';
 import React from 'react';
-import { useChannel } from '../../context/ChannelProvider';
 import { createMessage } from '../../services/messages/MessagesService';
 import './css/MessageCreate.css';
+import { useParams } from 'react-router-dom';
+import { IdStringOutputModel } from '../../services/utils/models/IdOutputModel';
 
 type State = { tag: 'editing'; error?: string; message: string } | { tag: 'submitting'; message: string };
 
@@ -42,7 +43,7 @@ function reduce(state: State, action: Action): State {
 
 export function MessageCreate({ onMessageCreated }: { onMessageCreated: () => void }) {
   const [state, dispatch] = useReducer(reduce, { tag: 'editing', message: '' });
-  const { selectedChannel } = useChannel();
+  const { id } = useParams<IdStringOutputModel>();
 
   function handleChange(ev: React.FormEvent<HTMLInputElement>) {
     dispatch({ type: 'edit', message: ev.currentTarget.value });
@@ -56,8 +57,12 @@ export function MessageCreate({ onMessageCreated }: { onMessageCreated: () => vo
     dispatch({ type: 'submit' });
 
     const message = state.message;
+    if (id === null) {
+      dispatch({ type: 'error', error: 'Channel ID not provided' });
+      return;
+    }
     try {
-      const result = await createMessage(selectedChannel.id, message);
+      const result = await createMessage(Number(id), message);
       if (result) {
         dispatch({ type: 'success' });
         dispatch({ type: 'edit', message: '' });

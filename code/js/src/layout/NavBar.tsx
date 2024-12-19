@@ -11,7 +11,6 @@ function NavBar() {
   const loggedIn = isLoggedIn();
   const navigate = useNavigate();
   const [username, setUsername] = useAuthentication();
-  console.log(`Username : ${username}`);
 
   const handleLogout = async () => {
     await logout();
@@ -24,9 +23,19 @@ function NavBar() {
     <nav className="navStyle">
       <ul className="ulStyle">
         <li className="liStyle">
-          <Link to={webRoutes.home} className="linkStyle">
-            Home
-          </Link>
+          {loggedIn ? (
+            <>
+              <Link to={webRoutes.userHome} className="linkStyle">
+                Home
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to={webRoutes.home} className="linkStyle">
+                Home
+              </Link>
+            </>
+          )}
         </li>
         {loggedIn ? (
           <>

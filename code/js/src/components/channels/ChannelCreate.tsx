@@ -89,7 +89,7 @@ export function ChannelCreate() {
   return (
     <form onSubmit={handleSubmit}>
       <fieldset disabled={state.tag !== 'editing'}>
-        <h1>Create Game</h1>
+        <h1>Create Channel</h1>
         <div>
           <label htmlFor="name">Name</label>
           <input id="name" type="text" name="name" value={name} onChange={handleChange} />

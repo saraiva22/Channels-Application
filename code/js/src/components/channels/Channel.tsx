@@ -4,10 +4,9 @@ import { ChannelOutputModel } from '../../services/channels/models/ChannelOutput
 import privatechannel from '../../assets/privatechannel.png';
 import publicchannel from '../../assets/publicchannel.png';
 import { webRoutes } from '../../App';
-import { useChannel } from '../../context/ChannelProvider';
 import { useAuthentication } from '../../context/AuthProvider';
 import { joinPublicChannel, leaveInChannel } from '../../services/channels/ChannelsServices';
-import './css/Channel.css'
+import './css/Channel.css';
 
 type ChannelProps = {
   channel: ChannelOutputModel;
@@ -16,11 +15,11 @@ type ChannelProps = {
 export function Channel({ channel }: ChannelProps) {
   const isPublic = channel.type.toString() === 'PUBLIC';
   const [navigateToChannel, setNavigateToChannel] = useState<string | null>(null);
-  const { setChannel } = useChannel();
+  const channelId = channel.id;
   const [username] = useAuthentication();
+  console.log('adassa ' + channel);
   function openChannel() {
-    setChannel(channel);
-    const route = webRoutes.channelMessages;
+    const route = webRoutes.channelMessages.replace(':id', channelId.toString());
     setNavigateToChannel(route);
   }
 

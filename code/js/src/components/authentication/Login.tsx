@@ -57,7 +57,7 @@ export function Login() {
   const location = useLocation();
 
   if (state.tag === 'redirect') {
-    return <Navigate to={location.state?.source || webRoutes.home} replace={true} />;
+    return <Navigate to={location.state?.source || webRoutes.userHome} replace={true} />;
   }
 
   function handleChange(ev: React.FormEvent<HTMLInputElement>) {
@@ -88,6 +88,7 @@ export function Login() {
         dispatch({ type: 'error', message: 'Invalid username or password' });
       }
     } catch (error) {
+    
       dispatch({ type: 'error', message: error });
     }
   }

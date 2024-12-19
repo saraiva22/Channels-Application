@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useState, useRef } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { Privacy } from '../../domain/channels/Privacy';
 import { webRoutes } from '../../App';
 import { createPrivateInvite } from '../../services/channels/ChannelsServices';
@@ -7,7 +7,7 @@ import { Problem } from '../../services/media/Problem';
 import { searchUsers } from '../../services/users/UserServices';
 import { HomeOutput } from '../../services/users/models/HomeOutputModel';
 import './css/CreatePrivateInvite.css';
-import { useChannel } from '../../context/ChannelProvider';
+import { IdStringOutputModel } from '../../services/utils/models/IdOutputModel';
 
 type State =
   | { type: 'editing'; error?: Problem | string; inputs: { privacy: Privacy; username: string } }
@@ -68,7 +68,7 @@ const firstState: State = { type: 'editing', inputs: { privacy: undefined, usern
 export function CreatePrivateInvite() {
   const [state, dispatch] = useReducer(reducer, firstState);
   const location = useLocation();
-  const { selectedChannel } = useChannel();
+  const { id } = useParams<IdStringOutputModel>();
 
   const [inputValue, setInputValue] = useState('');
   const [debouncedValue, setDebouncedValue] = useState('');
@@ -95,7 +95,8 @@ export function CreatePrivateInvite() {
   }, [debouncedValue]);
 
   if (state.type === 'redirect') {
-    return <Navigate to={location.state?.source || webRoutes.channel} replace={true} />;
+    const path = webRoutes.channel.replace(':id', id.toString());
+    return <Navigate to={location.state?.source || path} replace={true} />;
   }
 
   async function fetchSuggestions(username: string) {
@@ -135,11 +136,11 @@ export function CreatePrivateInvite() {
     let cancelled = false;
 
     try {
-      if (selectedChannel === null) {
+      if (id === null) {
         dispatch({ type: 'error', error: 'Channel ID not provided' });
         return;
       }
-      const result = await createPrivateInvite(selectedChannel.id, privacy, username);
+      const result = await createPrivateInvite(Number(id), privacy, username);
       if (result) {
         if (!cancelled) {
           dispatch({ type: 'success' });

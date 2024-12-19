@@ -1,12 +1,10 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import { MessageListOutputModel } from '../../services/messages/models/MessageListOutputModel';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { deleteMessage, getChannelMessages } from '../../services/messages/MessagesService';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
 import { webRoutes } from '../../App';
-import { useChannel } from '../../context/ChannelProvider';
 import { Message } from '../../domain/messages/Message';
-import { useAuthentication } from '../../context/AuthProvider';
 import './css/MessageList.css';
 import { UserInfo } from '../../domain/users/UserInfo';
 import { ChannelOutputModel } from '../../services/channels/models/ChannelOutputModel';
@@ -14,17 +12,18 @@ import { getChannelById } from '../../services/channels/ChannelsServices';
 import { MessageCreate } from './MessageCreate';
 import { MessageGroup } from './MessageGroup';
 import { getSSE } from '../notifications/SSEManager';
+import { IdStringOutputModel } from '../../services/utils/models/IdOutputModel';
 
 type State =
   | { type: 'start' }
   | { type: 'loading' }
   | { type: 'success'; rsp: MessageListOutputModel }
-  | { type: 'error'; error: Problem };
+  | { type: 'error'; error: Problem | string };
 
 type Action =
   | { type: 'started-loading' }
   | { type: 'success'; rsp: MessageListOutputModel }
-  | { type: 'error'; error: Problem }
+  | { type: 'error'; error: Problem | string }
   | { type: 'cancel' };
 
 function unexpectedAction(action: Action, state: State): State {
@@ -82,11 +81,12 @@ function groupMessagesByUser(messages: Array<Message>): Array<MessageGroupProps>
 
 export function MessageList() {
   const [state, dispatch] = useReducer(reducer, firstState);
-  const { selectedChannel } = useChannel();
-  const [channelState, setChannelState] = useState<ChannelOutputModel>(selectedChannel);
   const [messages, setMessages] = useState<Array<Message>>([]);
+  const [channelName, setChannelName] = useState<String>(undefined);
+  const { id } = useParams<IdStringOutputModel>();
+  const location = useLocation();
 
-  if (!selectedChannel) {
+  if (!id) {
     return <p>No channel selected</p>;
   }
 
@@ -96,8 +96,15 @@ export function MessageList() {
     async function doFetch() {
       dispatch({ type: 'started-loading' });
       try {
-        const resp = await getChannelMessages(selectedChannel.id);
+        if (id === null) {
+          dispatch({ type: 'error', error: 'Channel ID not provided' });
+          return;
+        }
+        const resp = await getChannelMessages(Number(id));
         if (!cancelled) {
+          if (resp.messages.length > 0) {
+            setChannelName(resp.messages[0].channel.name);
+          }
           dispatch({ type: 'success', rsp: resp });
           setMessages(resp.messages);
         }
@@ -113,7 +120,7 @@ export function MessageList() {
       abort.abort();
       cancelled = true;
     };
-  }, [dispatch, channelState]);
+  }, [dispatch, location]);
 
   useEffect(() => {
     const eventSource = getSSE();
@@ -131,7 +138,7 @@ export function MessageList() {
   const navigate = useNavigate();
 
   function handleClick() {
-    const route = webRoutes.channel;
+    const route = webRoutes.channel.replace(':id', id.toString());
     navigate(route, { replace: true });
   }
 
@@ -139,9 +146,6 @@ export function MessageList() {
     try {
       await deleteMessage(channelId, messageId);
       const channel = await getChannelById(channelId);
-      if (channel) {
-        setChannelState(channel);
-      }
     } catch (error) {
       console.log(error); // melhorar
     }
@@ -153,14 +157,14 @@ export function MessageList() {
     case 'loading':
       return <p>loading...</p>;
     case 'error':
-      return <ProblemComponent problem={state.error} />;
+      return typeof state.error === 'string' ? <p>{state.error}</p> : <ProblemComponent problem={state.error} />;
     case 'success': {
       const groupedMessages = groupMessagesByUser(messages);
 
       return (
         <div>
           <div className="clickable-title" onClick={handleClick}>
-            {selectedChannel.name}
+            {channelName}
           </div>
           <ul className="message-list">
             {groupedMessages.length === 0 ? (

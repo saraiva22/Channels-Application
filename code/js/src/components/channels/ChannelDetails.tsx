@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
 import { useEffect, useReducer } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ChannelOutputModel } from '../../services/channels/models/ChannelOutputModel';
-import { useChannel } from '../../context/ChannelProvider';
 import { banUserFromChannel, getChannelById, unbanUserFromChannel } from '../../services/channels/ChannelsServices';
 import { User } from '../user/User';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
 import { useAuthentication } from '../../context/AuthProvider';
 import { webRoutes } from '../../App';
 import './css/ChannelDetails.css';
+import { IdStringOutputModel } from '../../services/utils/models/IdOutputModel';
 
 type State =
   | { type: 'start' }
   | { type: 'loading' }
   | { type: 'success'; rsp: ChannelOutputModel }
-  | { type: 'error'; error: Problem };
+  | { type: 'error'; error: Problem | string };
 
 type Action =
   | { type: 'started-loading' }
   | { type: 'success'; rsp: ChannelOutputModel }
-  | { type: 'error'; error: Problem }
+  | { type: 'error'; error: Problem | string }
   | { type: 'cancel' };
 
 function unexpectedAction(action: Action, state: State): State {
@@ -55,17 +55,19 @@ const firstState: State = { type: 'start' };
 
 export function ChannelDetails() {
   const [state, dispatch] = useReducer(reducer, firstState);
-  const { selectedChannel } = useChannel();
   const [username] = useAuthentication();
-  const [channelState, setChannelState] = useState<ChannelOutputModel>(selectedChannel);
   const navigate = useNavigate();
+  const { id } = useParams<IdStringOutputModel>();
+  const location = useLocation();
 
   const handleNavigateCreate = () => {
-    navigate(webRoutes.createPrivateInvite);
+    const path = webRoutes.createPrivateInvite.replace(':id', id.toString());
+    navigate(path);
   };
 
   const handleNavigateUpdate = () => {
-    navigate(webRoutes.updateChannel);
+    const path = webRoutes.updateChannel.replace(':id', id.toString());
+    navigate(path);
   };
 
   useEffect(() => {
@@ -73,8 +75,12 @@ export function ChannelDetails() {
     let cancelled = false;
     async function doFetch() {
       dispatch({ type: 'started-loading' });
+      if (id === null) {
+        dispatch({ type: 'error', error: 'Channel ID not provided' });
+        return;
+      }
       try {
-        const channel = await getChannelById(selectedChannel.id);
+        const channel = await getChannelById(Number(id));
         if (!cancelled) {
           dispatch({ type: 'success', rsp: channel });
         }
@@ -85,7 +91,7 @@ export function ChannelDetails() {
       }
     }
 
-    if (selectedChannel?.id) {
+    if (Number(id)) {
       doFetch();
     }
 
@@ -94,14 +100,11 @@ export function ChannelDetails() {
       abort.abort();
       cancelled = true;
     };
-  }, [dispatch, channelState]);
+  }, [dispatch, location]);
 
   async function handleBan(username: string, channelId: number) {
     try {
       const channel = await banUserFromChannel(username, channelId);
-      if (channel) {
-        setChannelState(channel);
-      }
     } catch (error) {
       console.log(error); // melhorar
     }
@@ -110,9 +113,6 @@ export function ChannelDetails() {
   async function handleUnban(username: string, channelId: number) {
     try {
       const channel = await unbanUserFromChannel(username, channelId);
-      if (channel) {
-        setChannelState(channel);
-      }
     } catch (error) {
       console.log(error); // melhorar
     }
@@ -124,7 +124,7 @@ export function ChannelDetails() {
     case 'loading':
       return <p>loading...</p>;
     case 'error':
-      return <ProblemComponent problem={state.error} />;
+      return typeof state.error === 'string' ? <p>{state.error}</p> : <ProblemComponent problem={state.error} />;
     case 'success': {
       const channel = state.rsp;
       return (
@@ -142,12 +142,12 @@ export function ChannelDetails() {
                 <b>Type:</b> {channel.type}
               </p>
             </div>
-            {channel.type.toString() === 'PRIVATE' && (
-              <div className="details-action">
+            <div className="details-action">
+              {channel.type.toString() === 'PRIVATE' && (
                 <button onClick={handleNavigateCreate}>Create Private Invite</button>
-                {channel.owner.username === username && <button onClick={handleNavigateUpdate}>Update Channel</button>}
-              </div>
-            )}
+              )}
+              {channel.owner.username === username && <button onClick={handleNavigateUpdate}>Update Channel</button>}
+            </div>
           </div>
           <p>
             <b>Members:</b>
@@ -158,7 +158,7 @@ export function ChannelDetails() {
                 <li key={member.id}>
                   <User user={member} />
                   {channel.owner.username === username && member.username !== channel.owner.username && (
-                    <button className="button-ban" onClick={() => handleBan(member.username, selectedChannel.id)}>
+                    <button className="button-ban" onClick={() => handleBan(member.username, Number(id))}>
                       Ban
                     </button>
                   )}
@@ -178,7 +178,7 @@ export function ChannelDetails() {
                   {channel.bannedMembers.map(member => (
                     <li key={member.id}>
                       <User user={member} />
-                      <button className="button-unban" onClick={() => handleUnban(member.username, selectedChannel.id)}>
+                      <button className="button-unban" onClick={() => handleUnban(member.username, Number(id))}>
                         Unban
                       </button>
                     </li>

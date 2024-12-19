@@ -1,11 +1,11 @@
 import React, { useReducer } from 'react';
 import { Problem } from '../../services/media/Problem';
 import { Type } from '../../domain/channels/Type';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useChannel } from '../../context/ChannelProvider';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { updateChannel } from '../../services/channels/ChannelsServices';
 import { webRoutes } from '../../App';
 import './css/UpdateChannel.css';
+import { IdStringOutputModel } from '../../services/utils/models/IdOutputModel';
 
 type State =
   | { type: 'editing'; error?: Problem | string; inputs: { name: string; typeChannel: Type } }
@@ -62,10 +62,11 @@ const firstState: State = { type: 'editing', inputs: { name: '', typeChannel: un
 export function UpdateChannel() {
   const [state, dispatch] = useReducer(reducer, firstState);
   const location = useLocation();
-  const { selectedChannel } = useChannel();
+  const { id } = useParams<IdStringOutputModel>();
 
   if (state.type === 'redirect') {
-    return <Navigate to={location.state?.source || webRoutes.channel} replace={true} />;
+    const path = webRoutes.channel.replace(':id', id.toString());
+    return <Navigate to={location.state?.source || path} replace={true} />;
   }
 
   function handleChange(ev: React.FormEvent<HTMLInputElement>) {
@@ -85,12 +86,12 @@ export function UpdateChannel() {
     let cancelled = false;
 
     try {
-      if (selectedChannel === null) {
+      if (id === null) {
         dispatch({ type: 'error', error: 'Channel ID not provided' });
         return;
       }
 
-      const result = await updateChannel(selectedChannel.id, name, typeChannel);
+      const result = await updateChannel(Number(id), name, typeChannel);
       if (result) {
         if (!cancelled) {
           dispatch({ type: 'success' });
@@ -106,13 +107,14 @@ export function UpdateChannel() {
   const typeChannel = state.type === 'submitting' ? '' : state.inputs.typeChannel;
   const name = state.type === 'submitting' ? '' : state.inputs.name;
   console.log(typeChannel);
+  console.log(name);
 
   return (
     <div>
       <h1>Update Channel</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="name">Username</label>
+          <label htmlFor="name">Channel Name:</label>
           <input
             id="name"
             type="text"
@@ -147,7 +149,7 @@ export function UpdateChannel() {
             </label>
           </div>
           <div className="fieldset-actions">
-            <button className="submit-button" type="submit" disabled={typeChannel === undefined || name === undefined}>
+            <button className="submit-button" type="submit" disabled={typeChannel === undefined && name.trim() === ''}>
               Update Channel
             </button>
           </div>

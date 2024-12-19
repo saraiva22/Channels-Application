@@ -36,10 +36,9 @@ class ChannelsService(
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(channelId)
                 ?: return@run failure(GetChannelByIdError.ChannelNotFound)
-            if (!it.channelsRepository.isChannelPublic(channel) && !channelsDomain.isUserMember(userId, channel) &&
+            if ((!channelsDomain.isOwner(userId,channel) && !channelsDomain.isUserMember(userId, channel)) ||
                 channelsDomain.isUserBanned(userId, channel)
             ) return@run failure(GetChannelByIdError.PermissionDenied)
-
             success(channel)
         }
     }
