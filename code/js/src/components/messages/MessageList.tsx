@@ -7,7 +7,6 @@ import { webRoutes } from '../../App';
 import { Message } from '../../domain/messages/Message';
 import './css/MessageList.css';
 import { UserInfo } from '../../domain/users/UserInfo';
-import { getChannelById } from '../../services/channels/ChannelsServices';
 import { MessageCreate } from './MessageCreate';
 import { MessageGroup } from './MessageGroup';
 import { getSSE } from '../notifications/SSEManager';
@@ -126,17 +125,21 @@ export function MessageList() {
     if (eventSource) {
       const handleMessage = (event: MessageEvent) => {
         const eventData = JSON.parse(event.data);
-
-        setMessages(prevMessages => [...prevMessages, eventData]);
+        const newMessage = {
+          id: eventData.messageId,
+          text: eventData.text,
+          channel: eventData.channel,
+          user: eventData.user,
+          created: eventData.created,
+        };
+        setMessages(prevMessages => [...prevMessages, newMessage]);
       };
-
       eventSource.addEventListener('message', handleMessage);
-
       return () => {
         eventSource.removeEventListener('message', handleMessage);
       };
     }
-  }, [eventSource]);
+  }, [messages]);
 
   const navigate = useNavigate();
 
@@ -148,7 +151,7 @@ export function MessageList() {
   async function handleOnClickDelete(channelId: number, messageId: number) {
     try {
       await deleteMessage(channelId, messageId);
-      const channel = await getChannelById(channelId);
+      setMessages(prevMessages => prevMessages.filter(message => message.id != messageId));
     } catch (error) {
       console.log(error); // melhorar
     }
