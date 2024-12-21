@@ -21,10 +21,10 @@ export function AuthProvider({ children }) {
     const getUserName = getCookie(cookieName);
     if (getUserName) {
       setUsername(getUserName);
-    }
-    if (!eventSource) {
-      const newEventSource = initializeSSE(PREFIX_API + apiRoutes.LISTEN_CHAT);
-      setSSE(newEventSource);
+      if (!eventSource) {
+        const newEventSource = initializeSSE(PREFIX_API + apiRoutes.LISTEN_CHAT);
+        setSSE(newEventSource);
+      }
     }
   }, []);
 

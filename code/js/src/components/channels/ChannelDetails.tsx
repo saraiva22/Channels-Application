@@ -58,6 +58,7 @@ export function ChannelDetails() {
   const [username] = useAuthentication();
   const navigate = useNavigate();
   const { id } = useParams<IdStringOutputModel>();
+  const [channelState, setChannelState] = useState<ChannelOutputModel>();
   const location = useLocation();
 
   const handleNavigateCreate = () => {
@@ -100,11 +101,14 @@ export function ChannelDetails() {
       abort.abort();
       cancelled = true;
     };
-  }, [dispatch, location]);
+  }, [dispatch, channelState]);
 
   async function handleBan(username: string, channelId: number) {
     try {
       const channel = await banUserFromChannel(username, channelId);
+      if (channel) {
+        setChannelState(channel);
+      }
     } catch (error) {
       console.log(error); // melhorar
     }
@@ -113,6 +117,9 @@ export function ChannelDetails() {
   async function handleUnban(username: string, channelId: number) {
     try {
       const channel = await unbanUserFromChannel(username, channelId);
+      if (channel) {
+        setChannelState(channel);
+      }
     } catch (error) {
       console.log(error); // melhorar
     }

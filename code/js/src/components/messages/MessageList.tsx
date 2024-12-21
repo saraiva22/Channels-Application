@@ -80,7 +80,6 @@ function groupMessagesByUser(messages: Array<Message>): Array<MessageGroupProps>
 export function MessageList() {
   const [state, dispatch] = useReducer(reducer, firstState);
   const [messages, setMessages] = useState<Array<Message>>([]);
-  const [channelName, setChannelName] = useState<String>(undefined);
   const { id } = useParams<IdStringOutputModel>();
   const location = useLocation();
   const eventSource = getSSE();
@@ -101,9 +100,6 @@ export function MessageList() {
         }
         const resp = await getChannelMessages(Number(id));
         if (!cancelled) {
-          if (resp.messages.length > 0) {
-            setChannelName(resp.messages[0].channel.name);
-          }
           dispatch({ type: 'success', rsp: resp });
           setMessages(resp.messages);
         }
@@ -170,7 +166,7 @@ export function MessageList() {
       return (
         <div>
           <div className="clickable-title" onClick={handleClick}>
-            {channelName}
+            <h1>Channel Details</h1>
           </div>
           <ul className="message-list">
             {groupedMessages.length === 0 ? (
