@@ -4,6 +4,7 @@ import { createMessage } from '../../services/messages/MessagesService';
 import './css/MessageCreate.css';
 import { useParams } from 'react-router-dom';
 import { IdStringOutputModel } from '../../services/utils/models/IdOutputModel';
+import { isProblem, Problem } from '../../services/media/Problem';
 
 type State = { tag: 'editing'; error?: string; message: string } | { tag: 'submitting'; message: string };
 
@@ -71,7 +72,9 @@ export function MessageCreate({ onMessageCreated }: { onMessageCreated: () => vo
         dispatch({ type: 'error', error: 'Error in create Channel' });
       }
     } catch (e) {
-      dispatch({ type: 'error', error: e.message });
+      const problem = e as Problem;
+      dispatch({ type: 'error', error: problem.detail });
+      alert(`${problem.title.toUpperCase()} \n\n${problem.detail}`);
     }
   }
 

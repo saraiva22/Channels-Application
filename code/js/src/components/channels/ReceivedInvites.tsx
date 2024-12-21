@@ -61,7 +61,8 @@ export function ReceivedInvites() {
         }
       } catch (error) {
         if (!cancelled) {
-          dispatch({ type: 'loading-error', error: error });
+          const problem = error as Problem;
+          dispatch({ type: 'loading-error', error: problem });
         }
       }
     }

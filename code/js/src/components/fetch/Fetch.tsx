@@ -5,6 +5,7 @@ import { ChannelsListOutputModel } from '../../services/channels/models/Channels
 import { ChannelList } from '../channels/ChannelList';
 import { InputType } from './InputType';
 import { ReturnType } from './ReturnType';
+import { Problem } from '../../services/media/Problem';
 
 type FetchProps = {
   fetchFunction: (...args: Array<InputType>) => Promise<ReturnType>;
@@ -15,12 +16,12 @@ export type State =
   | { type: 'start' }
   | { type: 'loading' }
   | { type: 'success'; rsp: ReturnType }
-  | { type: 'error'; error: Error };
+  | { type: 'error'; error: Problem };
 
 type Action =
   | { type: 'started-loading' }
   | { type: 'success'; rsp: ReturnType }
-  | { type: 'error'; error: Error }
+  | { type: 'error'; error: Problem }
   | { type: 'cancel' };
 
 function unexpectedAction(action: Action, state: State): State {
@@ -71,7 +72,8 @@ export function Fetch(props: FetchProps) {
         }
       } catch (error) {
         if (!cancelled) {
-          dispatch({ type: 'error', error: error });
+          const problem = error as Problem;
+          dispatch({ type: 'error', error: problem });
         }
       }
     }
@@ -89,7 +91,7 @@ export function Fetch(props: FetchProps) {
     case 'loading':
       return <p>loading...</p>;
     case 'error':
-      return <p>Error: {state.error.message}</p>;
+      return <p>Error: {state.error.detail}</p>;
     case 'success': {
       switch (state.rsp) {
         case state.rsp as ChannelsListOutputModel:

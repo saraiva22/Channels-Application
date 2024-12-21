@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { Type } from '../../domain/channels/Type';
 import { createChannel } from '../../services/channels/ChannelsServices';
 import { webRoutes } from '../../App';
+import { Problem } from '../../services/media/Problem';
 
 type State =
   | { tag: 'editing'; error?: string; inputs: { name: string; type: Type } }
@@ -80,7 +81,9 @@ export function ChannelCreate() {
         dispatch({ type: 'error', message: 'Error in create Channel' });
       }
     } catch (e) {
-      dispatch({ type: 'error', message: e.message });
+      const problem = e as Problem;
+      dispatch({ type: 'error', message: problem.detail });
+      alert(`${problem.title.toUpperCase()} \n\n${problem.detail}`);
     }
   }
 

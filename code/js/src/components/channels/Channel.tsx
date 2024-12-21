@@ -7,6 +7,7 @@ import { webRoutes } from '../../App';
 import { useAuthentication } from '../../context/AuthProvider';
 import { joinPublicChannel, leaveInChannel } from '../../services/channels/ChannelsServices';
 import './css/Channel.css';
+import { Problem } from '../../services/media/Problem';
 
 type ChannelProps = {
   channel: ChannelOutputModel;
@@ -39,9 +40,10 @@ export function Channel({ channel }: ChannelProps) {
   async function leaveChannel() {
     try {
       await leaveInChannel(channel.id);
-      window.location.reload(); // melhorar após fazer leave o que devo fazer ??!!
+      window.location.reload();
     } catch (error) {
-      console.error('Error leaving channel', error);
+      const problem = error as Problem;
+      alert(`${problem.title.toUpperCase()} \n\n${problem.detail}`);
     }
   }
 

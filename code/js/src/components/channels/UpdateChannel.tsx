@@ -99,7 +99,9 @@ export function UpdateChannel() {
       }
     } catch (error) {
       if (!cancelled) {
-        dispatch({ type: 'error', error: error });
+        const problem = error as Problem;
+        dispatch({ type: 'error', error: problem.detail });
+        alert(`${problem.title.toUpperCase()} \n\n${problem.detail}`);
       }
     }
   }

@@ -105,7 +105,8 @@ export function MessageList() {
         }
       } catch (error) {
         if (!cancelled) {
-          dispatch({ type: 'error', error: error });
+          const problem = error as Problem;
+          dispatch({ type: 'error', error: problem.detail });
         }
       }
     }
@@ -149,7 +150,8 @@ export function MessageList() {
       await deleteMessage(channelId, messageId);
       setMessages(prevMessages => prevMessages.filter(message => message.id != messageId));
     } catch (error) {
-      console.log(error); // melhorar
+      const problem = error as Problem;
+      alert(`${problem.title.toUpperCase()} \n\n${problem.detail}`);
     }
   }
 

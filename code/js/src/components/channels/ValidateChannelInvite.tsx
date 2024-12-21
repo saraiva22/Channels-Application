@@ -80,7 +80,9 @@ export function ValidateChannelInvite() {
         dispatch({ type: 'success' });
       }
     } catch (error) {
-      dispatch({ type: 'error', error: error });
+      const problem = error as Problem;
+      dispatch({ type: 'error', error: problem });
+      alert(`${problem.title.toUpperCase()} \n\n${problem.detail}`);
     }
   }
 

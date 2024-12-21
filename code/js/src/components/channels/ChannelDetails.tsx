@@ -87,7 +87,8 @@ export function ChannelDetails() {
         }
       } catch (error) {
         if (!cancelled) {
-          dispatch({ type: 'error', error: error });
+          const problem = error as Problem;
+          dispatch({ type: 'error', error: problem.detail });
         }
       }
     }
@@ -110,7 +111,8 @@ export function ChannelDetails() {
         setChannelState(channel);
       }
     } catch (error) {
-      console.log(error); // melhorar
+      const problem = error as Problem;
+      alert(`${problem.title.toUpperCase()} \n\n${problem.detail}`);
     }
   }
 
@@ -121,7 +123,8 @@ export function ChannelDetails() {
         setChannelState(channel);
       }
     } catch (error) {
-      console.log(error); // melhorar
+      const problem = error as Problem;
+      alert(`${problem.title.toUpperCase()} \n\n${problem.detail}`);
     }
   }
 
