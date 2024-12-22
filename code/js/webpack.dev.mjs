@@ -7,7 +7,7 @@ export default {
     proxy: [
       {
         context: ['/api'],
-        target: 'http://localhost:8080',
+        target: 'http://192.168.80.1:3000/',
         router: () => 'http://localhost:8080',
         onProxyRes: (proxyRes, req, res) => {
           console.log('onProxyRes');

@@ -25,41 +25,42 @@ services:
       PORT: 8081
       DB_URL: "jdbc:postgresql://db-tests:5432/db?user=dbuser&password=changeit"
     ports:
+      - 8080:8080
       - 8081:8081
 
-  jvm-service-2:
-    container_name: jvm-service-2
-    hostname: jvm-service-2
-    image: channelapp-jvm
-    environment:
-      PORT: 8082
-      DB_URL: "jdbc:postgresql://db-tests:5432/db?user=dbuser&password=changeit"
-    ports:
-      - 8082:8082
+  #  jvm-service-2:
+  #  container_name: jvm-service-2
+  #   hostname: jvm-service-2
+  #   image: channelapp-jvm
+  #   environment:
+  #     PORT: 8082
+  #     DB_URL: "jdbc:postgresql://db-tests:5432/db?user=dbuser&password=changeit"
+  #   ports:
+  #     - 8082:8082
 
   # ttt-jvm-dynamic is used to illustrate scenarios with a dynamic number of servers
   # without static and well know names.
   # We will use docker compose scaling to create multiple instances of this service
-  channel-jvm-dynamic:
-    image: channelapp-jvm
-    hostname: channel-jvm-dynamic
-    environment:
-      PORT: 8080
-      DB_URL: "jdbc:postgresql://db-tests:5432/db?user=dbuser&password=changeit"
+  #  channel-jvm-dynamic:
+  #    image: channelapp-jvm
+  #    hostname: channel-jvm-dynamic
+  #    environment:
+  #      PORT: 8080
+  #      DB_URL: "jdbc:postgresql://db-tests:5432/db?user=dbuser&password=changeit"
 
   # The service running the load-balancer
-  nginx:
-    container_name: channel-nginx
-    image: channel-nginx
-    build:
-      context: .
-      dockerfile: code/jvm/tests/Dockerfile-nginx
-    ports:
-      - 8080:8080
-      - 8088:8088
-    depends_on:
-      - jvm-service-1
-      - jvm-service-2
+  # nginx:
+  #   container_name: channel-nginx
+  #   image: channel-nginx
+  #   build:
+  #     context: .
+  #     dockerfile: code/jvm/tests/Dockerfile-nginx
+  #   ports:
+  #     - 8080:8080
+  #      - 8088:8088
+  #    depends_on:
+  #     - jvm-service-1
+  #    - jvm-service-2
 
   # Just a machine running ubuntu, with 'dig' installed so that we can observe the docker compose environment.
   ubuntu:

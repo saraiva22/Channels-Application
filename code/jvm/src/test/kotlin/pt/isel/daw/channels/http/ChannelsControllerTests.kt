@@ -308,19 +308,10 @@ class ChannelsControllerTests {
         val channel = client.get().uri("/channels/${channelId}")
             .header("Authorization", "Bearer ${resultNewUser.token}")
             .exchange()
-            .expectStatus().isOk
-            .expectBody(ChannelOutputModel::class.java)
-            .returnResult()
-            .responseBody!!
+            .expectStatus().isForbidden
+            .expectHeader().contentType("application/problem+json")
 
-        assertEquals(channelId, channel.id)
-        assertEquals(channelPrivateName, channel.name)
-        assertEquals(USERNAME_TEST, channel.owner.username)
-        assertEquals(1, channel.members.size)
-        assertEquals(USERNAME_TEST, channel.members[0].username)
-        assertFailsWith<IndexOutOfBoundsException> {
-            channel.members[1].username
-        }
+
 
         // when: try join a channel
         // then: the response is a 400
@@ -417,8 +408,8 @@ class ChannelsControllerTests {
         client.get().uri("/channels/${channelId}")
             .header("Authorization", "Bearer ${resultUserRandom.token}")
             .exchange()
-            .expectStatus().isOk
-            .expectHeader().contentType("application/json")
+            .expectStatus().isForbidden
+            .expectHeader().contentType("application/problem+json")
 
 
         // when: get public
