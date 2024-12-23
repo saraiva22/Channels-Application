@@ -1,8 +1,8 @@
 ### Variables 
 @apiurl = http://localhost:8080/api
-@tokenUserTest= cEoycZJJ5bb55vx_tRa8X8gNFs2_xwizGuc0AhjcSAA=
+@tokenUserTest= RI_t9kSolJXH6CJvvtJeF88UhgRPRHdXZ7cMUnTMDnk=
 
-@tokenUserAdmin = rNtzk8juF1kCLbfTPym-MplQiUKMVL1hxyV14rM0esE=
+@tokenUserAdmin = xdHP60lG0VL0hHIr6jE_wpbarF1ZOtrVJlJ9aGPniiM=
 
 
 @tokenUserTest1 = oBefzKUQ45dit8vseP9NWIH1eUBIEGv-6SXxQfXaIns=

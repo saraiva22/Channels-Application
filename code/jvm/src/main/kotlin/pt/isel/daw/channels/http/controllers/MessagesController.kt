@@ -1,13 +1,7 @@
 package pt.isel.daw.channels.http.controllers
 
-import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import pt.isel.daw.channels.domain.user.AuthenticatedUser
 import pt.isel.daw.channels.http.Uris
 import pt.isel.daw.channels.http.media.Problem

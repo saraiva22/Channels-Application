@@ -50,7 +50,7 @@ open class ServiceTests: ApplicationTests() {
         )
 
         fun createChannelService() =
-            ChannelsService(JdbiTransactionManager(jdbi), ChannelsDomain())
+            ChannelsService(JdbiTransactionManager(jdbi), ChannelsDomain(), chatService)
 
         fun createMessageService() =
             MessagesService(JdbiTransactionManager(jdbi), ChannelsDomain(), MessageDomain(), chatService, testClock)

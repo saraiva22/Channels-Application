@@ -287,7 +287,7 @@ class ChannelsController(
         val channelPrivate = channelsService.invitePrivateChannel(
             RegisterPrivateInviteInputModel(
                 id,
-                authenticatedUser.user.id,
+                authenticatedUser.user,
                 input.username,
                 input.privacy
             )

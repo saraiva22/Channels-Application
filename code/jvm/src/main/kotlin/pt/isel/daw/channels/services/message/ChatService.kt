@@ -4,6 +4,8 @@ import jakarta.inject.Named
 import kotlinx.datetime.Clock
 import org.slf4j.LoggerFactory
 import pt.isel.daw.channels.domain.channels.Channel
+import pt.isel.daw.channels.domain.channels.Privacy
+import pt.isel.daw.channels.domain.channels.Status
 import pt.isel.daw.channels.domain.sse.Event
 import pt.isel.daw.channels.domain.sse.EventEmitter
 import pt.isel.daw.channels.domain.user.UserInfo
@@ -20,6 +22,7 @@ class ChatService : NeedsShutdown {
     // Map<UserId,List<Pair<TokenId,EventEmitter>>>()
     private val userListeners = mutableMapOf<Int, MutableList<Pair<String, EventEmitter>>>()
     private var currentId = 0L
+    private var currentInviteId = 0L
     private val lock = ReentrantLock()
 
     // A scheduler to send the periodic keep-alive events
@@ -63,6 +66,20 @@ class ChatService : NeedsShutdown {
             val membersChannel = channel.members.map { it.id }
             sendEventToAll(membersChannel, Event.Message(id, messageId, text,channel, userInfo, created))
         }
+
+    fun sendInvite(
+        codHash: String,
+        privacy: Privacy,
+        status: Status,
+        guestId: Int,
+        user: UserInfo,
+        channelId: Int,
+        channelName: String
+    ) = lock.withLock {
+        logger.info("sendInvite")
+        val id = currentInviteId++
+        sendEventToAll(listOf(guestId), Event.Invite(id, codHash, privacy, status, user, channelId, channelName))
+    }
 
 
     fun disconnectListener(userId: Int, token: String) = removeListener(userId, token)

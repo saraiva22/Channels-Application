@@ -142,7 +142,7 @@ export function MessageList() {
 
   function handleClick() {
     const route = webRoutes.channel.replace(':id', id.toString());
-    navigate(route, { replace: true });
+    navigate(route);
   }
 
   async function handleOnClickDelete(channelId: number, messageId: number) {

@@ -18,14 +18,14 @@ export function Channel({ channel }: ChannelProps) {
   const [navigateToChannel, setNavigateToChannel] = useState<string | null>(null);
   const channelId = channel.id;
   const [username] = useAuthentication();
-  console.log('adassa ' + channel);
+  const location = useLocation();
   function openChannel() {
     const route = webRoutes.channelMessages.replace(':id', channelId.toString());
     setNavigateToChannel(route);
   }
 
   if (navigateToChannel) {
-    return <Navigate to={navigateToChannel} replace={true} />;
+    return <Navigate to={location.state?.source || navigateToChannel} />;
   }
 
   async function joinChannel() {

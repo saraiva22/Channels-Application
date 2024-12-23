@@ -463,7 +463,7 @@ class ChannelsServiceTests: ServiceTests() {
         // when: creating a code for the private channel
         val invite = RegisterPrivateInviteInputModel(
             createPrivateChannelResult.value,
-            testUserInfo.id,
+            testUser,
             testUserInfo2.username,
             Privacy.READ_WRITE
         )
@@ -535,7 +535,7 @@ class ChannelsServiceTests: ServiceTests() {
         // when: creating a code for the private channel
         val invite = RegisterPrivateInviteInputModel(
             createPrivateChannelResult.value,
-            testUserInfo.id,
+            testUser,
             testUserInfo2.username,
             Privacy.READ_ONLY
         )
@@ -607,7 +607,7 @@ class ChannelsServiceTests: ServiceTests() {
         // when: creating a code for the private channel
         val invite = RegisterPrivateInviteInputModel(
             createPrivateChannelResult.value,
-            testUserInfo.id,
+            testUser,
             testUserInfo2.username,
             Privacy.READ_WRITE
         )
@@ -750,7 +750,7 @@ class ChannelsServiceTests: ServiceTests() {
         // when: creating a code for the private channel
         val invite = RegisterPrivateInviteInputModel(
             createPrivateChannelResult.value,
-            testUserInfo.id,
+            testUser,
             testUserInfo2.username,
             Privacy.READ_WRITE
         )

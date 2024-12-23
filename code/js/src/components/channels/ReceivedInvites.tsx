@@ -1,10 +1,12 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PrivateListInviteOutputModel } from '../../services/channels/models/PrivateListInviteOutputModel';
 import { Problem, ProblemComponent } from '../../services/media/Problem';
 import { getReceivedChannelInvites } from '../../services/channels/ChannelsServices';
 import { Invite } from './Invite';
 import './css/InviteList.css';
+import { PrivateInviteOutputModel } from '../../services/channels/models/PrivateInviteOutputModel';
+import { getSSE } from '../notifications/SSEManager';
 
 type State =
   | { type: 'begin' }
@@ -47,6 +49,8 @@ const firstState: State = { type: 'begin' };
 export function ReceivedInvites() {
   const [state, dispatch] = useReducer(reducer, firstState);
   const location = useLocation();
+  const [invites, setInvites] = useState<Array<PrivateInviteOutputModel>>([]);
+  const eventSource = getSSE();
 
   useEffect(() => {
     const abort = new AbortController();
@@ -58,6 +62,7 @@ export function ReceivedInvites() {
         console.log(cancelled);
         if (!cancelled) {
           dispatch({ type: 'loading-success', data: result });
+          setInvites(result.invites);
         }
       } catch (error) {
         if (!cancelled) {
@@ -74,6 +79,31 @@ export function ReceivedInvites() {
     };
   }, [dispatch, location]);
 
+  useEffect(() => {
+    if (eventSource) {
+      const handleInvite = (event: MessageEvent) => {
+        const eventData = JSON.parse(event.data);
+        const newInvite = {
+          codHash: eventData.codHash,
+          privacy: eventData.privacy,
+          status: eventData.status,
+          userInfo: {
+            id: eventData.user.id,
+            username: eventData.user.username,
+            email: eventData.user.email,
+          },
+          channelId: eventData.channelId,
+          channelName: eventData.channelName,
+        };
+        setInvites(prevInvites => [...prevInvites, newInvite]);
+      };
+      eventSource.addEventListener('invite', handleInvite);
+      return () => {
+        eventSource.removeEventListener('invite', handleInvite);
+      };
+    }
+  }, [invites]);
+
   switch (state.type) {
     case 'begin':
       return <p>Idel</p>;
@@ -86,12 +116,12 @@ export function ReceivedInvites() {
         <div>
           <h1>Received Channel Invitations</h1>
           <ul className="invites-list">
-            {state.data.invites.length === 0 ? (
+            {invites.length === 0 ? (
               <div>
                 <p>No invitations received</p>
               </div>
             ) : (
-              state.data.invites.map(invite => <Invite key={invite.codHash} value={invite} isReceived={true} />)
+              invites.map(invite => <Invite key={invite.codHash} value={invite} isReceived={true} />)
             )}
           </ul>
         </div>

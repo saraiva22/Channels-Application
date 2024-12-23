@@ -8,18 +8,21 @@ import pt.isel.daw.channels.domain.channels.Privacy
 import pt.isel.daw.channels.domain.channels.Sort
 import pt.isel.daw.channels.domain.channels.State
 import pt.isel.daw.channels.domain.channels.Status
+import pt.isel.daw.channels.domain.user.UserInfo
 import pt.isel.daw.channels.http.model.channel.PrivateInviteOutputModel
 import pt.isel.daw.channels.http.model.channel.ChannelUpdateInputModel
 import pt.isel.daw.channels.http.model.channel.RegisterPrivateInviteInputModel
 import pt.isel.daw.channels.repository.Transaction
 import pt.isel.daw.channels.repository.TransactionManager
+import pt.isel.daw.channels.services.message.ChatService
 import pt.isel.daw.channels.utils.failure
 import pt.isel.daw.channels.utils.success
 
 @Named
 class ChannelsService(
     private val transactionManager: TransactionManager,
-    private val channelsDomain: ChannelsDomain
+    private val channelsDomain: ChannelsDomain,
+    private val chatService: ChatService
 ) {
     fun createChannel(channelModel: ChannelModel): ChannelCreationResult {
         return transactionManager.run {
@@ -254,15 +257,16 @@ class ChannelsService(
         return transactionManager.run {
             val channel = it.channelsRepository.getChannelById(inviteModel.channelId)
                 ?: return@run failure(InvitePrivateChannelError.ChannelNotFound)
+            val inviterInfo = UserInfo(inviteModel.inviterId.id, inviteModel.inviterId.username, inviteModel.inviterId.email)
 
             if (it.channelsRepository.isChannelPublic(channel)) {
                 return@run failure(InvitePrivateChannelError.ChannelIsPublic)
             }
 
             if (!channelsDomain.isOwner(
-                    inviteModel.inviterId,
+                    inviterInfo.id,
                     channel
-                ) && !channelsDomain.isUserMember(inviteModel.inviterId, channel)
+                ) && !channelsDomain.isUserMember(inviterInfo.id, channel)
             ) {
                 return@run failure(InvitePrivateChannelError.UserNotInChannel)
             }
@@ -278,8 +282,20 @@ class ChannelsService(
                 return@run failure(InvitePrivateChannelError.UserAlreadyInChannel)
             }
 
-            if (isUserAuthorizedToInvite(it, inviteModel.inviterId, channel, inviteModel.inviteType)) {
-                success(createInvite(it, inviteModel.inviterId, guestUser.id, channel.id, inviteModel.inviteType))
+
+            if (isUserAuthorizedToInvite(it, inviterInfo.id, channel, inviteModel.inviteType)) {
+                val inviteCode = channelsDomain.generateInvitation(channel.id)
+                 it.channelsRepository.createPrivateInvite(
+                    inviteCode,
+                    inviteModel.inviteType.ordinal,
+                    inviterInfo.id,
+                    guestUser.id,
+                    channel.id
+                )
+
+                chatService.sendInvite(inviteCode,inviteModel.inviteType,Status.PENDING,guestUser.id,inviterInfo,channel.id,channel.name)
+
+                success(inviteCode)
             } else {
                 failure(InvitePrivateChannelError.UserPermissionsDeniedType)
             }

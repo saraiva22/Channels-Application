@@ -18,6 +18,10 @@ class SseEmitterBasedEventEmitter(
                 .id(event.id.toString())
                 .name("message")
                 .data(event)
+            is Event.Invite -> SseEmitter.event()
+                .id(event.id.toString())
+                .name("invite")
+                .data(event)
 
             is Event.KeepAlive -> SseEmitter.event()
                 .comment(event.timestamp.epochSeconds.toString())
