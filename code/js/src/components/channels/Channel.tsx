@@ -18,6 +18,7 @@ export function Channel({ channel }: ChannelProps) {
   const [navigateToChannel, setNavigateToChannel] = useState<string | null>(null);
   const channelId = channel.id;
   const [username] = useAuthentication();
+  const [isMember, setIsMember] = useState(channel.members.some(member => member.username === username));
   const location = useLocation();
   function openChannel() {
     const route = webRoutes.channelMessages.replace(':id', channelId.toString());
@@ -31,6 +32,7 @@ export function Channel({ channel }: ChannelProps) {
   async function joinChannel() {
     try {
       await joinPublicChannel(channel.id);
+      setIsMember(true)
       openChannel();
     } catch (error) {
       console.error('Error joining channel', error);
@@ -40,14 +42,14 @@ export function Channel({ channel }: ChannelProps) {
   async function leaveChannel() {
     try {
       await leaveInChannel(channel.id);
-      window.location.reload();
+      setIsMember(false)
     } catch (error) {
       const problem = error as Problem;
       alert(`${problem.title.toUpperCase()} \n\n${problem.detail}`);
     }
   }
 
-  const isMember = channel.members.some(member => member.username === username);
+
   const isOwner = channel.owner.username === username;
   return (
     <div className="card">
