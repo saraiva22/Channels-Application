@@ -1,0 +1,30 @@
+.navStyle {
+  background-color: hsl(192, 80%, 29%);
+  display: flex;
+  justify-content: space-around;
+  padding: 1em;
+  list-style-type: none;
+}
+
+.ulStyle {
+  display: flex;
+  justify-content: space-around;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.liStyle {
+  display: inline;
+  margin: 0 1em;
+}
+
+.linkStyle {
+  color: white;
+  text-decoration: none;
+}
+
+.bstyle {
+  color: black;
+  text-decoration: none;
+}

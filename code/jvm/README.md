@@ -1,1 +1,5 @@
-Please edit this file with instructions on how to build and run the project.
+# Channel Application - Backend Document
+
+## EA Model
+
+![](EA_Model.png)

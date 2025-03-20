@@ -1,0 +1,33 @@
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.invite-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #357ab8;
+}
+
+button:active {
+  background-color: #2d6393;
+}
+
+.code {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #e8f4fa;
+  color: #31708e;
+  border: 1px solid #bce0f0;
+  border-radius: 5px;
+  font-weight: bold;
+}

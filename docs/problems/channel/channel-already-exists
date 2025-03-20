@@ -1,0 +1,1 @@
+A channel with the same name already exists

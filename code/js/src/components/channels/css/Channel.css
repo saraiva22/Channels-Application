@@ -1,0 +1,93 @@
+.card {
+  border: 1px solid hsl(0, 0%, 80%);
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px;
+  text-align: center;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+
+.card .card-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  object-fit: cover;
+}
+
+.card .card-title {
+  font-family: 'Arial', sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.card .card-text {
+  font-family: 'Arial', sans-serif;
+  color: hsl(0, 0%, 40%);
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.card-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Espaço entre os botões */
+  margin-top: 15px;
+}
+
+.btn {
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.btn.view-messages {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn.view-messages:hover {
+  background-color: #0056b3;
+}
+
+.btn.join-channel {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn.join-channel:hover {
+  background-color: #1e7e34;
+}
+
+.btn.leave-channel {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn.leave-channel:hover {
+  background-color: #b21f2d;
+}

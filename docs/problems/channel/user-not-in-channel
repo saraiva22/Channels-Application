@@ -1,0 +1,1 @@
+Given user is not a member of the channel

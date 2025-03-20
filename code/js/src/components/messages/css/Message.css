@@ -1,0 +1,32 @@
+.message {
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.message small {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #666;
+  gap: 10px;
+}
+
+.message small button {
+  background-color: #ff5c5c;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.message p {
+  margin: 10px 0 0 0;
+  color: #444;
+  line-height: 1.5;
+}

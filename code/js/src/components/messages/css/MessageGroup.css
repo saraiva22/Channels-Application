@@ -1,0 +1,72 @@
+.message-group {
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.message-group small {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.message-group p {
+  margin: 10px 0;
+  color: #444;
+  font-size: 1rem;
+  line-height: 1.6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-group p small {
+  font-size: 0.7rem; 
+  color: #888; 
+  margin-bottom: 5px; 
+}
+
+.delete-button {
+  background-color: #ff5c5c;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.delete-button:hover {
+  background-color: #ff3232;
+  transform: scale(1.05);
+}
+
+.delete-button:active {
+  background-color: #e62929;
+}
+
+@media (max-width: 600px) {
+  .message-group {
+    padding: 10px 15px;
+  }
+
+  .message-group p {
+    font-size: 0.9rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .delete-button {
+    margin-top: 5px;
+    align-self: flex-end;
+  }
+}

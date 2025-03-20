@@ -1,0 +1,1 @@
+User only has Read Only permissions
